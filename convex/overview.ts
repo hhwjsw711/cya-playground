@@ -22,35 +22,36 @@ export const getProjectOverview = query({
       .withIndex("by_projectId", (q) => q.eq("projectId", args.projectId))
       .take(50);
 
-    const enrichedTasks = await Promise.all(
-      tasks.map(async (task) => {
-        const assignee = task.assigneeId
-          ? await ctx.db.get("users", task.assigneeId)
-          : null;
+    const enrichedTasks = [];
+    for (const task of tasks) {
+      const assignee = task.assigneeId
+        ? await ctx.db.get("users", task.assigneeId)
+        : null;
 
-        // Intentional cap: we only display up to 10 labels per task in the UI
-        const taskLabelRows = await ctx.db
-          .query("taskLabels")
-          .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
-          .take(10);
+      // Intentional cap: we only display up to 10 labels per task in the UI
+      const taskLabelRows = await ctx.db
+        .query("taskLabels")
+        .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
+        .take(10);
 
-        const labels = await Promise.all(
-          taskLabelRows.map((tl) => ctx.db.get("labels", tl.labelId)),
-        );
+      const labels = [];
+      for (const taskLabel of taskLabelRows) {
+        const label = await ctx.db.get("labels", taskLabel.labelId);
+        if (label) {
+          labels.push({ name: label.name, color: label.color });
+        }
+      }
 
-        return {
-          _id: task._id,
-          title: task.title,
-          status: task.status,
-          priority: task.priority,
-          dueDate: task.dueDate ?? null,
-          assigneeName: assignee?.name ?? null,
-          labels: labels
-            .filter((l) => l !== null)
-            .map((l) => ({ name: l.name, color: l.color })),
-        };
-      }),
-    );
+      enrichedTasks.push({
+        _id: task._id,
+        title: task.title,
+        status: task.status,
+        priority: task.priority,
+        dueDate: task.dueDate ?? null,
+        assigneeName: assignee?.name ?? null,
+        labels,
+      });
+    }
 
     return { tasks: enrichedTasks };
   },
