@@ -65,6 +65,10 @@ export const create = mutation({
       authorId: userId,
     });
 
+    await ctx.db.patch("projects", task.projectId, {
+      lastActiveAt: Date.now(),
+    });
+
     await ctx.runMutation(internal.activity.log, {
       action: "added_comment",
       userId,
@@ -88,6 +92,13 @@ export const remove = mutation({
 
     if (comment.authorId !== userId) {
       throw new Error("You can only delete your own comments");
+    }
+
+    const task = await ctx.db.get("tasks", comment.taskId);
+    if (task) {
+      await ctx.db.patch("projects", task.projectId, {
+        lastActiveAt: Date.now(),
+      });
     }
 
     await ctx.db.delete("comments", args.commentId);

@@ -125,6 +125,10 @@ export const create = mutation({
     const newTask = await ctx.db.get("tasks", taskId);
     await taskCounts.insert(ctx, newTask!);
 
+    await ctx.db.patch("projects", args.projectId, {
+      lastActiveAt: Date.now(),
+    });
+
     await ctx.runMutation(internal.activity.log, {
       action: "created_task",
       userId,
@@ -175,6 +179,10 @@ export const update = mutation({
 
     await ctx.db.patch("tasks", args.taskId, updates);
 
+    await ctx.db.patch("projects", task.projectId, {
+      lastActiveAt: Date.now(),
+    });
+
     await ctx.runMutation(internal.activity.log, {
       action: "updated_task",
       userId,
@@ -217,6 +225,10 @@ export const remove = mutation({
 
     await taskCounts.delete(ctx, task);
     await ctx.db.delete("tasks", args.taskId);
+
+    await ctx.db.patch("projects", task.projectId, {
+      lastActiveAt: Date.now(),
+    });
 
     // Schedule cleanup of comments and labels in the background
     await ctx.scheduler.runAfter(

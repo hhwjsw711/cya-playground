@@ -18,6 +18,7 @@ export default defineSchema({
     name: v.string(),
     description: v.string(),
     ownerId: v.id("users"),
+    lastActiveAt: v.optional(v.number()),
   }).index("by_ownerId", ["ownerId"]),
 
   projectMembers: defineTable({

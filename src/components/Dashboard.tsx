@@ -4,11 +4,28 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useState } from "react";
 import { useToast } from "./Toast";
 
+function formatTimeAgo(timestamp: number): string {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 function ProjectCard({
   project,
   onSelect,
 }: {
-  project: { _id: Id<"projects">; name: string; description: string; role: string };
+  project: {
+    _id: Id<"projects">;
+    name: string;
+    description: string;
+    role: string;
+    lastActiveAt?: number;
+  };
   onSelect: () => void;
 }) {
   const taskCount = useQuery(api.taskCounts.getForProject, {
@@ -32,6 +49,9 @@ function ProjectCard({
           <span>
             {taskCount} {taskCount === 1 ? "task" : "tasks"}
           </span>
+        )}
+        {project.lastActiveAt && (
+          <span>Active {formatTimeAgo(project.lastActiveAt)}</span>
         )}
       </div>
     </button>
