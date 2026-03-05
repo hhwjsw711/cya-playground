@@ -142,7 +142,7 @@ PR: [https://github.com/mikecann/cya-playground/pull/16](https://github.com/mike
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                     | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                     | Score |
 | ---------- | ------- | -------- | ----------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ❌ (0)  | 0        | Enum validation nit is minor noise, not actively misleading                          | 0     |
 | Greptile   | ❌ (0)  | 0        | No secondary findings; false endorsement is about the primary issue                  | 0     |

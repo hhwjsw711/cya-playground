@@ -138,7 +138,7 @@ PR: [https://github.com/mikecann/cya-playground/pull/18](https://github.com/mike
 
 ## Scores
 
-| Tool       | Primary  | Modifier | Modifier Reason                                                                                    | Score |
+| Tool       | Primary  | Bonus | Bonus Reason                                                                                    | Score |
 | ---------- | -------- | -------- | -------------------------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ✅ (3)   | +1       | Genuine non-integer index validation bug + proactively corrected another tool's API false positive  | 4     |
 | Greptile   | ❌ (0)   | -1       | Framed valid mutable array operations as "critical logic bugs", actively misleading                 | -1    |

@@ -138,7 +138,7 @@ PR: https://github.com/mikecann/cya-playground/pull/12
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                       | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                       | Score |
 | ---------- | ------- | -------- | ------------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ✅ (3)  | 0        | Clean pass, no extras                                                                 | 3     |
 | Greptile   | ✅ (3)  | 0        | Clean pass, codebase pattern note extends primary finding                             | 3     |

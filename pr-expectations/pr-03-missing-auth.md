@@ -177,7 +177,7 @@ PR: [https://github.com/mikecann/cya-playground/pull/14](https://github.com/mike
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                          | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                          | Score |
 | ---------- | ------- | -------- | ---------------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ✅ (3)  | +1       | Genuine PII logging concern; correctly dismissed ctx.db.get false positive others missed  | 4     |
 | Greptile   | ✅ (3)  | 0        | Clean pass, import suggestion is part of the auth fix                                    | 3     |

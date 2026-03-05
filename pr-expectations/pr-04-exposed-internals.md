@@ -157,7 +157,7 @@ PR: [https://github.com/mikecann/cya-playground/pull/15](https://github.com/mike
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                  | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                  | Score |
 | ---------- | ------- | -------- | -------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ❌ (0)  | 0        | Review engine failed, nothing to judge positively or negatively                   | 0     |
 | Greptile   | ✅ (3)  | +1       | Genuine missing by_creation_time index catch (would cause runtime error)          | 4     |

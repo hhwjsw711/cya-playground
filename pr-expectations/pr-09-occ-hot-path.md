@@ -129,7 +129,7 @@ The OCC finding is thorough and specific, but the primary/high-severity finding 
 
 ## Scores
 
-| Tool       | Primary  | Modifier | Modifier Reason                                                                                        | Score |
+| Tool       | Primary  | Bonus | Bonus Reason                                                                                        | Score |
 | ---------- | -------- | -------- | ------------------------------------------------------------------------------------------------------ | ----- |
 | CodeRabbit | ✅ (3)   | +1       | Genuine logic finding: counter increments unconditionally even when no label was removed in removeFromTask | 4     |
 | Greptile   | ✅ (3)   | 0        | Clean pass, summary reinforces core finding but no distinct secondary discoveries                      | 3     |

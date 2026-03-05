@@ -120,7 +120,7 @@ PR: [https://github.com/mikecann/cya-playground/pull/13](https://github.com/mike
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                 | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                 | Score |
 | ---------- | ------- | -------- | ------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ❌ (0)  | -1       | "Critical" false positive claiming ctx.db.get two-arg form is wrong API usage   | -1    |
 | Greptile   | ❌ (0)  | +1       | Genuine assigneeName null vs "Unknown" cross-file inconsistency                 | 1     |

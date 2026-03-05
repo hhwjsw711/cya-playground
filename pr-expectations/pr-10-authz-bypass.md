@@ -130,7 +130,7 @@ Neither finding touches on the missing authorization/membership check. Sourcery'
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                                     | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                                     | Score |
 | ---------- | ------- | -------- | --------------------------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ✅ (3)  | 0        | Clean pass, no notable extras                                                                       | 3     |
 | Greptile   | ✅ (3)  | +1       | Genuine findings: unused query and missing permalink route flag incomplete feature delivery          | 4     |

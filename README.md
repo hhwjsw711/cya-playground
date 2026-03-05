@@ -14,7 +14,7 @@ CodeRabbit, Greptile, Macroscope, Cubic, Graphite AI Review, Qodo, CodeAnt AI, S
 
 ## Results
 
-Scored out of 40. Each PR is worth up to 4 points: 3 for the primary test (did the tool catch the issue or correctly avoid a false positive?) plus a quality modifier of +1 for genuinely useful secondary findings or -1 for significant false positives. Full scoring criteria in [`pr-expectations/SCORING.md`](pr-expectations/SCORING.md).
+Scored out of 40. Each PR is worth up to 4 points: 3 for the primary test (did the tool catch the issue or correctly avoid a false positive?) plus a quality bonus of +1 for genuinely useful secondary findings or -1 for significant false positives. Full scoring criteria in [`pr-expectations/SCORING.md`](pr-expectations/SCORING.md).
 
 | Tool | PR1 | PR2 | PR3 | PR4 | PR5 | PR6 | PR7 | PR8 | PR9 | PR10 | **Total (/40)** |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -62,7 +62,7 @@ Each PR is scored on two dimensions:
 1. **Primary Verdict** (0 or 1 or 3 points): Did the tool pass the core test?
    - Pass = 3, Mixed = 1, Fail = 0
 
-2. **Quality Modifier** (-1 to +1): How useful was the rest of the output?
+2. **Quality Bonus** (-1 to +1): How useful was the rest of the output?
    - +1 for genuinely useful secondary findings with no significant false positives
    - 0 for clean output or minor extras that wash out
    - -1 for significant false positives that would mislead a developer

@@ -129,7 +129,7 @@ PR: [https://github.com/mikecann/cya-playground/pull/17](https://github.com/mike
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                           | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                           | Score |
 | ---------- | ------- | -------- | ----------------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ✅ (3)  | +1       | Genuine singular/plural UI bug ("1 activity events")                                      | 4     |
 | Greptile   | ✅ (3)  | 0        | Clean pass, summary restates primary finding                                              | 3     |

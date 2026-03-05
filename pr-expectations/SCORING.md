@@ -5,7 +5,7 @@
 Each of the 10 PRs is scored independently for each tool. The score has two components:
 
 1. **Primary Verdict** (0-2 points) - Did the tool pass the core test for this PR?
-2. **Quality Modifier** (-1 to +1) - How good was the tool's output beyond the primary test?
+2. **Quality Bonus** (-1 to +1) - How good was the tool's output beyond the primary test?
 
 This gives a range of **-1 to 4 per PR**, and **-10 to 40 total** across all 10 PRs.
 
@@ -21,9 +21,9 @@ The primary verdict is based on whether the tool caught (or correctly avoided) t
 | ❌ Fail   | 0      | Missed the core issue entirely, or made the critical false positive                                     |
 
 
-## Quality Modifier
+## Quality Bonus
 
-The modifier scores everything OUTSIDE the primary test. It does not double-count the primary finding.
+The bonus scores everything OUTSIDE the primary test. It does not double-count the primary finding.
 
 ### +1 (Bonus)
 
@@ -61,7 +61,7 @@ The tool made a significant false positive that would actively mislead a develop
 ## Score Table
 
 
-| Primary Verdict | Modifier     | PR Score |
+| Primary Verdict | Bonus     | PR Score |
 | --------------- | ------------ | -------- |
 | Pass (3)        | Bonus (+1)   | **4**    |
 | Pass (3)        | Neutral (0)  | **3**    |
@@ -95,5 +95,5 @@ The tool made a significant false positive that would actively mislead a develop
 
 - PR #1 is the only false-positive test. A "Pass" there means the tool correctly did NOT flag N+1.
 - PRs 2-10 are true-positive tests. A "Pass" means the tool correctly DID flag the issue.
-- The modifier is intentionally conservative. Most PRs should score 0 on the modifier. Bonuses and penalties are for standout cases only.
+- The bonus is intentionally conservative. Most PRs should score 0 on the bonus. Bonuses and penalties are for standout cases only.
 

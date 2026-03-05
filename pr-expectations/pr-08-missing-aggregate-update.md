@@ -132,7 +132,7 @@ PR: [https://github.com/mikecann/cya-playground/pull/20](https://github.com/mike
 
 ## Scores
 
-| Tool       | Primary | Modifier | Modifier Reason                                                                          | Score |
+| Tool       | Primary | Bonus | Bonus Reason                                                                          | Score |
 | ---------- | ------- | -------- | ---------------------------------------------------------------------------------------- | ----- |
 | CodeRabbit | ✅ (3)  | 0        | Clean pass, no notable extras                                                            | 3     |
 | Greptile   | ✅ (3)  | 0        | Minor UX suggestion (navigate to duplicate) is harmless but not a significant finding    | 3     |
