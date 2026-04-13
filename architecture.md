@@ -61,9 +61,9 @@ tasks                comments              activityLog
 ├─ priority                                 ├─ entityType
 ├─ projectId         labels                └─ entityId
 ├─ assigneeId        ├─ name
-└─ dueDate           └─ color              taskLabels
-                                           ├─ taskId
-                      └─ projectId         └─ labelId
+├─ dueDate           └─ color              taskLabels
+├─ startedAt (auto)                         ├─ taskId
+└─ completedAt (auto) └─ projectId          └─ labelId
 
                       └─ projectId         taskAttachments
                                            ├─ taskId
@@ -126,6 +126,7 @@ tasks                comments              activityLog
 - 级联删除使用后台分批调度（BATCH_SIZE=50），通过 `scheduler.runAfter` 递归清理
 - 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
+- `startedAt` 首次进入 in_progress 时自动写入，不覆盖；`completedAt` 进入 done 时写入，回退时清空
 
 ## 国际化
 
@@ -147,9 +148,4 @@ tasks                comments              activityLog
 
 ## 待开发功能
 
-### 1. 任务开始时间与完成时间
-
-- schema tasks 表新增: `startedAt: v.optional(v.number())`, `completedAt: v.optional(v.number())`
-- 状态变更时自动记录: status→in_progress 时写 startedAt，status→done 时写 completedAt
-- 前端 TaskDetail 展示时间信息
-- API 接口支持传入 startedAt / completedAt
+（暂无）

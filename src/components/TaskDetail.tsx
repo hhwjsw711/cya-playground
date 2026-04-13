@@ -20,6 +20,23 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function formatDuration(ms: number): string {
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+  if (hours < 24) return `${hours} 小时`;
+  const days = Math.floor(hours / 24);
+  const remainHours = hours % 24;
+  return remainHours > 0 ? `${days} 天 ${remainHours} 小时` : `${days} 天`;
+}
+
+function formatDateTime(ts: number): string {
+  return new Date(ts).toLocaleString("zh-CN", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function TaskDetail({
   taskId,
   members,
@@ -230,6 +247,29 @@ export function TaskDetail({
                 ))}
               </select>
             </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">
+                截止日期
+              </label>
+              <input
+                type="date"
+                value={
+                  task.dueDate
+                    ? new Date(task.dueDate).toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateTask({
+                    taskId,
+                    dueDate: val
+                      ? new Date(val + "T23:59:59").getTime()
+                      : undefined,
+                  }).catch((err: Error) => addToast(err.message));
+                }}
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
             <div className="ml-auto flex gap-2 self-end">
               {!isEditing && (
                 <button
@@ -257,6 +297,50 @@ export function TaskDetail({
               </button>
             </div>
           </div>
+
+          {(task.startedAt || task.completedAt || task.dueDate) && (
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mb-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                {task.dueDate && (
+                  <span>
+                    截止：{new Date(task.dueDate).toLocaleDateString("zh-CN")}
+                    {task.status !== "done" && task.dueDate < Date.now() && (
+                      <span className="ml-1 text-red-500 font-medium">
+                        （已逾期）
+                      </span>
+                    )}
+                  </span>
+                )}
+                {task.startedAt && (
+                  <span>
+                    开始：{formatDateTime(task.startedAt)}
+                    {task.completedAt && (
+                      <span className="ml-2">
+                        耗时：
+                        {formatDuration(task.completedAt - task.startedAt)}
+                      </span>
+                    )}
+                    {!task.completedAt && task.status === "in_progress" && (
+                      <span className="ml-2">
+                        已进行：{formatDuration(Date.now() - task.startedAt)}
+                      </span>
+                    )}
+                  </span>
+                )}
+                {task.completedAt && (
+                  <span>
+                    完成：{formatDateTime(task.completedAt)}
+                    {task.dueDate && task.completedAt > task.dueDate && (
+                      <span className="ml-1 text-red-500">
+                        （逾期 {formatDuration(task.completedAt - task.dueDate)}
+                        ）
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
             <h3 className="font-semibold mb-3">

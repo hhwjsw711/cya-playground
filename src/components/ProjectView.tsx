@@ -382,6 +382,16 @@ export function ProjectView({
                           {task.assigneeName}
                         </span>
                       )}
+                      {task.dueDate && task.status !== "done" && (
+                        <span
+                          className={`text-xs ${task.dueDate < Date.now() ? "text-red-500 font-medium" : "text-slate-400"}`}
+                        >
+                          {new Date(task.dueDate).toLocaleDateString("zh-CN", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      )}
                       {task.hasComments && (
                         <span className="text-xs text-slate-400 ml-auto">
                           💬

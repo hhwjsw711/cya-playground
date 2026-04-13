@@ -50,6 +50,8 @@ export default defineSchema({
     projectId: v.id("projects"),
     assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
   })
     .index("by_projectId", ["projectId"])
     .index("by_assigneeId", ["assigneeId"])

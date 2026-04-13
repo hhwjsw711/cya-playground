@@ -178,6 +178,23 @@ export const update = mutation({
     if (args.assigneeId !== undefined) updates.assigneeId = args.assigneeId;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
 
+    if (args.status !== undefined) {
+      const now = Date.now();
+      if (
+        args.status === "in_progress" &&
+        task.status !== "in_progress" &&
+        !task.startedAt
+      ) {
+        updates.startedAt = now;
+      }
+      if (args.status === "done" && task.status !== "done") {
+        updates.completedAt = now;
+      }
+      if (args.status !== "done" && task.status === "done") {
+        updates.completedAt = undefined;
+      }
+    }
+
     await ctx.db.patch("tasks", args.taskId, updates);
 
     await ctx.runMutation(internal.activity.log, {
@@ -254,6 +271,8 @@ export const listByProjectViaApi = internalQuery({
       priority: t.priority,
       assigneeId: t.assigneeId,
       dueDate: t.dueDate,
+      startedAt: t.startedAt,
+      completedAt: t.completedAt,
       createdAt: t._creationTime,
     }));
   },
@@ -269,6 +288,10 @@ export const createViaApi = internalMutation({
     dueDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    const now = Date.now();
+    const startedAt = args.status === "in_progress" ? now : undefined;
+    const completedAt = args.status === "done" ? now : undefined;
+
     const taskId = await ctx.db.insert("tasks", {
       title: args.title,
       description: args.description,
@@ -276,6 +299,8 @@ export const createViaApi = internalMutation({
       priority: args.priority,
       projectId: args.projectId,
       dueDate: args.dueDate,
+      startedAt,
+      completedAt,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -304,6 +329,23 @@ export const updateViaApi = internalMutation({
     if (args.status !== undefined) updates.status = args.status;
     if (args.priority !== undefined) updates.priority = args.priority;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
+
+    if (args.status !== undefined) {
+      const now = Date.now();
+      if (
+        args.status === "in_progress" &&
+        task.status !== "in_progress" &&
+        !task.startedAt
+      ) {
+        updates.startedAt = now;
+      }
+      if (args.status === "done" && task.status !== "done") {
+        updates.completedAt = now;
+      }
+      if (args.status !== "done" && task.status === "done") {
+        updates.completedAt = undefined;
+      }
+    }
 
     await ctx.db.patch("tasks", args.taskId, updates);
 
