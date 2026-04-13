@@ -18,7 +18,9 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
   if (!project) return null;
 
   const isAdmin = project.role === "admin";
-  const displayKey = isAdmin ? (apiKey ?? project.apiKey ?? null) : null;
+  const isEditor = project.role === "editor";
+  const canViewKey = isAdmin || isEditor;
+  const displayKey = canViewKey ? (apiKey ?? project.apiKey ?? null) : null;
   const baseUrl = `${CONVEX_SITE_URL}/api/tasks`;
 
   const handleCopy = (text: string) => {
@@ -38,7 +40,7 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
             通过 API 密钥，外部系统可以管理项目中的任务。
           </p>
-          {isAdmin ? (
+          {canViewKey ? (
             <>
               {displayKey ? (
                 <div className="flex items-center gap-2">
@@ -55,30 +57,32 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
               ) : (
                 <p className="text-xs text-slate-400">尚未生成 API 密钥</p>
               )}
-              <button
-                onClick={() => {
-                  if (
-                    displayKey &&
-                    !confirm("重新生成会使当前密钥立即失效，确认继续？")
-                  )
-                    return;
-                  regenerateApiKey({ projectId })
-                    .then((key) => {
-                      setApiKey(key);
-                      addToast(
-                        displayKey ? "API 密钥已重新生成" : "API 密钥已生成",
-                      );
-                    })
-                    .catch((err: Error) => addToast(err.message));
-                }}
-                className="mt-2 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
-              >
-                {displayKey ? "重新生成" : "生成密钥"}
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    if (
+                      displayKey &&
+                      !confirm("重新生成会使当前密钥立即失效，确认继续？")
+                    )
+                      return;
+                    regenerateApiKey({ projectId })
+                      .then((key) => {
+                        setApiKey(key);
+                        addToast(
+                          displayKey ? "API 密钥已重新生成" : "API 密钥已生成",
+                        );
+                      })
+                      .catch((err: Error) => addToast(err.message));
+                  }}
+                  className="mt-2 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                >
+                  {displayKey ? "重新生成" : "生成密钥"}
+                </button>
+              )}
             </>
           ) : (
             <p className="text-xs text-slate-400">
-              仅管理员可查看和管理 API 密钥
+              仅管理员和可编辑成员可查看 API 密钥
             </p>
           )}
         </div>
@@ -209,6 +213,105 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
               <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3 text-xs font-mono overflow-x-auto">
                 <pre>{`curl -X DELETE ${baseUrl}/task_id \\
   -H "Authorization: Bearer <api_key>"`}</pre>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
+              <h4 className="text-sm font-medium mb-3">附件接口</h4>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold">
+                    GET
+                  </span>
+                  <code className="text-xs font-mono">
+                    {baseUrl}/:taskId/attachments
+                  </code>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  查询任务附件列表
+                </p>
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3 text-xs font-mono overflow-x-auto">
+                  <pre>{`curl ${baseUrl}/task_id/attachments \\
+  -H "Authorization: Bearer <api_key>"`}</pre>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold">
+                    POST
+                  </span>
+                  <code className="text-xs font-mono">
+                    {baseUrl}/:taskId/attachments/upload-url
+                  </code>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  获取附件上传地址（第一步）
+                </p>
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3 text-xs font-mono overflow-x-auto">
+                  <pre>{`curl -X POST ${baseUrl}/task_id/attachments/upload-url \\
+  -H "Authorization: Bearer <api_key>"`}</pre>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs font-bold">
+                    上传
+                  </span>
+                  <code className="text-xs font-mono">
+                    上传文件至 upload-url（第二步）
+                  </code>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3 text-xs font-mono overflow-x-auto">
+                  <pre>{`curl -X POST "<upload_url>" \\
+  -H "Content-Type: image/png" \\
+  --data-binary @file.png`}</pre>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold">
+                    POST
+                  </span>
+                  <code className="text-xs font-mono">
+                    {baseUrl}/:taskId/attachments
+                  </code>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  创建附件记录（第三步）
+                </p>
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3 text-xs font-mono overflow-x-auto">
+                  <pre>{`curl -X POST ${baseUrl}/task_id/attachments \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer <api_key>" \\
+  -d '{
+    "storageId": "<storage_id>",
+    "fileName": "file.png",
+    "fileSize": 12345,
+    "fileType": "image/png"
+  }'`}</pre>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold">
+                    DELETE
+                  </span>
+                  <code className="text-xs font-mono">
+                    {baseUrl}/:taskId/attachments/:attachmentId
+                  </code>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  删除附件
+                </p>
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-md p-3 text-xs font-mono overflow-x-auto">
+                  <pre>{`curl -X DELETE ${baseUrl}/task_id/attachments/attachment_id \\
+  -H "Authorization: Bearer <api_key>"`}</pre>
+                </div>
               </div>
             </div>
           </div>

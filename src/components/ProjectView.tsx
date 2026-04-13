@@ -406,6 +406,7 @@ export function ProjectView({
               addToast(err.message),
             );
           }}
+          userRole={project?.role}
         />
       )}
     </div>

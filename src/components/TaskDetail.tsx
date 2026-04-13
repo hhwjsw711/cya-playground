@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useToast } from "./Toast";
 
 type Member = {
@@ -14,33 +14,91 @@ type Member = {
   _creationTime: number;
 };
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function TaskDetail({
   taskId,
   members,
   onClose,
   onStatusChange,
+  userRole,
 }: {
   taskId: Id<"tasks">;
   members: Member[];
   onClose: () => void;
   onStatusChange: (status: "backlog" | "todo" | "in_progress" | "done") => void;
+  userRole?: "admin" | "editor" | "viewer";
 }) {
   const task = useQuery(api.tasks.get, { taskId });
   const comments = useQuery(api.comments.listByTask, { taskId });
+  const attachments = useQuery(api.attachments.listByTask, { taskId });
   const updateTask = useMutation(api.tasks.update);
   const addComment = useMutation(api.comments.create);
   const deleteComment = useMutation(api.comments.remove);
   const deleteTask = useMutation(api.tasks.remove);
+  const generateUploadUrl = useMutation(api.attachments.generateUploadUrl);
+  const createAttachment = useMutation(api.attachments.create);
+  const removeAttachment = useMutation(api.attachments.remove);
 
   const { addToast } = useToast();
   const [commentText, setCommentText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const canEdit = userRole === "admin" || userRole === "editor";
 
   if (!task) {
     return null;
   }
+
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        if (file.size > 20 * 1024 * 1024) {
+          addToast(`文件 ${file.name} 超过 20MB 限制`);
+          continue;
+        }
+
+        const uploadUrl = await generateUploadUrl({});
+        const result = await fetch(uploadUrl, {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+
+        if (!result.ok) {
+          addToast(`上传 ${file.name} 失败`);
+          continue;
+        }
+
+        const { storageId } = (await result.json()) as {
+          storageId: Id<"_storage">;
+        };
+        await createAttachment({
+          taskId,
+          storageId,
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+        });
+      }
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "上传失败");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-30 flex items-start justify-center pt-4 sm:pt-16 px-3 sm:px-4">
@@ -198,6 +256,93 @@ export function TaskDetail({
                 删除
               </button>
             </div>
+          </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+            <h3 className="font-semibold mb-3">
+              附件 ({attachments?.length ?? 0})
+            </h3>
+            {attachments && attachments.length > 0 ? (
+              <div className="space-y-2 mb-4">
+                {attachments.map((att) => (
+                  <div
+                    key={att._id}
+                    className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg"
+                  >
+                    <svg
+                      className="w-5 h-5 text-slate-400 shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                      />
+                    </svg>
+                    <div className="flex-1 min-w-0">
+                      {att.url ? (
+                        <a
+                          href={att.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 dark:text-blue-400 hover:underline truncate block"
+                        >
+                          {att.fileName}
+                        </a>
+                      ) : (
+                        <span className="text-sm truncate block">
+                          {att.fileName}
+                        </span>
+                      )}
+                      <span className="text-xs text-slate-400">
+                        {formatFileSize(att.fileSize)} · {att.uploadedBy} ·{" "}
+                        {new Date(att.createdAt).toLocaleDateString("zh-CN")}
+                      </span>
+                    </div>
+                    {canEdit && (
+                      <button
+                        onClick={() => {
+                          if (confirm(`确认删除附件 ${att.fileName}？`)) {
+                            removeAttachment({ attachmentId: att._id }).catch(
+                              (err: Error) => addToast(err.message),
+                            );
+                          }
+                        }}
+                        className="text-xs text-red-500 hover:underline shrink-0"
+                      >
+                        删除
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 mb-4">暂无附件</p>
+            )}
+            {canEdit && (
+              <div className="mb-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    void handleFileUpload(e.target.files);
+                  }}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors disabled:opacity-50"
+                >
+                  {uploading ? "上传中..." : "上传附件"}
+                </button>
+                <span className="text-xs text-slate-400 ml-2">最大 20MB</span>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-4">

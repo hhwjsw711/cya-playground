@@ -13,6 +13,7 @@
 - 标签管理，支持任务与标签关联
 - 成员管理（添加 / 角色变更 / 移除）
 - REST API 接口（通过 API 密钥查询、创建、更新、删除任务）
+- 任务附件上传（通过 Convex File Storage 存储，最大 20MB）
 - 项目和任务删除时后台分批级联清理
 - 通过 `@convex-dev/aggregate` 实现任务计数
 
@@ -32,7 +33,9 @@ npm run dev
 
 ## API 接口
 
-管理员和可编辑成员可在项目详情页生成 API 密钥，通过 HTTP 接口管理任务。
+管理员和可编辑成员可在项目详情页查看 API 密钥，通过 HTTP 接口管理任务。
+
+所有接口均需在请求头中提供 API 密钥：`Authorization: Bearer <api_key>`
 
 ### 查询任务列表
 
@@ -79,3 +82,57 @@ Authorization: Bearer <api_key>
 | -------- | ----------------------------------- |
 | status   | backlog / todo / in_progress / done |
 | priority | low / medium / high / urgent        |
+
+## 附件接口
+
+附件上传采用三步流程：获取上传地址 → 上传文件 → 创建附件记录。每个附件最大 20MB。
+
+### 查询任务附件列表
+
+```
+GET /api/tasks/:taskId/attachments
+Authorization: Bearer <api_key>
+```
+
+### 获取附件上传地址（第一步）
+
+```
+POST /api/tasks/:taskId/attachments/upload-url
+Authorization: Bearer <api_key>
+```
+
+返回 `{ "uploadUrl": "https://..." }`
+
+### 上传文件到存储（第二步）
+
+将文件以二进制方式 POST 到上一步返回的 uploadUrl：
+
+```
+POST <uploadUrl>
+Content-Type: <文件MIME类型>
+
+<文件二进制内容>
+```
+
+返回 `{ "storageId": "..." }`
+
+### 创建附件记录（第三步）
+
+```
+POST /api/tasks/:taskId/attachments
+Authorization: Bearer <api_key>
+
+{
+  "storageId": "<第二步返回的storageId>",
+  "fileName": "报告.pdf",
+  "fileSize": 1024,
+  "fileType": "application/pdf"
+}
+```
+
+### 删除附件
+
+```
+DELETE /api/tasks/:taskId/attachments/:attachmentId
+Authorization: Bearer <api_key>
+```

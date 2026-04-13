@@ -84,4 +84,15 @@ export default defineSchema({
     .index("by_taskId", ["taskId"])
     .index("by_labelId", ["labelId"])
     .index("by_taskId_and_labelId", ["taskId", "labelId"]),
+
+  taskAttachments: defineTable({
+    taskId: v.id("tasks"),
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+    fileSize: v.number(),
+    fileType: v.string(),
+    uploadedBy: v.optional(v.id("users")),
+  })
+    .index("by_taskId", ["taskId"])
+    .index("by_storageId", ["storageId"]),
 });

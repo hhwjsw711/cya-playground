@@ -184,6 +184,16 @@ export const cleanupProjectChildren = internalMutation({
       }
       if (taskLabels.length === BATCH_SIZE) taskChildrenRemaining = true;
 
+      const attachments = await ctx.db
+        .query("taskAttachments")
+        .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
+        .take(BATCH_SIZE);
+      for (const att of attachments) {
+        await ctx.storage.delete(att.storageId);
+        await ctx.db.delete("taskAttachments", att._id);
+      }
+      if (attachments.length === BATCH_SIZE) taskChildrenRemaining = true;
+
       if (taskChildrenRemaining) {
         hasMore = true;
       } else {

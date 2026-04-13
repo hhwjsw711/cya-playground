@@ -44,6 +44,48 @@ async function authenticate(
   return projectId;
 }
 
+function parsePathSegments(req: Request): string[] {
+  return new URL(req.url).pathname.replace(/\/$/, "").split("/");
+}
+
+async function getTaskSafely(
+  ctx: any,
+  taskId: string,
+  projectId: Id<"projects">,
+): Promise<{ task: any } | Response> {
+  let task: any;
+  try {
+    task = await ctx.runQuery(internal.tasks.getTaskById, {
+      taskId: taskId as Id<"tasks">,
+    });
+  } catch {
+    return jsonResponse({ error: "无效的任务 ID" }, 400);
+  }
+  if (!task || task.projectId !== projectId) {
+    return jsonResponse({ error: "任务不存在或不属于该项目" }, 404);
+  }
+  return { task };
+}
+
+async function getAttachmentSafely(
+  ctx: any,
+  attachmentId: string,
+  taskId: Id<"tasks">,
+): Promise<{ attachment: any } | Response> {
+  let attachment: any;
+  try {
+    attachment = await ctx.runQuery(internal.attachments.getAttachmentById, {
+      attachmentId: attachmentId as Id<"taskAttachments">,
+    });
+  } catch {
+    return jsonResponse({ error: "无效的附件 ID" }, 400);
+  }
+  if (!attachment || attachment.taskId !== taskId) {
+    return jsonResponse({ error: "附件不存在或不属于该任务" }, 404);
+  }
+  return { attachment };
+}
+
 const http = httpRouter();
 
 auth.addHttpRoutes(http);
@@ -152,15 +194,18 @@ http.route({
     if (authResult instanceof Response) return authResult;
     const projectId = authResult;
 
-    const taskId = new URL(req.url).pathname.split("/").pop() as Id<"tasks">;
+    const segments = parsePathSegments(req);
+    const taskId = segments[3];
     if (!taskId) {
       return jsonResponse({ error: "无效的任务 ID" }, 400);
     }
 
-    const task = await ctx.runQuery(internal.tasks.getTaskById, { taskId });
-    if (!task || task.projectId !== projectId) {
-      return jsonResponse({ error: "任务不存在或不属于该项目" }, 404);
+    if (segments.length > 4) {
+      return jsonResponse({ error: "未找到路由" }, 404);
     }
+
+    const taskResult = await getTaskSafely(ctx, taskId, projectId);
+    if (taskResult instanceof Response) return taskResult;
 
     let body: unknown;
     try {
@@ -207,7 +252,7 @@ http.route({
     }
 
     await ctx.runMutation(internal.tasks.updateViaApi, {
-      taskId,
+      taskId: taskId as Id<"tasks">,
       title: updates.title as string | undefined,
       description: updates.description as string | undefined,
       status: updates.status as
@@ -237,19 +282,174 @@ http.route({
     if (authResult instanceof Response) return authResult;
     const projectId = authResult;
 
-    const taskId = new URL(req.url).pathname.split("/").pop() as Id<"tasks">;
+    const segments = parsePathSegments(req);
+
+    if (segments.length === 6 && segments[4] === "attachments") {
+      const taskId = segments[3];
+      const attachmentId = segments[5];
+
+      if (!taskId || !attachmentId) {
+        return jsonResponse({ error: "无效的 ID" }, 400);
+      }
+
+      const taskResult = await getTaskSafely(ctx, taskId, projectId);
+      if (taskResult instanceof Response) return taskResult;
+
+      const attachmentResult = await getAttachmentSafely(
+        ctx,
+        attachmentId,
+        taskId as Id<"tasks">,
+      );
+      if (attachmentResult instanceof Response) return attachmentResult;
+
+      await ctx.runMutation(internal.attachments.removeViaApi, {
+        attachmentId: attachmentId as Id<"taskAttachments">,
+      });
+
+      return jsonResponse({ id: attachmentId, deleted: true });
+    }
+
+    const taskId = segments[3];
     if (!taskId) {
       return jsonResponse({ error: "无效的任务 ID" }, 400);
     }
 
-    const task = await ctx.runQuery(internal.tasks.getTaskById, { taskId });
-    if (!task || task.projectId !== projectId) {
-      return jsonResponse({ error: "任务不存在或不属于该项目" }, 404);
+    if (segments.length > 4) {
+      return jsonResponse({ error: "未找到路由" }, 404);
     }
 
-    await ctx.runMutation(internal.tasks.deleteViaApi, { taskId });
+    const taskResult = await getTaskSafely(ctx, taskId, projectId);
+    if (taskResult instanceof Response) return taskResult;
+
+    await ctx.runMutation(internal.tasks.deleteViaApi, {
+      taskId: taskId as Id<"tasks">,
+    });
 
     return jsonResponse({ id: taskId, deleted: true });
+  }),
+});
+
+http.route({
+  pathPrefix: "/api/tasks/",
+  method: "GET",
+  handler: httpAction(async (ctx, req) => {
+    const segments = parsePathSegments(req);
+
+    if (segments.length === 5 && segments[4] === "attachments") {
+      const taskId = segments[3];
+      if (!taskId) {
+        return jsonResponse({ error: "无效的任务 ID" }, 400);
+      }
+
+      const authResult = await authenticate(ctx, req);
+      if (authResult instanceof Response) return authResult;
+      const projectId = authResult;
+
+      const taskResult = await getTaskSafely(ctx, taskId, projectId);
+      if (taskResult instanceof Response) return taskResult;
+
+      const attachments = await ctx.runQuery(
+        internal.attachments.listByTaskViaApi,
+        { taskId: taskId as Id<"tasks"> },
+      );
+      return jsonResponse({ attachments });
+    }
+
+    return jsonResponse({ error: "未找到路由" }, 404);
+  }),
+});
+
+http.route({
+  pathPrefix: "/api/tasks/",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const segments = parsePathSegments(req);
+
+    if (
+      segments.length === 6 &&
+      segments[4] === "attachments" &&
+      segments[5] === "upload-url"
+    ) {
+      const taskId = segments[3];
+      if (!taskId) {
+        return jsonResponse({ error: "无效的任务 ID" }, 400);
+      }
+
+      const authResult = await authenticate(ctx, req);
+      if (authResult instanceof Response) return authResult;
+      const projectId = authResult;
+
+      const taskResult = await getTaskSafely(ctx, taskId, projectId);
+      if (taskResult instanceof Response) return taskResult;
+
+      const uploadUrl = await ctx.runMutation(
+        internal.attachments.generateUploadUrlViaApi,
+        {},
+      );
+      return jsonResponse({ uploadUrl });
+    }
+
+    if (segments.length === 5 && segments[4] === "attachments") {
+      const taskId = segments[3];
+      if (!taskId) {
+        return jsonResponse({ error: "无效的任务 ID" }, 400);
+      }
+
+      const authResult = await authenticate(ctx, req);
+      if (authResult instanceof Response) return authResult;
+      const projectId = authResult;
+
+      const taskResult = await getTaskSafely(ctx, taskId, projectId);
+      if (taskResult instanceof Response) return taskResult;
+
+      let body: unknown;
+      try {
+        body = await req.json();
+      } catch {
+        return jsonResponse({ error: "无效的 JSON 请求体" }, 400);
+      }
+
+      if (typeof body !== "object" || body === null) {
+        return jsonResponse({ error: "请求体必须是 JSON 对象" }, 400);
+      }
+
+      const b = body as Record<string, unknown>;
+      if (typeof b.storageId !== "string") {
+        return jsonResponse({ error: "storageId 为必填字段" }, 400);
+      }
+      if (typeof b.fileName !== "string" || !b.fileName.trim()) {
+        return jsonResponse({ error: "fileName 为必填字段" }, 400);
+      }
+      if (typeof b.fileSize !== "number") {
+        return jsonResponse({ error: "fileSize 为必填字段" }, 400);
+      }
+      if (typeof b.fileType !== "string") {
+        return jsonResponse({ error: "fileType 为必填字段" }, 400);
+      }
+
+      const attachmentId = await ctx.runMutation(
+        internal.attachments.createViaApi,
+        {
+          taskId: taskId as Id<"tasks">,
+          storageId: b.storageId as Id<"_storage">,
+          fileName: b.fileName.trim(),
+          fileSize: b.fileSize,
+          fileType: b.fileType,
+        },
+      );
+
+      return jsonResponse(
+        {
+          id: attachmentId,
+          fileName: b.fileName,
+          fileSize: b.fileSize,
+          fileType: b.fileType,
+        },
+        201,
+      );
+    }
+
+    return jsonResponse({ error: "未找到路由" }, 404);
   }),
 });
 

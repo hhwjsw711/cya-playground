@@ -351,6 +351,16 @@ export const cleanupTaskChildren = internalMutation({
     }
     if (taskLabels.length === BATCH_SIZE) hasMore = true;
 
+    const attachments = await ctx.db
+      .query("taskAttachments")
+      .withIndex("by_taskId", (q) => q.eq("taskId", args.taskId))
+      .take(BATCH_SIZE);
+    for (const att of attachments) {
+      await ctx.storage.delete(att.storageId);
+      await ctx.db.delete("taskAttachments", att._id);
+    }
+    if (attachments.length === BATCH_SIZE) hasMore = true;
+
     if (hasMore) {
       await ctx.scheduler.runAfter(0, internal.tasks.cleanupTaskChildren, {
         taskId: args.taskId,

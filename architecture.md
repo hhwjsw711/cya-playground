@@ -24,6 +24,7 @@ convex/
   comments.ts        # 评论 CRUD
   labels.ts          # 标签管理 + 任务标签关联
   members.ts         # 成员管理（添加/角色变更/移除）
+  attachments.ts     # 附件上传/删除 + File Storage 管理
   activity.ts        # 活动日志（internalMutation）
   users.ts           # 当前用户查询 + 资料更新
   taskCounts.ts      # 基于 aggregate 的项目任务计数
@@ -61,8 +62,16 @@ tasks                comments              activityLog
 ├─ projectId         labels                └─ entityId
 ├─ assigneeId        ├─ name
 └─ dueDate           └─ color              taskLabels
-                                          ├─ taskId
-                     └─ projectId         └─ labelId
+                                           ├─ taskId
+                      └─ projectId         └─ labelId
+
+                      └─ projectId         taskAttachments
+                                           ├─ taskId
+                                           ├─ storageId
+                                           ├─ fileName
+                                           ├─ fileSize
+                                           ├─ fileType
+                                           └─ uploadedBy
 ```
 
 ### 索引
@@ -74,6 +83,7 @@ tasks                comments              activityLog
 - activityLog: `by_projectId`
 - labels: `by_projectId`
 - taskLabels: `by_taskId`, `by_labelId`, `by_taskId_and_labelId`
+- taskAttachments: `by_taskId`, `by_storageId`
 
 ## 权限模型
 
@@ -82,9 +92,11 @@ tasks                comments              activityLog
 | 修改项目信息       | 是       | 否     | 否     |
 | 删除项目           | 仅所有者 | 否     | 否     |
 | 管理 API 密钥      | 是       | 否     | 否     |
+| 查看 API 密钥      | 是       | 是     | 否     |
 | 查看 API 文档      | 是       | 是     | 是     |
 | 创建/更新/删除任务 | 是       | 是     | 否     |
 | 创建评论           | 是       | 是     | 否     |
+| 上传/删除附件      | 是       | 是     | 否     |
 | 管理成员           | 是       | 否     | 否     |
 
 ## REST API
@@ -93,12 +105,16 @@ tasks                comments              activityLog
 
 **鉴权**: `Authorization: Bearer <api_key>`，API 密钥绑定项目，持有者拥有该项目任务的完全操作权限。
 
-| 方法   | 路径               | 说明         |
-| ------ | ------------------ | ------------ |
-| GET    | /api/tasks         | 查询任务列表 |
-| POST   | /api/tasks         | 创建任务     |
-| PATCH  | /api/tasks/:taskId | 更新任务     |
-| DELETE | /api/tasks/:taskId | 删除任务     |
+| 方法   | 路径                                         | 说明             |
+| ------ | -------------------------------------------- | ---------------- |
+| GET    | /api/tasks                                   | 查询任务列表     |
+| POST   | /api/tasks                                   | 创建任务         |
+| PATCH  | /api/tasks/:taskId                           | 更新任务         |
+| DELETE | /api/tasks/:taskId                           | 删除任务         |
+| GET    | /api/tasks/:taskId/attachments               | 查询任务附件列表 |
+| POST   | /api/tasks/:taskId/attachments/upload-url    | 获取附件上传地址 |
+| POST   | /api/tasks/:taskId/attachments               | 创建附件记录     |
+| DELETE | /api/tasks/:taskId/attachments/:attachmentId | 删除附件         |
 
 路由使用 `pathPrefix` 匹配（`/api/tasks/`），从 URL pathname 提取 taskId。
 
@@ -108,6 +124,8 @@ tasks                comments              activityLog
 - `getByApiKey` 为 internalQuery，防止通过公共 query 枚举 apiKey
 - `projects.list` 显式返回字段，不包含 apiKey
 - 级联删除使用后台分批调度（BATCH_SIZE=50），通过 `scheduler.runAfter` 递归清理
+- 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
+- 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
 
 ## 国际化
 
@@ -129,14 +147,7 @@ tasks                comments              activityLog
 
 ## 待开发功能
 
-### 1. 附件上传
-
-- Convex File Storage: `ctx.storage.store(blob)` / `ctx.storage.getUrl(storageId)`
-- schema 需新增 `taskAttachments` 表: `taskId, storageId, fileName, fileSize, uploadedBy`
-- HTTP action 处理 `multipart/form-data`
-- 前端 TaskDetail 中增加上传区域和附件列表
-
-### 2. 任务开始时间与完成时间
+### 1. 任务开始时间与完成时间
 
 - schema tasks 表新增: `startedAt: v.optional(v.number())`, `completedAt: v.optional(v.number())`
 - 状态变更时自动记录: status→in_progress 时写 startedAt，status→done 时写 completedAt
