@@ -37,7 +37,7 @@ function AuthenticatedApp({ userName }: { userName: string }) {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-      <header className="sticky top-0 z-20 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-20 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setRoute({ page: "dashboard" })}
@@ -64,7 +64,7 @@ function AuthenticatedApp({ userName }: { userName: string }) {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {route.page === "dashboard" && (
           <Dashboard
             onSelectProject={(projectId) =>

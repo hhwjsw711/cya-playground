@@ -43,10 +43,10 @@ export function TaskDetail({
   }
 
   return (
-    <div className="fixed inset-0 z-30 flex items-start justify-center pt-16 px-4">
+    <div className="fixed inset-0 z-30 flex items-start justify-center pt-4 sm:pt-16 px-3 sm:px-4">
       <div className="fixed inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 max-h-[80vh] overflow-y-auto">
-        <div className="p-6">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 max-h-[90vh] sm:max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-6">
           <div className="flex items-start justify-between mb-4">
             {isEditing ? (
               <div className="flex-1 mr-4">

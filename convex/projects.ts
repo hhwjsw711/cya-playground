@@ -1,7 +1,18 @@
-import { query, mutation, internalMutation } from "./_generated/server";
+import {
+  query,
+  mutation,
+  internalMutation,
+  internalQuery,
+} from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
+
+function generateApiKey(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return `tf_${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
+}
 
 export const list = query({
   args: {},
@@ -20,7 +31,11 @@ export const list = query({
       if (!project) continue;
 
       projects.push({
-        ...project,
+        name: project.name,
+        description: project.description,
+        _id: project._id,
+        _creationTime: project._creationTime,
+        ownerId: project.ownerId,
         role: membership.role,
       });
     }
@@ -207,7 +222,6 @@ export const cleanupProjectChildren = internalMutation({
     }
     if (activities.length === BATCH_SIZE) hasMore = true;
 
-    // If any batch was full, there might be more to clean up
     if (hasMore) {
       await ctx.scheduler.runAfter(
         0,
@@ -217,5 +231,41 @@ export const cleanupProjectChildren = internalMutation({
     }
 
     return null;
+  },
+});
+
+export const regenerateApiKey = mutation({
+  args: { projectId: v.id("projects") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("未登录");
+
+    const membership = await ctx.db
+      .query("projectMembers")
+      .withIndex("by_projectId_and_userId", (q) =>
+        q.eq("projectId", args.projectId).eq("userId", userId),
+      )
+      .unique();
+
+    if (!membership || membership.role !== "admin") {
+      throw new Error("仅管理员可管理 API 密钥");
+    }
+
+    const apiKey = generateApiKey();
+    await ctx.db.patch("projects", args.projectId, { apiKey });
+
+    return apiKey;
+  },
+});
+
+export const getByApiKey = internalQuery({
+  args: { apiKey: v.string() },
+  handler: async (ctx, args) => {
+    const project = await ctx.db
+      .query("projects")
+      .withIndex("by_apiKey", (q) => q.eq("apiKey", args.apiKey))
+      .unique();
+    if (!project) return null;
+    return project._id;
   },
 });

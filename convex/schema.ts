@@ -18,16 +18,15 @@ export default defineSchema({
     name: v.string(),
     description: v.string(),
     ownerId: v.id("users"),
-  }).index("by_ownerId", ["ownerId"]),
+    apiKey: v.optional(v.string()),
+  })
+    .index("by_ownerId", ["ownerId"])
+    .index("by_apiKey", ["apiKey"]),
 
   projectMembers: defineTable({
     projectId: v.id("projects"),
     userId: v.id("users"),
-    role: v.union(
-      v.literal("admin"),
-      v.literal("editor"),
-      v.literal("viewer"),
-    ),
+    role: v.union(v.literal("admin"), v.literal("editor"), v.literal("viewer")),
   })
     .index("by_projectId", ["projectId"])
     .index("by_userId", ["userId"])

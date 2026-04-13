@@ -3,6 +3,7 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useState } from "react";
 import { TaskDetail } from "./TaskDetail";
+import { ApiPanel } from "./ApiPanel";
 import { useToast } from "./Toast";
 
 const STATUS_COLUMNS = [
@@ -53,6 +54,7 @@ export function ProjectView({
     "backlog" | "todo" | "in_progress" | "done"
   >("todo");
   const [showMembers, setShowMembers] = useState(false);
+  const [showApi, setShowApi] = useState(false);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] = useState<
@@ -79,27 +81,55 @@ export function ProjectView({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-3">
           <button
             onClick={onBack}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+            title="返回项目列表"
           >
-            &larr;
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5" />
+              <path d="m12 19-7-7 7-7" />
+            </svg>
           </button>
-          <div>
-            <h1 className="text-2xl font-bold">{project.name}</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              {project.description}
-            </p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold truncate">{project.name}</h1>
           </div>
         </div>
-        <div className="flex gap-2">
+        {project.description && (
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3 ml-11">
+            {project.description}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-2 ml-11">
           <button
-            onClick={() => setShowMembers(!showMembers)}
-            className="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
+            onClick={() => {
+              setShowMembers(!showMembers);
+              setShowApi(false);
+            }}
+            className={`px-3 py-1.5 rounded-md text-sm transition-colors ${showMembers ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"}`}
           >
             成员 ({members?.length ?? 0})
+          </button>
+          <button
+            onClick={() => {
+              setShowApi(!showApi);
+              setShowMembers(false);
+            }}
+            className={`px-3 py-1.5 rounded-md text-sm transition-colors ${showApi ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"}`}
+          >
+            API
           </button>
           {project.role !== "viewer" && (
             <button
@@ -111,6 +141,8 @@ export function ProjectView({
           )}
         </div>
       </div>
+
+      {showApi && <ApiPanel projectId={projectId} />}
 
       {showMembers && members && (
         <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -141,7 +173,7 @@ export function ProjectView({
                   })
                   .catch((err: Error) => addToast(err.message));
               }}
-              className="mb-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg flex gap-2 items-end"
+              className="mb-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg flex flex-col sm:flex-row gap-2 sm:items-end"
             >
               <div className="flex-1">
                 <label className="text-xs text-slate-500 block mb-1">
@@ -195,9 +227,9 @@ export function ProjectView({
             {members.map((m) => (
               <div
                 key={m._id}
-                className="flex items-center justify-between text-sm"
+                className="flex flex-col sm:flex-row sm:items-center justify-between text-sm gap-1"
               >
-                <span>
+                <span className="truncate">
                   {m.userName}{" "}
                   <span className="text-slate-400">({m.userEmail})</span>
                 </span>
@@ -271,7 +303,7 @@ export function ProjectView({
                 })
                 .catch((err: Error) => addToast(err.message));
             }}
-            className="flex gap-3 items-end"
+            className="flex flex-col sm:flex-row gap-3 sm:items-end"
           >
             <div className="flex-1">
               <input
@@ -318,7 +350,7 @@ export function ProjectView({
         </p>
       )}
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {STATUS_COLUMNS.map((col) => {
           const columnTasks = (tasks ?? []).filter((t) => t.status === col.key);
           return (

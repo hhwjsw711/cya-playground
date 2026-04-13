@@ -1,4 +1,9 @@
-import { query, mutation, internalMutation } from "./_generated/server";
+import {
+  query,
+  mutation,
+  internalMutation,
+  internalQuery,
+} from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
@@ -214,6 +219,103 @@ export const remove = mutation({
       entityType: "task",
       entityId: args.taskId,
     });
+
+    await taskCounts.delete(ctx, task);
+    await ctx.db.delete("tasks", args.taskId);
+    await ctx.scheduler.runAfter(0, internal.tasks.cleanupTaskChildren, {
+      taskId: args.taskId,
+    });
+
+    return null;
+  },
+});
+
+export const getTaskById = internalQuery({
+  args: { taskId: v.id("tasks") },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get("tasks", args.taskId);
+    return task;
+  },
+});
+
+export const listByProjectViaApi = internalQuery({
+  args: { projectId: v.id("projects") },
+  handler: async (ctx, args) => {
+    const tasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_projectId", (q) => q.eq("projectId", args.projectId))
+      .take(200);
+
+    return tasks.map((t) => ({
+      id: t._id,
+      title: t.title,
+      description: t.description,
+      status: t.status,
+      priority: t.priority,
+      assigneeId: t.assigneeId,
+      dueDate: t.dueDate,
+      createdAt: t._creationTime,
+    }));
+  },
+});
+
+export const createViaApi = internalMutation({
+  args: {
+    title: v.string(),
+    description: v.string(),
+    status: taskFields.status,
+    priority: taskFields.priority,
+    projectId: v.id("projects"),
+    dueDate: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const taskId = await ctx.db.insert("tasks", {
+      title: args.title,
+      description: args.description,
+      status: args.status,
+      priority: args.priority,
+      projectId: args.projectId,
+      dueDate: args.dueDate,
+    });
+
+    const newTask = await ctx.db.get("tasks", taskId);
+    await taskCounts.insert(ctx, newTask!);
+
+    return taskId;
+  },
+});
+
+export const updateViaApi = internalMutation({
+  args: {
+    taskId: v.id("tasks"),
+    title: v.optional(v.string()),
+    description: v.optional(v.string()),
+    status: v.optional(taskFields.status),
+    priority: v.optional(taskFields.priority),
+    dueDate: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get("tasks", args.taskId);
+    if (!task) throw new Error("任务不存在");
+
+    const updates: Record<string, unknown> = {};
+    if (args.title !== undefined) updates.title = args.title;
+    if (args.description !== undefined) updates.description = args.description;
+    if (args.status !== undefined) updates.status = args.status;
+    if (args.priority !== undefined) updates.priority = args.priority;
+    if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
+
+    await ctx.db.patch("tasks", args.taskId, updates);
+
+    return null;
+  },
+});
+
+export const deleteViaApi = internalMutation({
+  args: { taskId: v.id("tasks") },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get("tasks", args.taskId);
+    if (!task) throw new Error("任务不存在");
 
     await taskCounts.delete(ctx, task);
     await ctx.db.delete("tasks", args.taskId);
