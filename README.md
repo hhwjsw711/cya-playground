@@ -1,28 +1,28 @@
-# TaskFlow
+# 任务流
 
-A team task management app with kanban-style board, built with Convex + React + Vite + Tailwind CSS.
+基于 Convex + React + Vite + Tailwind CSS 的团队任务管理应用，看板风格。
 
-## Features
+## 功能
 
-- Password-based authentication (Convex Auth)
-- Project CRUD with role-based access (admin / editor / viewer)
-- Kanban task board (backlog, todo, in progress, done)
-- Task assignment, priority, and due dates
-- Comments on tasks
-- Activity logging
-- Label management with task-label associations
-- Member management (add / role change / remove)
-- Background cascading cleanup on project/task deletion
-- Task count aggregates via `@convex-dev/aggregate`
+- 密码登录（Convex Auth）
+- 项目管理，支持角色权限控制（管理员 / 编辑者 / 观察者）
+- 看板任务面板（待规划、待办、进行中、已完成）
+- 任务指派、优先级、截止日期
+- 任务评论
+- 活动日志
+- 标签管理，支持任务与标签关联
+- 成员管理（添加 / 角色变更 / 移除）
+- 项目和任务删除时后台分批级联清理
+- 通过 `@convex-dev/aggregate` 实现任务计数
 
-## Tech Stack
+## 技术栈
 
-- [Convex](https://convex.dev/) — backend: database, server functions, auth
-- React 19 + Vite — frontend
-- Tailwind CSS v4 — styling
-- Convex Auth — password-based authentication
+- [Convex](https://convex.dev/) — 后端：数据库、服务函数、认证
+- React 19 + Vite — 前端
+- Tailwind CSS v4 — 样式
+- Convex Auth — 密码认证
 
-## Running Locally
+## 本地运行
 
 ```
 npm install

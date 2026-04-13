@@ -31,7 +31,7 @@ export const listByProject = query({
       let assigneeName: string | undefined;
       if (task.assigneeId) {
         const assignee = await ctx.db.get("users", task.assigneeId);
-        assigneeName = assignee?.name ?? "Unknown";
+        assigneeName = assignee?.name ?? "未知";
       }
 
       const hasComments = await ctx.db
@@ -70,7 +70,7 @@ export const get = query({
     let assigneeName: string | undefined;
     if (task.assigneeId) {
       const assignee = await ctx.db.get("users", task.assigneeId);
-      assigneeName = assignee?.name ?? "Unknown";
+      assigneeName = assignee?.name ?? "未知";
     }
 
     const commentSample = await ctx.db
@@ -99,7 +99,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -107,9 +107,9 @@ export const create = mutation({
         q.eq("projectId", args.projectId).eq("userId", userId),
       )
       .unique();
-    if (!membership) throw new Error("Not a member of this project");
+    if (!membership) throw new Error("不是该项目的成员");
     if (membership.role === "viewer") {
-      throw new Error("Viewers cannot create tasks");
+      throw new Error("观察者无法创建任务");
     }
 
     const taskId = await ctx.db.insert("tasks", {
@@ -149,10 +149,10 @@ export const update = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const task = await ctx.db.get("tasks", args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new Error("任务不存在");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -160,9 +160,9 @@ export const update = mutation({
         q.eq("projectId", task.projectId).eq("userId", userId),
       )
       .unique();
-    if (!membership) throw new Error("Not a member of this project");
+    if (!membership) throw new Error("不是该项目的成员");
     if (membership.role === "viewer") {
-      throw new Error("Viewers cannot update tasks");
+      throw new Error("观察者无法更新任务");
     }
 
     const updates: Record<string, unknown> = {};
@@ -191,10 +191,10 @@ export const remove = mutation({
   args: { taskId: v.id("tasks") },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const task = await ctx.db.get("tasks", args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new Error("任务不存在");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -202,9 +202,9 @@ export const remove = mutation({
         q.eq("projectId", task.projectId).eq("userId", userId),
       )
       .unique();
-    if (!membership) throw new Error("Not a member of this project");
+    if (!membership) throw new Error("不是该项目的成员");
     if (membership.role === "viewer") {
-      throw new Error("Viewers cannot delete tasks");
+      throw new Error("观察者无法删除任务");
     }
 
     await ctx.runMutation(internal.activity.log, {
@@ -217,13 +217,9 @@ export const remove = mutation({
 
     await taskCounts.delete(ctx, task);
     await ctx.db.delete("tasks", args.taskId);
-
-    // Schedule cleanup of comments and labels in the background
-    await ctx.scheduler.runAfter(
-      0,
-      internal.tasks.cleanupTaskChildren,
-      { taskId: args.taskId },
-    );
+    await ctx.scheduler.runAfter(0, internal.tasks.cleanupTaskChildren, {
+      taskId: args.taskId,
+    });
 
     return null;
   },
@@ -254,11 +250,9 @@ export const cleanupTaskChildren = internalMutation({
     if (taskLabels.length === BATCH_SIZE) hasMore = true;
 
     if (hasMore) {
-      await ctx.scheduler.runAfter(
-        0,
-        internal.tasks.cleanupTaskChildren,
-        { taskId: args.taskId },
-      );
+      await ctx.scheduler.runAfter(0, internal.tasks.cleanupTaskChildren, {
+        taskId: args.taskId,
+      });
     }
 
     return null;

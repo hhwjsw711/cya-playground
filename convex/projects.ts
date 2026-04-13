@@ -58,7 +58,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const projectId = await ctx.db.insert("projects", {
       name: args.name,
@@ -92,7 +92,7 @@ export const update = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -102,7 +102,7 @@ export const update = mutation({
       .unique();
 
     if (!membership || membership.role !== "admin") {
-      throw new Error("Only project admins can update project details");
+      throw new Error("仅项目管理员可修改项目信息");
     }
 
     await ctx.db.patch("projects", args.projectId, {
@@ -118,24 +118,19 @@ export const remove = mutation({
   args: { projectId: v.id("projects") },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) throw new Error("Project not found");
+    if (!project) throw new Error("项目不存在");
     if (project.ownerId !== userId) {
-      throw new Error("Only the project owner can delete a project");
+      throw new Error("仅项目所有者可删除项目");
     }
 
-    // Delete just the project document. The list query already skips
-    // memberships where the project is missing, so it vanishes immediately.
     await ctx.db.delete("projects", args.projectId);
 
-    // Schedule background cleanup for ALL children (members, tasks, comments, etc.)
-    await ctx.scheduler.runAfter(
-      0,
-      internal.projects.cleanupProjectChildren,
-      { projectId: args.projectId },
-    );
+    await ctx.scheduler.runAfter(0, internal.projects.cleanupProjectChildren, {
+      projectId: args.projectId,
+    });
 
     return null;
   },

@@ -31,7 +31,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -40,7 +40,7 @@ export const create = mutation({
       )
       .unique();
     if (!membership || membership.role === "viewer") {
-      throw new Error("Viewers cannot create labels");
+      throw new Error("观察者无法创建标签");
     }
 
     return await ctx.db.insert("labels", {
@@ -58,10 +58,10 @@ export const addToTask = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const task = await ctx.db.get("tasks", args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new Error("任务不存在");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -70,7 +70,7 @@ export const addToTask = mutation({
       )
       .unique();
     if (!membership || membership.role === "viewer") {
-      throw new Error("Viewers cannot modify task labels");
+      throw new Error("观察者无法修改任务标签");
     }
 
     return await ctx.db.insert("taskLabels", {
@@ -87,10 +87,10 @@ export const removeFromTask = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const task = await ctx.db.get("tasks", args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new Error("任务不存在");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -99,7 +99,7 @@ export const removeFromTask = mutation({
       )
       .unique();
     if (!membership || membership.role === "viewer") {
-      throw new Error("Viewers cannot modify task labels");
+      throw new Error("观察者无法修改任务标签");
     }
 
     const taskLabel = await ctx.db

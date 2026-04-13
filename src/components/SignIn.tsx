@@ -11,15 +11,15 @@ export function SignIn() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
       <div className="w-full max-w-sm">
         <h1 className="text-3xl font-bold text-center mb-2 text-slate-900 dark:text-slate-100">
-          TaskFlow
+          任务流
         </h1>
         <p className="text-center text-slate-500 dark:text-slate-400 mb-8">
-          Team task management
+          团队任务管理
         </p>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
           <h2 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
-            {flow === "signIn" ? "Sign in" : "Create an account"}
+            {flow === "signIn" ? "登录" : "注册账号"}
           </h2>
 
           {error && (
@@ -38,8 +38,8 @@ export function SignIn() {
                 .catch(() => {
                   setError(
                     flow === "signIn"
-                      ? "Invalid email or password"
-                      : "Could not create account. Try a different email.",
+                      ? "邮箱或密码错误"
+                      : "注册失败，请尝试其他邮箱",
                   );
                 })
                 .finally(() => setLoading(false));
@@ -49,7 +49,7 @@ export function SignIn() {
             {flow === "signUp" && (
               <input
                 name="name"
-                placeholder="Name"
+                placeholder="姓名"
                 type="text"
                 required
                 className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -57,14 +57,14 @@ export function SignIn() {
             )}
             <input
               name="email"
-              placeholder="Email"
+              placeholder="邮箱"
               type="email"
               required
               className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               name="password"
-              placeholder="Password"
+              placeholder="密码"
               type="password"
               required
               minLength={8}
@@ -76,11 +76,7 @@ export function SignIn() {
               disabled={loading}
               className="w-full py-2 px-4 rounded-md bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium transition-colors"
             >
-              {loading
-                ? "..."
-                : flow === "signIn"
-                  ? "Sign in"
-                  : "Sign up"}
+              {loading ? "..." : flow === "signIn" ? "登录" : "注册"}
             </button>
           </form>
 
@@ -93,9 +89,7 @@ export function SignIn() {
               }}
               className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
             >
-              {flow === "signIn"
-                ? "Don't have an account? Sign up"
-                : "Already have an account? Sign in"}
+              {flow === "signIn" ? "没有账号？立即注册" : "已有账号？立即登录"}
             </button>
           </div>
         </div>

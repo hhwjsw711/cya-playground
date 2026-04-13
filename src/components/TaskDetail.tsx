@@ -23,9 +23,7 @@ export function TaskDetail({
   taskId: Id<"tasks">;
   members: Member[];
   onClose: () => void;
-  onStatusChange: (
-    status: "backlog" | "todo" | "in_progress" | "done",
-  ) => void;
+  onStatusChange: (status: "backlog" | "todo" | "in_progress" | "done") => void;
 }) {
   const task = useQuery(api.tasks.get, { taskId });
   const comments = useQuery(api.comments.listByTask, { taskId });
@@ -76,13 +74,13 @@ export function TaskDetail({
                     }}
                     className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
                   >
-                    Save
+                    保存
                   </button>
                   <button
                     onClick={() => setIsEditing(false)}
                     className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-700 text-sm"
                   >
-                    Cancel
+                    取消
                   </button>
                 </div>
               </div>
@@ -106,9 +104,7 @@ export function TaskDetail({
 
           <div className="flex flex-wrap gap-3 mb-6">
             <div>
-              <label className="text-xs text-slate-500 block mb-1">
-                Status
-              </label>
+              <label className="text-xs text-slate-500 block mb-1">状态</label>
               <select
                 value={task.status}
                 onChange={(e) =>
@@ -122,15 +118,15 @@ export function TaskDetail({
                 }
                 className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="backlog">Backlog</option>
-                <option value="todo">To Do</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Done</option>
+                <option value="backlog">待规划</option>
+                <option value="todo">待办</option>
+                <option value="in_progress">进行中</option>
+                <option value="done">已完成</option>
               </select>
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
-                Priority
+                优先级
               </label>
               <select
                 value={task.priority}
@@ -146,15 +142,15 @@ export function TaskDetail({
                 }}
                 className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
+                <option value="low">低</option>
+                <option value="medium">中</option>
+                <option value="high">高</option>
+                <option value="urgent">紧急</option>
               </select>
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
-                Assignee
+                负责人
               </label>
               <select
                 value={task.assigneeId ?? ""}
@@ -168,7 +164,7 @@ export function TaskDetail({
                 }}
                 className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Unassigned</option>
+                <option value="">未指派</option>
                 {members.map((m) => (
                   <option key={m.userId} value={m.userId}>
                     {m.userName}
@@ -186,12 +182,12 @@ export function TaskDetail({
                   }}
                   className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
                 >
-                  Edit
+                  编辑
                 </button>
               )}
               <button
                 onClick={() => {
-                  if (confirm("Delete this task?")) {
+                  if (confirm("确认删除该任务？")) {
                     deleteTask({ taskId })
                       .then(() => onClose())
                       .catch((err: Error) => addToast(err.message));
@@ -199,14 +195,14 @@ export function TaskDetail({
                 }}
                 className="px-3 py-1 rounded bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 text-sm transition-colors"
               >
-                Delete
+                删除
               </button>
             </div>
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
             <h3 className="font-semibold mb-3">
-              Comments ({comments?.length ?? 0}
+              评论 ({comments?.length ?? 0}
               {(comments?.length ?? 0) >= 100 ? "+" : ""})
             </h3>
             <div className="space-y-3 mb-4">
@@ -221,7 +217,9 @@ export function TaskDetail({
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-slate-400">
-                        {new Date(comment._creationTime).toLocaleDateString()}
+                        {new Date(comment._creationTime).toLocaleDateString(
+                          "zh-CN",
+                        )}
                       </span>
                       <button
                         onClick={() => {
@@ -231,7 +229,7 @@ export function TaskDetail({
                         }}
                         className="text-xs text-red-500 hover:underline"
                       >
-                        delete
+                        删除
                       </button>
                     </div>
                   </div>
@@ -241,11 +239,11 @@ export function TaskDetail({
                 </div>
               ))}
               {comments?.length === 0 && (
-                <p className="text-sm text-slate-400">No comments yet</p>
+                <p className="text-sm text-slate-400">暂无评论</p>
               )}
               {(comments?.length ?? 0) >= 100 && (
                 <p className="text-xs text-slate-400">
-                  Showing the most recent 100 comments.
+                  仅显示最近 100 条评论。
                 </p>
               )}
             </div>
@@ -262,14 +260,14 @@ export function TaskDetail({
               <input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Write a comment..."
+                placeholder="添加评论..."
                 className="flex-1 px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="submit"
                 className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
               >
-                Comment
+                评论
               </button>
             </form>
           </div>

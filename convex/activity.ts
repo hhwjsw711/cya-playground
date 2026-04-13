@@ -27,7 +27,7 @@ export const listByProject = query({
       const user = await ctx.db.get("users", entry.userId);
       result.push({
         ...entry,
-        userName: user?.name ?? "Unknown",
+        userName: user?.name ?? "未知",
       });
     }
 

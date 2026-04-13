@@ -6,17 +6,25 @@ import { TaskDetail } from "./TaskDetail";
 import { useToast } from "./Toast";
 
 const STATUS_COLUMNS = [
-  { key: "backlog" as const, label: "Backlog" },
-  { key: "todo" as const, label: "To Do" },
-  { key: "in_progress" as const, label: "In Progress" },
-  { key: "done" as const, label: "Done" },
+  { key: "backlog" as const, label: "待规划" },
+  { key: "todo" as const, label: "待办" },
+  { key: "in_progress" as const, label: "进行中" },
+  { key: "done" as const, label: "已完成" },
 ];
 
 const PRIORITY_COLORS: Record<string, string> = {
   urgent: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
   high: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  medium:
+    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
   low: "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400",
+};
+
+const PRIORITY_LABELS: Record<string, string> = {
+  urgent: "紧急",
+  high: "高",
+  medium: "中",
+  low: "低",
 };
 
 export function ProjectView({
@@ -33,8 +41,9 @@ export function ProjectView({
   const updateTask = useMutation(api.tasks.update);
   const { addToast } = useToast();
 
-  const [selectedTaskId, setSelectedTaskId] =
-    useState<Id<"tasks"> | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<Id<"tasks"> | null>(
+    null,
+  );
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskStatus, setNewTaskStatus] = useState<
@@ -43,18 +52,18 @@ export function ProjectView({
   const [showMembers, setShowMembers] = useState(false);
 
   if (project === undefined || tasks === undefined) {
-    return <div className="text-slate-500">Loading...</div>;
+    return <div className="text-slate-500">加载中...</div>;
   }
 
   if (project === null) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate-500 mb-4">Project not found</p>
+        <p className="text-slate-500 mb-4">项目不存在</p>
         <button
           onClick={onBack}
           className="text-blue-600 hover:underline text-sm"
         >
-          Back to projects
+          返回项目列表
         </button>
       </div>
     );
@@ -82,14 +91,14 @@ export function ProjectView({
             onClick={() => setShowMembers(!showMembers)}
             className="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
           >
-            Members ({members?.length ?? 0})
+            成员 ({members?.length ?? 0})
           </button>
           {project.role !== "viewer" && (
             <button
               onClick={() => setShowCreateForm(true)}
               className="px-4 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
             >
-              New Task
+              新建任务
             </button>
           )}
         </div>
@@ -97,7 +106,7 @@ export function ProjectView({
 
       {showMembers && members && (
         <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <h3 className="font-semibold mb-3">Members</h3>
+          <h3 className="font-semibold mb-3">成员</h3>
           <div className="space-y-2">
             {members.map((m) => (
               <div
@@ -108,14 +117,18 @@ export function ProjectView({
                   {m.userName}{" "}
                   <span className="text-slate-400">({m.userEmail})</span>
                 </span>
-                <span className="capitalize px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">
-                  {m.role}
+                <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">
+                  {m.role === "admin"
+                    ? "管理员"
+                    : m.role === "editor"
+                      ? "编辑者"
+                      : "观察者"}
                 </span>
               </div>
             ))}
             {members.length >= 100 && (
               <p className="text-xs text-slate-400 mt-2">
-                Showing first 100 members.
+                仅显示前 100 位成员。
               </p>
             )}
           </div>
@@ -124,7 +137,7 @@ export function ProjectView({
 
       {showCreateForm && (
         <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <h3 className="font-semibold mb-3">New Task</h3>
+          <h3 className="font-semibold mb-3">新建任务</h3>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -147,14 +160,16 @@ export function ProjectView({
               <input
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                placeholder="Task title"
+                placeholder="任务标题"
                 required
                 className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <select
               value={newTaskStatus}
-              onChange={(e) => setNewTaskStatus(e.target.value as typeof newTaskStatus)}
+              onChange={(e) =>
+                setNewTaskStatus(e.target.value as typeof newTaskStatus)
+              }
               className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {STATUS_COLUMNS.map((col) => (
@@ -167,14 +182,14 @@ export function ProjectView({
               type="submit"
               className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
             >
-              Create
+              创建
             </button>
             <button
               type="button"
               onClick={() => setShowCreateForm(false)}
               className="px-4 py-2 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
             >
-              Cancel
+              取消
             </button>
           </form>
         </div>
@@ -182,15 +197,13 @@ export function ProjectView({
 
       {tasks && tasks.length >= 200 && (
         <p className="mb-4 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-md">
-          Showing the first 200 tasks. Some tasks may not be visible.
+          仅显示前 200 个任务，部分任务可能未显示。
         </p>
       )}
 
       <div className="grid grid-cols-4 gap-4">
         {STATUS_COLUMNS.map((col) => {
-          const columnTasks = (tasks ?? []).filter(
-            (t) => t.status === col.key,
-          );
+          const columnTasks = (tasks ?? []).filter((t) => t.status === col.key);
           return (
             <div key={col.key}>
               <div className="flex items-center justify-between mb-3">
@@ -213,7 +226,7 @@ export function ProjectView({
                       <span
                         className={`text-xs px-1.5 py-0.5 rounded ${PRIORITY_COLORS[task.priority] ?? ""}`}
                       >
-                        {task.priority}
+                        {PRIORITY_LABELS[task.priority] ?? task.priority}
                       </span>
                       {task.assigneeName && (
                         <span className="text-xs text-slate-400">
@@ -240,8 +253,8 @@ export function ProjectView({
           members={members ?? []}
           onClose={() => setSelectedTaskId(null)}
           onStatusChange={(status) => {
-            updateTask({ taskId: selectedTaskId, status }).catch(
-              (err: Error) => addToast(err.message),
+            updateTask({ taskId: selectedTaskId, status }).catch((err: Error) =>
+              addToast(err.message),
             );
           }}
         />

@@ -25,7 +25,7 @@ export const updateProfile = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
     await ctx.db.patch("users", userId, { name: args.name });
     return null;
   },

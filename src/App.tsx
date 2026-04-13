@@ -18,7 +18,7 @@ export default function App() {
   if (user === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="text-slate-500">Loading...</div>
+        <div className="text-slate-500">加载中...</div>
       </div>
     );
   }
@@ -27,7 +27,7 @@ export default function App() {
     return <SignIn />;
   }
 
-  return <AuthenticatedApp userName={user.name ?? "User"} />;
+  return <AuthenticatedApp userName={user.name ?? "用户"} />;
 }
 
 function AuthenticatedApp({ userName }: { userName: string }) {
@@ -43,12 +43,10 @@ function AuthenticatedApp({ userName }: { userName: string }) {
             onClick={() => setRoute({ page: "dashboard" })}
             className="text-lg font-bold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            TaskFlow
+            任务流
           </button>
           {route.page === "project" && (
-            <span className="text-slate-400 dark:text-slate-500">
-              / Project
-            </span>
+            <span className="text-slate-400 dark:text-slate-500">/ 项目</span>
           )}
         </div>
         <div className="flex items-center gap-4">
@@ -61,7 +59,7 @@ function AuthenticatedApp({ userName }: { userName: string }) {
             }}
             className="text-sm px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
           >
-            Sign out
+            退出登录
           </button>
         </div>
       </header>

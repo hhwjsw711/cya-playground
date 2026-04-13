@@ -31,7 +31,7 @@ export const listByTask = query({
       const author = await ctx.db.get("users", comment.authorId);
       result.push({
         ...comment,
-        authorName: author?.name ?? "Unknown",
+        authorName: author?.name ?? "未知",
       });
     }
 
@@ -46,10 +46,10 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const task = await ctx.db.get("tasks", args.taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) throw new Error("任务不存在");
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -57,7 +57,7 @@ export const create = mutation({
         q.eq("projectId", task.projectId).eq("userId", userId),
       )
       .unique();
-    if (!membership) throw new Error("Not a member of this project");
+    if (!membership) throw new Error("不是该项目的成员");
 
     const commentId = await ctx.db.insert("comments", {
       content: args.content,
@@ -81,13 +81,13 @@ export const remove = mutation({
   args: { commentId: v.id("comments") },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const comment = await ctx.db.get("comments", args.commentId);
-    if (!comment) throw new Error("Comment not found");
+    if (!comment) throw new Error("评论不存在");
 
     if (comment.authorId !== userId) {
-      throw new Error("You can only delete your own comments");
+      throw new Error("只能删除自己的评论");
     }
 
     await ctx.db.delete("comments", args.commentId);

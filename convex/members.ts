@@ -29,7 +29,7 @@ export const listByProject = query({
       const user = await ctx.db.get("users", member.userId);
       result.push({
         ...member,
-        userName: user?.name ?? "Unknown",
+        userName: user?.name ?? "未知",
         userEmail: user?.email ?? "",
       });
     }
@@ -46,7 +46,7 @@ export const add = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const callerMembership = await ctx.db
       .query("projectMembers")
@@ -55,7 +55,7 @@ export const add = mutation({
       )
       .unique();
     if (!callerMembership || callerMembership.role !== "admin") {
-      throw new Error("Only admins can add members");
+      throw new Error("仅管理员可添加成员");
     }
 
     const targetUser = await ctx.db
@@ -63,7 +63,7 @@ export const add = mutation({
       .withIndex("email", (q) => q.eq("email", args.email))
       .unique();
     if (!targetUser) {
-      throw new Error("No user found with that email address");
+      throw new Error("未找到该邮箱对应的用户");
     }
 
     const existingMembership = await ctx.db
@@ -73,7 +73,7 @@ export const add = mutation({
       )
       .unique();
     if (existingMembership) {
-      throw new Error("User is already a member of this project");
+      throw new Error("该用户已是项目成员");
     }
 
     await ctx.db.insert("projectMembers", {
@@ -93,21 +93,19 @@ export const updateRole = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const targetMembership = await ctx.db.get("projectMembers", args.memberId);
-    if (!targetMembership) throw new Error("Membership not found");
+    if (!targetMembership) throw new Error("成员关系不存在");
 
     const callerMembership = await ctx.db
       .query("projectMembers")
       .withIndex("by_projectId_and_userId", (q) =>
-        q
-          .eq("projectId", targetMembership.projectId)
-          .eq("userId", userId),
+        q.eq("projectId", targetMembership.projectId).eq("userId", userId),
       )
       .unique();
     if (!callerMembership || callerMembership.role !== "admin") {
-      throw new Error("Only admins can change member roles");
+      throw new Error("仅管理员可更改成员角色");
     }
 
     await ctx.db.patch("projectMembers", args.memberId, { role: args.role });
@@ -119,24 +117,22 @@ export const remove = mutation({
   args: { memberId: v.id("projectMembers") },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new Error("未登录");
 
     const targetMembership = await ctx.db.get("projectMembers", args.memberId);
-    if (!targetMembership) throw new Error("Membership not found");
+    if (!targetMembership) throw new Error("成员关系不存在");
 
     const project = await ctx.db.get("projects", targetMembership.projectId);
-    if (!project) throw new Error("Project not found");
+    if (!project) throw new Error("项目不存在");
 
     if (project.ownerId === targetMembership.userId) {
-      throw new Error("Cannot remove the project owner");
+      throw new Error("无法移除项目所有者");
     }
 
     const callerMembership = await ctx.db
       .query("projectMembers")
       .withIndex("by_projectId_and_userId", (q) =>
-        q
-          .eq("projectId", targetMembership.projectId)
-          .eq("userId", userId),
+        q.eq("projectId", targetMembership.projectId).eq("userId", userId),
       )
       .unique();
 
@@ -144,7 +140,7 @@ export const remove = mutation({
     const isAdmin = callerMembership?.role === "admin";
 
     if (!isSelfRemoval && !isAdmin) {
-      throw new Error("Only admins can remove other members");
+      throw new Error("仅管理员可移除其他成员");
     }
 
     await ctx.db.delete("projectMembers", args.memberId);
