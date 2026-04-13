@@ -109,7 +109,7 @@ export const create = mutation({
       .unique();
     if (!membership) throw new Error("不是该项目的成员");
     if (membership.role === "viewer") {
-      throw new Error("观察者无法创建任务");
+      throw new Error("可查看成员无法创建任务");
     }
 
     const taskId = await ctx.db.insert("tasks", {
@@ -162,7 +162,7 @@ export const update = mutation({
       .unique();
     if (!membership) throw new Error("不是该项目的成员");
     if (membership.role === "viewer") {
-      throw new Error("观察者无法更新任务");
+      throw new Error("可查看成员无法更新任务");
     }
 
     const updates: Record<string, unknown> = {};
@@ -204,7 +204,7 @@ export const remove = mutation({
       .unique();
     if (!membership) throw new Error("不是该项目的成员");
     if (membership.role === "viewer") {
-      throw new Error("观察者无法删除任务");
+      throw new Error("可查看成员无法删除任务");
     }
 
     await ctx.runMutation(internal.activity.log, {

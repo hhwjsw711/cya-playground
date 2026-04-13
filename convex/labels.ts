@@ -40,7 +40,7 @@ export const create = mutation({
       )
       .unique();
     if (!membership || membership.role === "viewer") {
-      throw new Error("观察者无法创建标签");
+      throw new Error("可查看成员无法创建标签");
     }
 
     return await ctx.db.insert("labels", {
@@ -70,7 +70,7 @@ export const addToTask = mutation({
       )
       .unique();
     if (!membership || membership.role === "viewer") {
-      throw new Error("观察者无法修改任务标签");
+      throw new Error("可查看成员无法修改任务标签");
     }
 
     return await ctx.db.insert("taskLabels", {
@@ -99,7 +99,7 @@ export const removeFromTask = mutation({
       )
       .unique();
     if (!membership || membership.role === "viewer") {
-      throw new Error("观察者无法修改任务标签");
+      throw new Error("可查看成员无法修改任务标签");
     }
 
     const taskLabel = await ctx.db

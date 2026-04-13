@@ -30,12 +30,12 @@ function ProjectCard({
         {project.description}
       </p>
       <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
-        <span className="capitalize px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700">
+        <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700">
           {project.role === "admin"
             ? "管理员"
             : project.role === "editor"
-              ? "编辑者"
-              : "观察者"}
+              ? "可编辑"
+              : "可查看"}
         </span>
         {taskCount != null && <span>{taskCount} 个任务</span>}
       </div>

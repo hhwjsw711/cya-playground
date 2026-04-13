@@ -39,6 +39,9 @@ export function ProjectView({
   const members = useQuery(api.members.listByProject, { projectId });
   const createTask = useMutation(api.tasks.create);
   const updateTask = useMutation(api.tasks.update);
+  const addMember = useMutation(api.members.add);
+  const updateMemberRole = useMutation(api.members.updateRole);
+  const removeMember = useMutation(api.members.remove);
   const { addToast } = useToast();
 
   const [selectedTaskId, setSelectedTaskId] = useState<Id<"tasks"> | null>(
@@ -50,6 +53,11 @@ export function ProjectView({
     "backlog" | "todo" | "in_progress" | "done"
   >("todo");
   const [showMembers, setShowMembers] = useState(false);
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState<
+    "admin" | "editor" | "viewer"
+  >("editor");
 
   if (project === undefined || tasks === undefined) {
     return <div className="text-slate-500">加载中...</div>;
@@ -106,7 +114,83 @@ export function ProjectView({
 
       {showMembers && members && (
         <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <h3 className="font-semibold mb-3">成员</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold">成员</h3>
+            {project.role === "admin" && !showAddMemberForm && (
+              <button
+                onClick={() => setShowAddMemberForm(true)}
+                className="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+              >
+                添加成员
+              </button>
+            )}
+          </div>
+
+          {showAddMemberForm && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addMember({
+                  projectId,
+                  email: newMemberEmail,
+                  role: newMemberRole,
+                })
+                  .then(() => {
+                    setNewMemberEmail("");
+                    setShowAddMemberForm(false);
+                  })
+                  .catch((err: Error) => addToast(err.message));
+              }}
+              className="mb-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg flex gap-2 items-end"
+            >
+              <div className="flex-1">
+                <label className="text-xs text-slate-500 block mb-1">
+                  邮箱
+                </label>
+                <input
+                  value={newMemberEmail}
+                  onChange={(e) => setNewMemberEmail(e.target.value)}
+                  placeholder="输入邮箱地址"
+                  type="email"
+                  required
+                  className="w-full px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 block mb-1">
+                  角色
+                </label>
+                <select
+                  value={newMemberRole}
+                  onChange={(e) =>
+                    setNewMemberRole(e.target.value as typeof newMemberRole)
+                  }
+                  className="px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="admin">管理员</option>
+                  <option value="editor">可编辑</option>
+                  <option value="viewer">可查看</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+              >
+                添加
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddMemberForm(false);
+                  setNewMemberEmail("");
+                }}
+                className="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
+              >
+                取消
+              </button>
+            </form>
+          )}
+
           <div className="space-y-2">
             {members.map((m) => (
               <div
@@ -117,13 +201,46 @@ export function ProjectView({
                   {m.userName}{" "}
                   <span className="text-slate-400">({m.userEmail})</span>
                 </span>
-                <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">
-                  {m.role === "admin"
-                    ? "管理员"
-                    : m.role === "editor"
-                      ? "编辑者"
-                      : "观察者"}
-                </span>
+                <div className="flex items-center gap-2">
+                  {project.role === "admin" ? (
+                    <select
+                      value={m.role}
+                      onChange={(e) => {
+                        updateMemberRole({
+                          memberId: m._id,
+                          role: e.target.value as "admin" | "editor" | "viewer",
+                        }).catch((err: Error) => addToast(err.message));
+                      }}
+                      className="px-2 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="admin">管理员</option>
+                      <option value="editor">可编辑</option>
+                      <option value="viewer">可查看</option>
+                    </select>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">
+                      {m.role === "admin"
+                        ? "管理员"
+                        : m.role === "editor"
+                          ? "可编辑"
+                          : "可查看"}
+                    </span>
+                  )}
+                  {project.role === "admin" && (
+                    <button
+                      onClick={() => {
+                        if (confirm(`确认移除成员 ${m.userName}？`)) {
+                          removeMember({ memberId: m._id }).catch(
+                            (err: Error) => addToast(err.message),
+                          );
+                        }
+                      }}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      移除
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
             {members.length >= 100 && (
@@ -207,7 +324,7 @@ export function ProjectView({
           return (
             <div key={col.key}>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   {col.label}
                 </h3>
                 <span className="text-xs text-slate-400">

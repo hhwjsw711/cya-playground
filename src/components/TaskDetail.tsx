@@ -267,7 +267,7 @@ export function TaskDetail({
                 type="submit"
                 className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
               >
-                评论
+                发送
               </button>
             </form>
           </div>
