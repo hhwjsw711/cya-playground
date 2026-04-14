@@ -4,6 +4,7 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useState } from "react";
 import { TaskDetail } from "./TaskDetail";
 import { ApiPanel } from "./ApiPanel";
+import { Analytics } from "./Analytics";
 import { useToast } from "./Toast";
 
 const STATUS_COLUMNS = [
@@ -60,6 +61,7 @@ export function ProjectView({
   const [newMemberRole, setNewMemberRole] = useState<
     "admin" | "editor" | "viewer"
   >("editor");
+  const [activeTab, setActiveTab] = useState<"board" | "analytics">("board");
 
   if (project === undefined || tasks === undefined) {
     return <div className="text-slate-500">加载中...</div>;
@@ -112,299 +114,331 @@ export function ProjectView({
             {project.description}
           </p>
         )}
-        <div className="flex flex-wrap gap-2 ml-11">
-          <button
-            onClick={() => {
-              setShowMembers(!showMembers);
-              setShowApi(false);
-            }}
-            className={`px-3 py-1.5 rounded-md text-sm transition-colors ${showMembers ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"}`}
-          >
-            成员 ({members?.length ?? 0})
-          </button>
-          <button
-            onClick={() => {
-              setShowApi(!showApi);
-              setShowMembers(false);
-            }}
-            className={`px-3 py-1.5 rounded-md text-sm transition-colors ${showApi ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"}`}
-          >
-            API
-          </button>
-          {project.role !== "viewer" && (
+        <div className="flex flex-wrap items-center gap-2 ml-11">
+          <div className="flex rounded-md border border-slate-200 dark:border-slate-600 overflow-hidden">
             <button
-              onClick={() => setShowCreateForm(true)}
-              className="px-4 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+              onClick={() => setActiveTab("board")}
+              className={`px-3 py-1.5 text-sm transition-colors ${activeTab === "board" ? "bg-blue-600 text-white" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
             >
-              新建任务
+              看板
             </button>
+            <button
+              onClick={() => setActiveTab("analytics")}
+              className={`px-3 py-1.5 text-sm transition-colors ${activeTab === "analytics" ? "bg-blue-600 text-white" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
+            >
+              洞察
+            </button>
+          </div>
+          {activeTab === "board" && (
+            <>
+              <button
+                onClick={() => {
+                  setShowMembers(!showMembers);
+                  setShowApi(false);
+                }}
+                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${showMembers ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"}`}
+              >
+                成员 ({members?.length ?? 0})
+              </button>
+              <button
+                onClick={() => {
+                  setShowApi(!showApi);
+                  setShowMembers(false);
+                }}
+                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${showApi ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"}`}
+              >
+                API
+              </button>
+              {project.role !== "viewer" && (
+                <button
+                  onClick={() => setShowCreateForm(true)}
+                  className="px-4 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                >
+                  新建任务
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
 
-      {showApi && <ApiPanel projectId={projectId} />}
+      {activeTab === "analytics" && <Analytics projectId={projectId} />}
 
-      {showMembers && members && (
-        <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold">成员</h3>
-            {project.role === "admin" && !showAddMemberForm && (
-              <button
-                onClick={() => setShowAddMemberForm(true)}
-                className="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
-              >
-                添加成员
-              </button>
-            )}
-          </div>
+      {activeTab === "board" && (
+        <>
+          {showApi && <ApiPanel projectId={projectId} />}
 
-          {showAddMemberForm && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                addMember({
-                  projectId,
-                  email: newMemberEmail,
-                  role: newMemberRole,
-                })
-                  .then(() => {
-                    setNewMemberEmail("");
-                    setShowAddMemberForm(false);
-                  })
-                  .catch((err: Error) => addToast(err.message));
-              }}
-              className="mb-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg flex flex-col sm:flex-row gap-2 sm:items-end"
-            >
-              <div className="flex-1">
-                <label className="text-xs text-slate-500 block mb-1">
-                  邮箱
-                </label>
-                <input
-                  value={newMemberEmail}
-                  onChange={(e) => setNewMemberEmail(e.target.value)}
-                  placeholder="输入邮箱地址"
-                  type="email"
-                  required
-                  className="w-full px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+          {showMembers && members && (
+            <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold">成员</h3>
+                {project.role === "admin" && !showAddMemberForm && (
+                  <button
+                    onClick={() => setShowAddMemberForm(true)}
+                    className="px-3 py-1 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                  >
+                    添加成员
+                  </button>
+                )}
               </div>
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">
-                  角色
-                </label>
-                <select
-                  value={newMemberRole}
-                  onChange={(e) =>
-                    setNewMemberRole(e.target.value as typeof newMemberRole)
-                  }
-                  className="px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+              {showAddMemberForm && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    addMember({
+                      projectId,
+                      email: newMemberEmail,
+                      role: newMemberRole,
+                    })
+                      .then(() => {
+                        setNewMemberEmail("");
+                        setShowAddMemberForm(false);
+                      })
+                      .catch((err: Error) => addToast(err.message));
+                  }}
+                  className="mb-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg flex flex-col sm:flex-row gap-2 sm:items-end"
                 >
-                  <option value="admin">管理员</option>
-                  <option value="editor">可编辑</option>
-                  <option value="viewer">可查看</option>
-                </select>
-              </div>
-              <button
-                type="submit"
-                className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
-              >
-                添加
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddMemberForm(false);
-                  setNewMemberEmail("");
-                }}
-                className="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
-              >
-                取消
-              </button>
-            </form>
-          )}
-
-          <div className="space-y-2">
-            {members.map((m) => (
-              <div
-                key={m._id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between text-sm gap-1"
-              >
-                <span className="truncate">
-                  {m.userName}{" "}
-                  <span className="text-slate-400">({m.userEmail})</span>
-                </span>
-                <div className="flex items-center gap-2">
-                  {project.role === "admin" ? (
+                  <div className="flex-1">
+                    <label className="text-xs text-slate-500 block mb-1">
+                      邮箱
+                    </label>
+                    <input
+                      value={newMemberEmail}
+                      onChange={(e) => setNewMemberEmail(e.target.value)}
+                      placeholder="输入邮箱地址"
+                      type="email"
+                      required
+                      className="w-full px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      角色
+                    </label>
                     <select
-                      value={m.role}
-                      onChange={(e) => {
-                        updateMemberRole({
-                          memberId: m._id,
-                          role: e.target.value as "admin" | "editor" | "viewer",
-                        }).catch((err: Error) => addToast(err.message));
-                      }}
-                      className="px-2 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newMemberRole}
+                      onChange={(e) =>
+                        setNewMemberRole(e.target.value as typeof newMemberRole)
+                      }
+                      className="px-3 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="admin">管理员</option>
                       <option value="editor">可编辑</option>
                       <option value="viewer">可查看</option>
                     </select>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">
-                      {m.role === "admin"
-                        ? "管理员"
-                        : m.role === "editor"
-                          ? "可编辑"
-                          : "可查看"}
-                    </span>
-                  )}
-                  {project.role === "admin" && (
-                    <button
-                      onClick={() => {
-                        if (confirm(`确认移除成员 ${m.userName}？`)) {
-                          removeMember({ memberId: m._id }).catch(
-                            (err: Error) => addToast(err.message),
-                          );
-                        }
-                      }}
-                      className="text-xs text-red-500 hover:underline"
-                    >
-                      移除
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-            {members.length >= 100 && (
-              <p className="text-xs text-slate-400 mt-2">
-                仅显示前 100 位成员。
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {showCreateForm && (
-        <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-          <h3 className="font-semibold mb-3">新建任务</h3>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              createTask({
-                title: newTaskTitle,
-                description: "",
-                status: newTaskStatus,
-                priority: "medium",
-                projectId,
-              })
-                .then(() => {
-                  setNewTaskTitle("");
-                  setShowCreateForm(false);
-                })
-                .catch((err: Error) => addToast(err.message));
-            }}
-            className="flex flex-col sm:flex-row gap-3 sm:items-end"
-          >
-            <div className="flex-1">
-              <input
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-                placeholder="任务标题"
-                required
-                className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <select
-              value={newTaskStatus}
-              onChange={(e) =>
-                setNewTaskStatus(e.target.value as typeof newTaskStatus)
-              }
-              className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {STATUS_COLUMNS.map((col) => (
-                <option key={col.key} value={col.key}>
-                  {col.label}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
-            >
-              创建
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowCreateForm(false)}
-              className="px-4 py-2 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
-            >
-              取消
-            </button>
-          </form>
-        </div>
-      )}
-
-      {tasks && tasks.length >= 200 && (
-        <p className="mb-4 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-md">
-          仅显示前 200 个任务，部分任务可能未显示。
-        </p>
-      )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {STATUS_COLUMNS.map((col) => {
-          const columnTasks = (tasks ?? []).filter((t) => t.status === col.key);
-          return (
-            <div key={col.key}>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  {col.label}
-                </h3>
-                <span className="text-xs text-slate-400">
-                  {columnTasks.length}
-                </span>
-              </div>
-              <div className="space-y-2">
-                {columnTasks.map((task) => (
+                  </div>
                   <button
-                    key={task._id}
-                    onClick={() => setSelectedTaskId(task._id)}
-                    className="w-full text-left p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                    type="submit"
+                    className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
                   >
-                    <p className="text-sm font-medium mb-2">{task.title}</p>
+                    添加
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddMemberForm(false);
+                      setNewMemberEmail("");
+                    }}
+                    className="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
+                  >
+                    取消
+                  </button>
+                </form>
+              )}
+
+              <div className="space-y-2">
+                {members.map((m) => (
+                  <div
+                    key={m._id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between text-sm gap-1"
+                  >
+                    <span className="truncate">
+                      {m.userName}{" "}
+                      <span className="text-slate-400">({m.userEmail})</span>
+                    </span>
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs px-1.5 py-0.5 rounded ${PRIORITY_COLORS[task.priority] ?? ""}`}
-                      >
-                        {PRIORITY_LABELS[task.priority] ?? task.priority}
-                      </span>
-                      {task.assigneeName && (
-                        <span className="text-xs text-slate-400">
-                          {task.assigneeName}
-                        </span>
-                      )}
-                      {task.dueDate && task.status !== "done" && (
-                        <span
-                          className={`text-xs ${task.dueDate < Date.now() ? "text-red-500 font-medium" : "text-slate-400"}`}
+                      {project.role === "admin" ? (
+                        <select
+                          value={m.role}
+                          onChange={(e) => {
+                            updateMemberRole({
+                              memberId: m._id,
+                              role: e.target.value as
+                                | "admin"
+                                | "editor"
+                                | "viewer",
+                            }).catch((err: Error) => addToast(err.message));
+                          }}
+                          className="px-2 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          {new Date(task.dueDate).toLocaleDateString("zh-CN", {
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          <option value="admin">管理员</option>
+                          <option value="editor">可编辑</option>
+                          <option value="viewer">可查看</option>
+                        </select>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">
+                          {m.role === "admin"
+                            ? "管理员"
+                            : m.role === "editor"
+                              ? "可编辑"
+                              : "可查看"}
                         </span>
                       )}
-                      {task.hasComments && (
-                        <span className="text-xs text-slate-400 ml-auto">
-                          💬
-                        </span>
+                      {project.role === "admin" && (
+                        <button
+                          onClick={() => {
+                            if (confirm(`确认移除成员 ${m.userName}？`)) {
+                              removeMember({ memberId: m._id }).catch(
+                                (err: Error) => addToast(err.message),
+                              );
+                            }
+                          }}
+                          className="text-xs text-red-500 hover:underline"
+                        >
+                          移除
+                        </button>
                       )}
                     </div>
-                  </button>
+                  </div>
                 ))}
+                {members.length >= 100 && (
+                  <p className="text-xs text-slate-400 mt-2">
+                    仅显示前 100 位成员。
+                  </p>
+                )}
               </div>
             </div>
-          );
-        })}
-      </div>
+          )}
+
+          {showCreateForm && (
+            <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+              <h3 className="font-semibold mb-3">新建任务</h3>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  createTask({
+                    title: newTaskTitle,
+                    description: "",
+                    status: newTaskStatus,
+                    priority: "medium",
+                    projectId,
+                  })
+                    .then(() => {
+                      setNewTaskTitle("");
+                      setShowCreateForm(false);
+                    })
+                    .catch((err: Error) => addToast(err.message));
+                }}
+                className="flex flex-col sm:flex-row gap-3 sm:items-end"
+              >
+                <div className="flex-1">
+                  <input
+                    value={newTaskTitle}
+                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                    placeholder="任务标题"
+                    required
+                    className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <select
+                  value={newTaskStatus}
+                  onChange={(e) =>
+                    setNewTaskStatus(e.target.value as typeof newTaskStatus)
+                  }
+                  className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {STATUS_COLUMNS.map((col) => (
+                    <option key={col.key} value={col.key}>
+                      {col.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                >
+                  创建
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateForm(false)}
+                  className="px-4 py-2 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
+                >
+                  取消
+                </button>
+              </form>
+            </div>
+          )}
+
+          {tasks && tasks.length >= 200 && (
+            <p className="mb-4 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-md">
+              仅显示前 200 个任务，部分任务可能未显示。
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {STATUS_COLUMNS.map((col) => {
+              const columnTasks = (tasks ?? []).filter(
+                (t) => t.status === col.key,
+              );
+              return (
+                <div key={col.key}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                      {col.label}
+                    </h3>
+                    <span className="text-xs text-slate-400">
+                      {columnTasks.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {columnTasks.map((task) => (
+                      <button
+                        key={task._id}
+                        onClick={() => setSelectedTaskId(task._id)}
+                        className="w-full text-left p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                      >
+                        <p className="text-sm font-medium mb-2">{task.title}</p>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-xs px-1.5 py-0.5 rounded ${PRIORITY_COLORS[task.priority] ?? ""}`}
+                          >
+                            {PRIORITY_LABELS[task.priority] ?? task.priority}
+                          </span>
+                          {task.assigneeName && (
+                            <span className="text-xs text-slate-400">
+                              {task.assigneeName}
+                            </span>
+                          )}
+                          {task.dueDate && task.status !== "done" && (
+                            <span
+                              className={`text-xs ${task.dueDate < Date.now() ? "text-red-500 font-medium" : "text-slate-400"}`}
+                            >
+                              {new Date(task.dueDate).toLocaleDateString(
+                                "zh-CN",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                },
+                              )}
+                            </span>
+                          )}
+                          {task.hasComments && (
+                            <span className="text-xs text-slate-400 ml-auto">
+                              💬
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {selectedTaskId && (
         <TaskDetail
