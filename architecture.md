@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-团队任务管理应用，看板风格。支持项目级权限控制、REST API 集成、级联删除。
+团队任务管理应用，看板风格。支持项目级权限控制、REST API 集成、AI 助手集成、数据洞察、级联删除。
 
 ## 技术栈
 
@@ -10,6 +10,7 @@
 - **前端**: React 19 + Vite + Tailwind CSS v4
 - **认证**: Convex Auth（密码登录）
 - **聚合**: @convex-dev/aggregate（任务计数）
+- **图表**: Recharts（数据可视化）
 
 ## 目录结构
 
@@ -28,6 +29,7 @@ convex/
   activity.ts        # 活动日志（internalMutation）
   users.ts           # 当前用户查询 + 资料更新
   taskCounts.ts      # 基于 aggregate 的项目任务计数
+  analytics.ts      # 项目统计分析查询
   convex.config.ts   # Convex 应用配置（含 aggregate 组件）
 
 src/
@@ -36,9 +38,10 @@ src/
   index.css          # Tailwind + 中文字体栈
   components/
     Dashboard.tsx    # 项目列表 + 创建项目
-    ProjectView.tsx  # 看板视图 + 成员管理面板
+    ProjectView.tsx  # 看板视图 + 洞察面板 + 成员管理面板
     TaskDetail.tsx   # 任务详情模态框
-    ApiPanel.tsx     # API 密钥管理 + 接口文档
+    ApiPanel.tsx     # API 密钥管理 + 接口文档 + AI 助手入口
+    Analytics.tsx    # 项目数据洞察面板（Recharts 图表）
     SignIn.tsx       # 登录/注册
     Toast.tsx        # 全局通知
 
@@ -128,6 +131,51 @@ tasks                comments              activityLog
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
 - `startedAt` 首次进入 in_progress 时自动写入，不覆盖；`completedAt` 进入 done 时写入，回退时清空
 
+## 数据洞察
+
+项目级分析面板，通过 ProjectView 顶部「看板 / 洞察」Tab 切换访问。
+
+### 指标卡片
+
+| 指标     | 数据来源                       | 说明                   |
+| -------- | ------------------------------ | ---------------------- |
+| 总任务数 | tasks 计数                     | 上限 500，超出显示警告 |
+| 完成率   | done / total                   | 百分比 + 分数          |
+| 平均周期 | startedAt → completedAt 均值   | 仅统计有起止时间的任务 |
+| 逾期任务 | dueDate < now && status ≠ done | 大于 0 时红色警示      |
+
+### 图表
+
+| 图表             | 类型            | 数据来源                           |
+| ---------------- | --------------- | ---------------------------------- |
+| 任务状态分布     | 环形图（Donut） | tasks.status 分组                  |
+| 近 14 天完成趋势 | 折线图          | tasks.completedAt 按日分桶         |
+| 优先级分布       | 横向条形图      | tasks.priority 分组                |
+| 成员工作量       | 横向条形图      | tasks.assigneeId 分组 + 未分配统计 |
+
+### 后端查询
+
+`analytics.getProjectStats`：单次查询聚合所有统计，`take(501)` 检测截断，日期分桶返回时间戳由前端格式化（避免服务端时区问题）。
+
+## AI 助手集成
+
+API 面板内置 AI 助手入口，用户可一键复制包含完整 API 文档的提示词，跳转至 DeepSeek 或豆包平台，通过自然语言对话管理任务。
+
+### 流程
+
+1. 用户生成 API 密钥
+2. 点击「复制提示词」，将包含 Base URL、密钥、所有端点的结构化提示词复制到剪贴板
+3. 点击「打开 DeepSeek」或「打开豆包」跳转至对应平台
+4. 在 AI 平台粘贴提示词，开始对话式任务管理
+
+### 提示词生成
+
+`buildAiPrompt(baseUrl, apiKey)` 动态构建，包含：
+
+- 认证方式（Bearer token）
+- 全部 CRUD 端点及参数说明
+- 操作注意事项（先查询再操作、操作后确认、谨慎删除）
+
 ## 国际化
 
 已全量翻译为简体中文：
@@ -148,4 +196,6 @@ tasks                comments              activityLog
 
 ## 待开发功能
 
-（暂无）
+- Recharts 图表暗色模式坐标轴样式优化
+- Recharts 动态 import 减小首屏包体积
+- 个人级指标（我的待办/逾期/跨项目分布）

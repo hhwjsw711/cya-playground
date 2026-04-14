@@ -8,12 +8,52 @@ const CONVEX_SITE_URL = (
   import.meta.env.VITE_CONVEX_SITE_URL as string
 ).replace(/\/$/, "");
 
+const DEEPEEK_URL = "https://chat.deepseek.com";
+const DOUBAO_URL = "https://www.doubao.com/chat";
+
+function buildAiPrompt(baseUrl: string, apiKey: string) {
+  return `你是一个任务管理助手。你可以通过以下 REST API 管理项目中的任务，请根据用户的指令调用对应的接口。
+
+## 认证方式
+所有请求需在 Header 中携带 API 密钥：
+\`Authorization: Bearer ${apiKey}\`
+
+## 接口列表
+
+### 查询任务列表
+GET ${baseUrl}
+返回：{ "tasks": [...] }
+
+### 创建任务
+POST ${baseUrl}
+Content-Type: application/json
+请求体：{ "title": "任务标题", "description": "描述", "status": "todo", "priority": "medium", "dueDate": null }
+- status 可选值：backlog / todo / in_progress / done
+- priority 可选值：low / medium / high / urgent
+- dueDate 为 Unix 时间戳（毫秒），可选
+
+### 更新任务
+PATCH ${baseUrl}/:taskId
+Content-Type: application/json
+请求体：{ "status": "done" }（至少提供一个字段）
+可更新字段：title / description / status / priority / dueDate
+
+### 删除任务
+DELETE ${baseUrl}/:taskId
+
+## 注意事项
+- 请先查询任务列表了解当前状态，再执行操作
+- 执行操作后再次查询确认结果
+- 所有操作都是实时的，请谨慎执行删除操作`;
+}
+
 export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
   const project = useQuery(api.projects.get, { projectId });
   const regenerateApiKey = useMutation(api.projects.regenerateApiKey);
   const { addToast } = useToast();
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
 
   if (!project) return null;
 
@@ -22,6 +62,7 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
   const canViewKey = isAdmin || isEditor;
   const displayKey = canViewKey ? (apiKey ?? project.apiKey ?? null) : null;
   const baseUrl = `${CONVEX_SITE_URL}/api/tasks`;
+  const aiPrompt = displayKey ? buildAiPrompt(baseUrl, displayKey) : null;
 
   const handleCopy = (text: string) => {
     void navigator.clipboard.writeText(text).then(() => {
@@ -84,6 +125,86 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
             <p className="text-xs text-slate-400">
               仅管理员和可编辑成员可查看 API 密钥
             </p>
+          )}
+        </div>
+
+        <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+          <h4 className="text-sm font-medium mb-2">AI 助手</h4>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+            复制提示词后，前往 AI 平台粘贴发送，即可通过对话管理任务。
+          </p>
+          {aiPrompt ? (
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    void navigator.clipboard.writeText(aiPrompt).then(() => {
+                      setPromptCopied(true);
+                      setTimeout(() => setPromptCopied(false), 2000);
+                    });
+                  }}
+                  className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                >
+                  {promptCopied ? "已复制提示词" : "复制提示词"}
+                </button>
+                <a
+                  href={DEEPEEK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-medium transition-colors"
+                >
+                  打开 DeepSeek
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+                <a
+                  href={DOUBAO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-medium transition-colors"
+                >
+                  打开豆包
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+              </div>
+              <details className="group">
+                <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-500 transition-colors">
+                  预览提示词内容
+                </summary>
+                <pre className="mt-2 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-md text-xs font-mono whitespace-pre-wrap break-all max-h-64 overflow-y-auto">
+                  {aiPrompt}
+                </pre>
+              </details>
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400">请先生成 API 密钥</p>
           )}
         </div>
 
