@@ -62,8 +62,9 @@ tasks                comments              activityLog
 ├─ description       ├─ taskId             ├─ userId
 ├─ status            └─ authorId           ├─ projectId
 ├─ priority                                 ├─ entityType
-├─ projectId         labels                └─ entityId
-├─ assigneeId        ├─ name
+├─ taskType          labels                └─ entityId
+├─ projectId         ├─ name
+├─ assigneeId        └─ color
 ├─ dueDate           └─ color              taskLabels
 ├─ startedAt (auto)                         ├─ taskId
 └─ completedAt (auto) └─ projectId          └─ labelId
@@ -151,6 +152,7 @@ tasks                comments              activityLog
 | 任务状态分布     | 环形图（Donut） | tasks.status 分组                  |
 | 近 14 天完成趋势 | 折线图          | tasks.completedAt 按日分桶         |
 | 优先级分布       | 横向条形图      | tasks.priority 分组                |
+| 任务类型分布     | 横向条形图      | tasks.taskType 分组                |
 | 成员工作量       | 横向条形图      | tasks.assigneeId 分组 + 未分配统计 |
 
 ### 后端查询

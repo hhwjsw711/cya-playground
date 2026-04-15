@@ -84,6 +84,30 @@ export const getProjectStats = query({
       },
     ];
 
+    const TASK_TYPE_LABELS: Record<string, string> = {
+      feature_optimization: "功能优化",
+      bug_handling: "Bug处置",
+      incident_handling: "故障处理",
+      server_config: "服务器配置",
+      permission_config: "权限配置",
+      security_risk: "安全风险",
+      security_config: "安全配置",
+      third_party_integration: "三方对接",
+      consultation: "咨询协助",
+      data_maintenance: "数据维护统计",
+      documentation: "文档编写",
+    };
+
+    const taskTypeDistribution = Object.entries(
+      visibleTasks.reduce<Record<string, number>>((acc, t) => {
+        const key = t.taskType ?? "feature_optimization";
+        acc[key] = (acc[key] ?? 0) + 1;
+        return acc;
+      }, {}),
+    )
+      .map(([key, value]) => ({ name: TASK_TYPE_LABELS[key] ?? key, value }))
+      .sort((a, b) => b.value - a.value);
+
     const assigneeMap = new Map<string, { name: string; count: number }>();
     for (const task of visibleTasks) {
       if (!task.assigneeId) continue;
@@ -132,6 +156,7 @@ export const getProjectStats = query({
       overdueTasks,
       statusDistribution,
       priorityDistribution,
+      taskTypeDistribution,
       assigneeWorkload,
       dailyCompletion,
       truncated,

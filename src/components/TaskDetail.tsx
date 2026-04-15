@@ -14,6 +14,22 @@ type Member = {
   _creationTime: number;
 };
 
+const TASK_TYPE_OPTIONS = [
+  { value: "feature_optimization", label: "功能优化" },
+  { value: "bug_handling", label: "Bug处置" },
+  { value: "incident_handling", label: "故障处理" },
+  { value: "server_config", label: "服务器配置" },
+  { value: "permission_config", label: "权限配置" },
+  { value: "security_risk", label: "安全风险" },
+  { value: "security_config", label: "安全配置" },
+  { value: "third_party_integration", label: "三方对接" },
+  { value: "consultation", label: "咨询协助" },
+  { value: "data_maintenance", label: "数据维护统计" },
+  { value: "documentation", label: "文档编写" },
+] as const;
+
+type TaskType = (typeof TASK_TYPE_OPTIONS)[number]["value"];
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -221,6 +237,27 @@ export function TaskDetail({
                 <option value="medium">中</option>
                 <option value="high">高</option>
                 <option value="urgent">紧急</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">
+                任务类型
+              </label>
+              <select
+                value={task.taskType ?? "feature_optimization"}
+                onChange={(e) => {
+                  updateTask({
+                    taskId,
+                    taskType: e.target.value as TaskType,
+                  }).catch((err: Error) => addToast(err.message));
+                }}
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {TASK_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div>

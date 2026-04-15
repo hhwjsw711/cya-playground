@@ -98,6 +98,7 @@ export const create = mutation({
     description: v.string(),
     status: taskFields.status,
     priority: taskFields.priority,
+    taskType: taskFields.taskType,
     projectId: v.id("projects"),
     assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
@@ -122,6 +123,7 @@ export const create = mutation({
       description: args.description,
       status: args.status,
       priority: args.priority,
+      taskType: args.taskType,
       projectId: args.projectId,
       assigneeId: args.assigneeId,
       dueDate: args.dueDate,
@@ -149,6 +151,7 @@ export const update = mutation({
     description: v.optional(v.string()),
     status: v.optional(taskFields.status),
     priority: v.optional(taskFields.priority),
+    taskType: v.optional(taskFields.taskType),
     assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
   },
@@ -175,6 +178,7 @@ export const update = mutation({
     if (args.description !== undefined) updates.description = args.description;
     if (args.status !== undefined) updates.status = args.status;
     if (args.priority !== undefined) updates.priority = args.priority;
+    if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.assigneeId !== undefined) updates.assigneeId = args.assigneeId;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
 
@@ -269,6 +273,7 @@ export const listByProjectViaApi = internalQuery({
       description: t.description,
       status: t.status,
       priority: t.priority,
+      taskType: t.taskType,
       assigneeId: t.assigneeId,
       dueDate: t.dueDate,
       startedAt: t.startedAt,
@@ -284,6 +289,7 @@ export const createViaApi = internalMutation({
     description: v.string(),
     status: taskFields.status,
     priority: taskFields.priority,
+    taskType: taskFields.taskType,
     projectId: v.id("projects"),
     dueDate: v.optional(v.number()),
   },
@@ -297,6 +303,7 @@ export const createViaApi = internalMutation({
       description: args.description,
       status: args.status,
       priority: args.priority,
+      taskType: args.taskType,
       projectId: args.projectId,
       dueDate: args.dueDate,
       startedAt,
@@ -317,6 +324,7 @@ export const updateViaApi = internalMutation({
     description: v.optional(v.string()),
     status: v.optional(taskFields.status),
     priority: v.optional(taskFields.priority),
+    taskType: v.optional(taskFields.taskType),
     dueDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -328,6 +336,7 @@ export const updateViaApi = internalMutation({
     if (args.description !== undefined) updates.description = args.description;
     if (args.status !== undefined) updates.status = args.status;
     if (args.priority !== undefined) updates.priority = args.priority;
+    if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
 
     if (args.status !== undefined) {

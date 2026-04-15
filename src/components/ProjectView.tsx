@@ -29,6 +29,24 @@ const PRIORITY_LABELS: Record<string, string> = {
   low: "低",
 };
 
+const TASK_TYPE_OPTIONS = [
+  { value: "feature_optimization", label: "功能优化" },
+  { value: "bug_handling", label: "Bug处置" },
+  { value: "incident_handling", label: "故障处理" },
+  { value: "server_config", label: "服务器配置" },
+  { value: "permission_config", label: "权限配置" },
+  { value: "security_risk", label: "安全风险" },
+  { value: "security_config", label: "安全配置" },
+  { value: "third_party_integration", label: "三方对接" },
+  { value: "consultation", label: "咨询协助" },
+  { value: "data_maintenance", label: "数据维护统计" },
+  { value: "documentation", label: "文档编写" },
+] as const;
+
+const TASK_TYPE_LABELS: Record<string, string> = Object.fromEntries(
+  TASK_TYPE_OPTIONS.map((opt) => [opt.value, opt.label]),
+);
+
 export function ProjectView({
   projectId,
   onBack,
@@ -54,6 +72,9 @@ export function ProjectView({
   const [newTaskStatus, setNewTaskStatus] = useState<
     "backlog" | "todo" | "in_progress" | "done"
   >("todo");
+  const [newTaskType, setNewTaskType] = useState<string>(
+    "feature_optimization",
+  );
   const [showMembers, setShowMembers] = useState(false);
   const [showApi, setShowApi] = useState(false);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -322,6 +343,7 @@ export function ProjectView({
                     description: "",
                     status: newTaskStatus,
                     priority: "medium",
+                    taskType: newTaskType as any,
                     projectId,
                   })
                     .then(() => {
@@ -351,6 +373,17 @@ export function ProjectView({
                   {STATUS_COLUMNS.map((col) => (
                     <option key={col.key} value={col.key}>
                       {col.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={newTaskType}
+                  onChange={(e) => setNewTaskType(e.target.value)}
+                  className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {TASK_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
                     </option>
                   ))}
                 </select>
@@ -406,6 +439,11 @@ export function ProjectView({
                           >
                             {PRIORITY_LABELS[task.priority] ?? task.priority}
                           </span>
+                          {task.taskType && (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
+                              {TASK_TYPE_LABELS[task.taskType] ?? task.taskType}
+                            </span>
+                          )}
                           {task.assigneeName && (
                             <span className="text-xs text-slate-400">
                               {task.assigneeName}

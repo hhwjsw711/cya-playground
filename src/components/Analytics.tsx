@@ -162,6 +162,41 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
           </ResponsiveContainer>
         </ChartCard>
 
+        <ChartCard title="任务类型分布">
+          {stats.taskTypeDistribution.length === 0 ? (
+            <div className="flex items-center justify-center h-60 text-sm text-slate-400">
+              暂无类型数据
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={stats.taskTypeDistribution}
+                layout="vertical"
+                margin={{ left: 20 }}
+              >
+                <XAxis
+                  type="number"
+                  allowDecimals={false}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 12 }}
+                  width={80}
+                />
+                <Tooltip />
+                <Bar
+                  dataKey="value"
+                  name="任务数"
+                  fill="#818cf8"
+                  radius={[0, 4, 4, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </ChartCard>
+
         <ChartCard title="成员工作量">
           {stats.assigneeWorkload.length === 0 ? (
             <div className="flex items-center justify-center h-60 text-sm text-slate-400">
