@@ -48,11 +48,11 @@ export const getProjectStats = query({
 
     const statusDistribution = [
       {
-        name: "待规划",
+        name: "未排期",
         value: visibleTasks.filter((t) => t.status === "backlog").length,
       },
       {
-        name: "待办",
+        name: "未开始",
         value: visibleTasks.filter((t) => t.status === "todo").length,
       },
       {

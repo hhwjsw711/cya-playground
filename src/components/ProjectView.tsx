@@ -8,8 +8,8 @@ import { Analytics } from "./Analytics";
 import { useToast } from "./Toast";
 
 const STATUS_COLUMNS = [
-  { key: "backlog" as const, label: "待规划" },
-  { key: "todo" as const, label: "待办" },
+  { key: "backlog" as const, label: "未排期" },
+  { key: "todo" as const, label: "未开始" },
   { key: "in_progress" as const, label: "进行中" },
   { key: "done" as const, label: "已完成" },
 ];

@@ -193,8 +193,8 @@ export function TaskDetail({
                 }
                 className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="backlog">待规划</option>
-                <option value="todo">待办</option>
+                <option value="backlog">未排期</option>
+                <option value="todo">未开始</option>
                 <option value="in_progress">进行中</option>
                 <option value="done">已完成</option>
               </select>
