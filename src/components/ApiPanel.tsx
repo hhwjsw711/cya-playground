@@ -27,9 +27,8 @@ GET ${baseUrl}
 ### 创建任务
 POST ${baseUrl}
 Content-Type: application/json
-请求体：{ "title": "任务标题", "description": "描述", "status": "todo", "priority": "medium", "taskType": "feature_optimization", "dueDate": null }
+请求体：{ "title": "任务标题", "description": "描述", "status": "todo", "taskType": "feature_optimization", "dueDate": null }
 - status 可选值：backlog / todo / in_progress / done
-- priority 可选值：low / medium / high / urgent
 - taskType 可选值：feature_optimization / bug_handling / incident_handling / server_config / permission_config / security_risk / security_config / third_party_integration / consultation / data_maintenance / documentation
 - dueDate 为 Unix 时间戳（毫秒），可选
 
@@ -37,7 +36,7 @@ Content-Type: application/json
 PATCH ${baseUrl}/:taskId
 Content-Type: application/json
 请求体：{ "status": "done" }（至少提供一个字段）
-可更新字段：title / description / status / priority / taskType / dueDate
+可更新字段：title / description / status / taskType / dueDate
 
 ### 删除任务
 DELETE ${baseUrl}/:taskId
@@ -247,7 +246,6 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
     "title": "新任务",
     "description": "任务描述",
     "status": "todo",
-    "priority": "medium",
     "taskType": "feature_optimization"
   }'`}</pre>
               </div>
@@ -281,12 +279,6 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                       <td className="py-0.5">
                         backlog / todo / in_progress / done
                       </td>
-                    </tr>
-                    <tr>
-                      <td className="pr-4 py-0.5 font-mono">priority</td>
-                      <td className="pr-4 py-0.5">string</td>
-                      <td className="pr-4 py-0.5">否</td>
-                      <td className="py-0.5">low / medium / high / urgent</td>
                     </tr>
                     <tr>
                       <td className="pr-4 py-0.5 font-mono">taskType</td>

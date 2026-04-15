@@ -65,25 +65,6 @@ export const getProjectStats = query({
       },
     ];
 
-    const priorityDistribution = [
-      {
-        name: "紧急",
-        value: visibleTasks.filter((t) => t.priority === "urgent").length,
-      },
-      {
-        name: "高",
-        value: visibleTasks.filter((t) => t.priority === "high").length,
-      },
-      {
-        name: "中",
-        value: visibleTasks.filter((t) => t.priority === "medium").length,
-      },
-      {
-        name: "低",
-        value: visibleTasks.filter((t) => t.priority === "low").length,
-      },
-    ];
-
     const TASK_TYPE_LABELS: Record<string, string> = {
       feature_optimization: "功能优化",
       bug_handling: "Bug处置",
@@ -155,7 +136,6 @@ export const getProjectStats = query({
       avgCycleDays,
       overdueTasks,
       statusDistribution,
-      priorityDistribution,
       taskTypeDistribution,
       assigneeWorkload,
       dailyCompletion,

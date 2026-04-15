@@ -41,12 +41,6 @@ export default defineSchema({
       v.literal("in_progress"),
       v.literal("done"),
     ),
-    priority: v.union(
-      v.literal("low"),
-      v.literal("medium"),
-      v.literal("high"),
-      v.literal("urgent"),
-    ),
     taskType: v.union(
       v.literal("feature_optimization"),
       v.literal("bug_handling"),

@@ -217,30 +217,6 @@ export function TaskDetail({
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
-                优先级
-              </label>
-              <select
-                value={task.priority}
-                onChange={(e) => {
-                  updateTask({
-                    taskId,
-                    priority: e.target.value as
-                      | "low"
-                      | "medium"
-                      | "high"
-                      | "urgent",
-                  }).catch((err: Error) => addToast(err.message));
-                }}
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="low">低</option>
-                <option value="medium">中</option>
-                <option value="high">高</option>
-                <option value="urgent">紧急</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-slate-500 block mb-1">
                 任务类型
               </label>
               <select

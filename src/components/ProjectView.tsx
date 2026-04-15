@@ -14,21 +14,6 @@ const STATUS_COLUMNS = [
   { key: "done" as const, label: "已完成" },
 ];
 
-const PRIORITY_COLORS: Record<string, string> = {
-  urgent: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  high: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  medium:
-    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  low: "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400",
-};
-
-const PRIORITY_LABELS: Record<string, string> = {
-  urgent: "紧急",
-  high: "高",
-  medium: "中",
-  low: "低",
-};
-
 const TASK_TYPE_OPTIONS = [
   { value: "feature_optimization", label: "功能优化" },
   { value: "bug_handling", label: "Bug处置" },
@@ -342,7 +327,6 @@ export function ProjectView({
                     title: newTaskTitle,
                     description: "",
                     status: newTaskStatus,
-                    priority: "medium",
                     taskType: newTaskType as any,
                     projectId,
                   })
@@ -434,11 +418,6 @@ export function ProjectView({
                       >
                         <p className="text-sm font-medium mb-2">{task.title}</p>
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`text-xs px-1.5 py-0.5 rounded ${PRIORITY_COLORS[task.priority] ?? ""}`}
-                          >
-                            {PRIORITY_LABELS[task.priority] ?? task.priority}
-                          </span>
                           {task.taskType && (
                             <span className="text-xs px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
                               {TASK_TYPE_LABELS[task.taskType] ?? task.taskType}

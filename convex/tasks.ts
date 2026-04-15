@@ -97,7 +97,6 @@ export const create = mutation({
     title: v.string(),
     description: v.string(),
     status: taskFields.status,
-    priority: taskFields.priority,
     taskType: taskFields.taskType,
     projectId: v.id("projects"),
     assigneeId: v.optional(v.id("users")),
@@ -122,7 +121,6 @@ export const create = mutation({
       title: args.title,
       description: args.description,
       status: args.status,
-      priority: args.priority,
       taskType: args.taskType,
       projectId: args.projectId,
       assigneeId: args.assigneeId,
@@ -150,7 +148,6 @@ export const update = mutation({
     title: v.optional(v.string()),
     description: v.optional(v.string()),
     status: v.optional(taskFields.status),
-    priority: v.optional(taskFields.priority),
     taskType: v.optional(taskFields.taskType),
     assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
@@ -177,7 +174,6 @@ export const update = mutation({
     if (args.title !== undefined) updates.title = args.title;
     if (args.description !== undefined) updates.description = args.description;
     if (args.status !== undefined) updates.status = args.status;
-    if (args.priority !== undefined) updates.priority = args.priority;
     if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.assigneeId !== undefined) updates.assigneeId = args.assigneeId;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
@@ -272,7 +268,6 @@ export const listByProjectViaApi = internalQuery({
       title: t.title,
       description: t.description,
       status: t.status,
-      priority: t.priority,
       taskType: t.taskType,
       assigneeId: t.assigneeId,
       dueDate: t.dueDate,
@@ -288,7 +283,6 @@ export const createViaApi = internalMutation({
     title: v.string(),
     description: v.string(),
     status: taskFields.status,
-    priority: taskFields.priority,
     taskType: taskFields.taskType,
     projectId: v.id("projects"),
     dueDate: v.optional(v.number()),
@@ -302,7 +296,6 @@ export const createViaApi = internalMutation({
       title: args.title,
       description: args.description,
       status: args.status,
-      priority: args.priority,
       taskType: args.taskType,
       projectId: args.projectId,
       dueDate: args.dueDate,
@@ -323,7 +316,6 @@ export const updateViaApi = internalMutation({
     title: v.optional(v.string()),
     description: v.optional(v.string()),
     status: v.optional(taskFields.status),
-    priority: v.optional(taskFields.priority),
     taskType: v.optional(taskFields.taskType),
     dueDate: v.optional(v.number()),
   },
@@ -335,7 +327,6 @@ export const updateViaApi = internalMutation({
     if (args.title !== undefined) updates.title = args.title;
     if (args.description !== undefined) updates.description = args.description;
     if (args.status !== undefined) updates.status = args.status;
-    if (args.priority !== undefined) updates.priority = args.priority;
     if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
 

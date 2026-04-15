@@ -17,7 +17,6 @@ import {
 } from "recharts";
 
 const STATUS_COLORS = ["#94a3b8", "#60a5fa", "#f59e0b", "#34d399"];
-const PRIORITY_COLORS = ["#ef4444", "#f97316", "#eab308", "#94a3b8"];
 
 export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
   const stats = useQuery(api.analytics.getProjectStats, { projectId });
@@ -129,36 +128,6 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
                 dot={{ r: 3 }}
               />
             </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="优先级分布">
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart
-              data={stats.priorityDistribution}
-              layout="vertical"
-              margin={{ left: 20 }}
-            >
-              <XAxis
-                type="number"
-                allowDecimals={false}
-                tick={{ fontSize: 11 }}
-              />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={{ fontSize: 12 }}
-                width={36}
-              />
-              <Tooltip />
-              <Bar dataKey="value" name="任务数" radius={[0, 4, 4, 0]}>
-                {stats.priorityDistribution.map(
-                  (_: { name: string; value: number }, i: number) => (
-                    <Cell key={i} fill={PRIORITY_COLORS[i]} />
-                  ),
-                )}
-              </Bar>
-            </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 

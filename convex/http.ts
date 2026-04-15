@@ -147,7 +147,6 @@ http.route({
     }
 
     const validStatuses = ["backlog", "todo", "in_progress", "done"];
-    const validPriorities = ["low", "medium", "high", "urgent"];
     const validTaskTypes = [
       "feature_optimization",
       "bug_handling",
@@ -170,16 +169,6 @@ http.route({
     }
 
     if (
-      b.priority !== undefined &&
-      !validPriorities.includes(b.priority as string)
-    ) {
-      return jsonResponse(
-        { error: `priority 必须为 ${validPriorities.join("/")}` },
-        400,
-      );
-    }
-
-    if (
       b.taskType !== undefined &&
       !validTaskTypes.includes(b.taskType as string)
     ) {
@@ -190,7 +179,6 @@ http.route({
     }
 
     const status = (b.status as string) ?? "todo";
-    const priority = (b.priority as string) ?? "medium";
     const taskType = (b.taskType as string) ?? "feature_optimization";
     const dueDate =
       b.dueDate !== undefined && typeof b.dueDate === "number"
@@ -201,16 +189,12 @@ http.route({
       title: b.title.trim(),
       description: typeof b.description === "string" ? b.description : "",
       status: status as "backlog" | "todo" | "in_progress" | "done",
-      priority: priority as "low" | "medium" | "high" | "urgent",
       taskType: taskType as any,
       projectId,
       dueDate,
     });
 
-    return jsonResponse(
-      { id: taskId, title: b.title, status, priority, taskType },
-      201,
-    );
+    return jsonResponse({ id: taskId, title: b.title, status, taskType }, 201);
   }),
 });
 
@@ -249,7 +233,6 @@ http.route({
     const b = body as Record<string, unknown>;
 
     const validStatuses = ["backlog", "todo", "in_progress", "done"];
-    const validPriorities = ["low", "medium", "high", "urgent"];
     const validTaskTypes = [
       "feature_optimization",
       "bug_handling",
@@ -272,16 +255,6 @@ http.route({
     }
 
     if (
-      b.priority !== undefined &&
-      !validPriorities.includes(b.priority as string)
-    ) {
-      return jsonResponse(
-        { error: `priority 必须为 ${validPriorities.join("/")}` },
-        400,
-      );
-    }
-
-    if (
       b.taskType !== undefined &&
       !validTaskTypes.includes(b.taskType as string)
     ) {
@@ -295,7 +268,6 @@ http.route({
     if (b.title !== undefined) updates.title = b.title;
     if (b.description !== undefined) updates.description = b.description;
     if (b.status !== undefined) updates.status = b.status;
-    if (b.priority !== undefined) updates.priority = b.priority;
     if (b.taskType !== undefined) updates.taskType = b.taskType;
     if (b.dueDate !== undefined) updates.dueDate = b.dueDate;
 
@@ -312,12 +284,6 @@ http.route({
         | "todo"
         | "in_progress"
         | "done"
-        | undefined,
-      priority: updates.priority as
-        | "low"
-        | "medium"
-        | "high"
-        | "urgent"
         | undefined,
       taskType: updates.taskType as any,
       dueDate: updates.dueDate as number | undefined,
