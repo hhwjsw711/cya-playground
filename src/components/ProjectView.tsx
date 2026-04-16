@@ -60,6 +60,7 @@ export function ProjectView({
   const [newTaskType, setNewTaskType] = useState<string>(
     "feature_optimization",
   );
+  const [newTaskProposer, setNewTaskProposer] = useState("");
   const [showMembers, setShowMembers] = useState(false);
   const [showApi, setShowApi] = useState(false);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -329,9 +330,11 @@ export function ProjectView({
                     status: newTaskStatus,
                     taskType: newTaskType as any,
                     projectId,
+                    proposer: newTaskProposer || undefined,
                   })
                     .then(() => {
                       setNewTaskTitle("");
+                      setNewTaskProposer("");
                       setShowCreateForm(false);
                     })
                     .catch((err: Error) => addToast(err.message));
@@ -371,6 +374,12 @@ export function ProjectView({
                     </option>
                   ))}
                 </select>
+                <input
+                  value={newTaskProposer}
+                  onChange={(e) => setNewTaskProposer(e.target.value)}
+                  placeholder="提出人"
+                  className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"

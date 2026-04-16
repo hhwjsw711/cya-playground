@@ -53,6 +53,22 @@ function formatDateTime(ts: number): string {
   });
 }
 
+function formatDateMinute(ts: number): string {
+  return new Date(ts).toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function timestampToDatetimeLocal(ts: number): string {
+  const d = new Date(ts);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function TaskDetail({
   taskId,
   members,
@@ -85,11 +101,44 @@ export function TaskDetail({
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [editingReq, setEditingReq] = useState(false);
+  const [reqProposer, setReqProposer] = useState("");
+  const [reqClientContact, setReqClientContact] = useState("");
+  const [reqProposedAt, setReqProposedAt] = useState("");
+  const [reqRespondedAt, setReqRespondedAt] = useState("");
+
   const canEdit = userRole === "admin" || userRole === "editor";
 
   if (!task) {
     return null;
   }
+
+  const hasReqInfo =
+    task.proposer || task.clientContact || task.proposedAt || task.respondedAt;
+
+  const startEditReq = () => {
+    setReqProposer(task.proposer ?? "");
+    setReqClientContact(task.clientContact ?? "");
+    setReqProposedAt(
+      task.proposedAt ? timestampToDatetimeLocal(task.proposedAt) : "",
+    );
+    setReqRespondedAt(
+      task.respondedAt ? timestampToDatetimeLocal(task.respondedAt) : "",
+    );
+    setEditingReq(true);
+  };
+
+  const saveReq = () => {
+    updateTask({
+      taskId,
+      proposer: reqProposer,
+      clientContact: reqClientContact,
+      proposedAt: reqProposedAt ? new Date(reqProposedAt).getTime() : 0,
+      respondedAt: reqRespondedAt ? new Date(reqRespondedAt).getTime() : 0,
+    })
+      .then(() => setEditingReq(false))
+      .catch((err: Error) => addToast(err.message));
+  };
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -193,7 +242,7 @@ export function TaskDetail({
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex flex-wrap gap-3 mb-4">
             <div>
               <label className="text-xs text-slate-500 block mb-1">状态</label>
               <select
@@ -238,7 +287,7 @@ export function TaskDetail({
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
-                负责人
+                乙方责任人
               </label>
               <select
                 value={task.assigneeId ?? ""}
@@ -309,6 +358,123 @@ export function TaskDetail({
                 删除
               </button>
             </div>
+          </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                需求信息
+              </h3>
+              {canEdit && !editingReq && (
+                <button
+                  onClick={startEditReq}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  {hasReqInfo ? "编辑" : "补充"}
+                </button>
+              )}
+            </div>
+            {editingReq ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      提出人
+                    </label>
+                    <input
+                      type="text"
+                      value={reqProposer}
+                      onChange={(e) => setReqProposer(e.target.value)}
+                      placeholder="输入姓名"
+                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      甲方对接人
+                    </label>
+                    <input
+                      type="text"
+                      value={reqClientContact}
+                      onChange={(e) => setReqClientContact(e.target.value)}
+                      placeholder="输入姓名"
+                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      提出时间
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={reqProposedAt}
+                      onChange={(e) => setReqProposedAt(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      响应时间
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={reqRespondedAt}
+                      onChange={(e) => setReqRespondedAt(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={saveReq}
+                    className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                  >
+                    保存
+                  </button>
+                  <button
+                    onClick={() => setEditingReq(false)}
+                    className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-700 text-sm"
+                  >
+                    取消
+                  </button>
+                </div>
+              </div>
+            ) : hasReqInfo ? (
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                {task.proposer && (
+                  <span>
+                    提出人{" "}
+                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                      {task.proposer}
+                    </span>
+                  </span>
+                )}
+                {task.clientContact && (
+                  <span>
+                    甲方对接人{" "}
+                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                      {task.clientContact}
+                    </span>
+                  </span>
+                )}
+                {task.proposedAt && (
+                  <span>提出 {formatDateMinute(task.proposedAt)}</span>
+                )}
+                {task.respondedAt && (
+                  <span>
+                    响应 {formatDateMinute(task.respondedAt)}
+                    {task.proposedAt && task.respondedAt > task.proposedAt && (
+                      <span className="text-blue-500 ml-1">
+                        （耗时{" "}
+                        {formatDuration(task.respondedAt - task.proposedAt)}）
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400">暂无</p>
+            )}
           </div>
 
           {(task.startedAt || task.completedAt || task.dueDate) && (

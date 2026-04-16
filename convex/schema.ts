@@ -59,6 +59,10 @@ export default defineSchema({
     dueDate: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
+    proposer: v.optional(v.string()),
+    proposedAt: v.optional(v.number()),
+    respondedAt: v.optional(v.number()),
+    clientContact: v.optional(v.string()),
   })
     .index("by_projectId", ["projectId"])
     .index("by_assigneeId", ["assigneeId"])

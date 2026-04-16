@@ -7,7 +7,8 @@
 - 密码登录（Convex Auth）
 - 项目管理，支持角色权限控制（管理员 / 可编辑 / 可查看）
 - 看板任务面板（待规划、待办、进行中、已完成）
-- 任务指派、优先级、截止日期
+- 任务指派（乙方责任人）、优先级、截止日期
+- 需求信息追踪（提出人、甲方对接人、提出时间、响应时间，自动计算响应耗时）
 - 任务时间自动追踪（开始/完成时间戳、耗时统计、逾期标记）
 - 任务评论
 - 活动日志
@@ -79,7 +80,11 @@ Authorization: Bearer <api_key>
   "title": "新任务",
   "description": "任务描述",
   "status": "todo",
-  "priority": "medium"
+  "taskType": "feature_optimization",
+  "proposer": "提出人",
+  "proposedAt": 1705276800000,
+  "respondedAt": 1705284000000,
+  "clientContact": "甲方对接人"
 }
 ```
 
@@ -103,10 +108,14 @@ Authorization: Bearer <api_key>
 
 ### 状态值
 
-| 字段     | 可选值                              |
-| -------- | ----------------------------------- |
-| status   | backlog / todo / in_progress / done |
-| priority | low / medium / high / urgent        |
+| 字段          | 可选值                                                                                                                                                                                                    | 说明                    |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| status        | backlog / todo / in_progress / done                                                                                                                                                                       |                         |
+| taskType      | feature_optimization / bug_handling / incident_handling / server_config / permission_config / security_risk / security_config / third_party_integration / consultation / data_maintenance / documentation |                         |
+| proposer      | string                                                                                                                                                                                                    | 提出人（自由文本）      |
+| proposedAt    | number                                                                                                                                                                                                    | 提出时间（Unix 时间戳） |
+| respondedAt   | number                                                                                                                                                                                                    | 响应时间（Unix 时间戳） |
+| clientContact | string                                                                                                                                                                                                    | 甲方对接人（自由文本）  |
 
 ## 附件接口
 

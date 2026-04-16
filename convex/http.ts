@@ -184,6 +184,22 @@ http.route({
       b.dueDate !== undefined && typeof b.dueDate === "number"
         ? b.dueDate
         : undefined;
+    const proposer =
+      b.proposer !== undefined && typeof b.proposer === "string"
+        ? b.proposer
+        : undefined;
+    const proposedAt =
+      b.proposedAt !== undefined && typeof b.proposedAt === "number"
+        ? b.proposedAt
+        : undefined;
+    const respondedAt =
+      b.respondedAt !== undefined && typeof b.respondedAt === "number"
+        ? b.respondedAt
+        : undefined;
+    const clientContact =
+      b.clientContact !== undefined && typeof b.clientContact === "string"
+        ? b.clientContact
+        : undefined;
 
     const taskId = await ctx.runMutation(internal.tasks.createViaApi, {
       title: b.title.trim(),
@@ -192,6 +208,10 @@ http.route({
       taskType: taskType as any,
       projectId,
       dueDate,
+      proposer,
+      proposedAt,
+      respondedAt,
+      clientContact,
     });
 
     return jsonResponse({ id: taskId, title: b.title, status, taskType }, 201);
@@ -270,6 +290,10 @@ http.route({
     if (b.status !== undefined) updates.status = b.status;
     if (b.taskType !== undefined) updates.taskType = b.taskType;
     if (b.dueDate !== undefined) updates.dueDate = b.dueDate;
+    if (b.proposer !== undefined) updates.proposer = b.proposer;
+    if (b.proposedAt !== undefined) updates.proposedAt = b.proposedAt;
+    if (b.respondedAt !== undefined) updates.respondedAt = b.respondedAt;
+    if (b.clientContact !== undefined) updates.clientContact = b.clientContact;
 
     if (Object.keys(updates).length === 0) {
       return jsonResponse({ error: "至少需要提供一个更新字段" }, 400);
@@ -287,6 +311,10 @@ http.route({
         | undefined,
       taskType: updates.taskType as any,
       dueDate: updates.dueDate as number | undefined,
+      proposer: updates.proposer as string | undefined,
+      proposedAt: updates.proposedAt as number | undefined,
+      respondedAt: updates.respondedAt as number | undefined,
+      clientContact: updates.clientContact as string | undefined,
     });
 
     return jsonResponse({ id: taskId, ...updates });

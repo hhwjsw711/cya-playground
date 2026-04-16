@@ -101,6 +101,10 @@ export const create = mutation({
     projectId: v.id("projects"),
     assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
+    proposer: v.optional(v.string()),
+    proposedAt: v.optional(v.number()),
+    respondedAt: v.optional(v.number()),
+    clientContact: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -125,6 +129,10 @@ export const create = mutation({
       projectId: args.projectId,
       assigneeId: args.assigneeId,
       dueDate: args.dueDate,
+      proposer: args.proposer,
+      proposedAt: args.proposedAt,
+      respondedAt: args.respondedAt,
+      clientContact: args.clientContact,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -151,6 +159,10 @@ export const update = mutation({
     taskType: v.optional(taskFields.taskType),
     assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
+    proposer: v.optional(v.string()),
+    proposedAt: v.optional(v.number()),
+    respondedAt: v.optional(v.number()),
+    clientContact: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -177,6 +189,14 @@ export const update = mutation({
     if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.assigneeId !== undefined) updates.assigneeId = args.assigneeId;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
+    if (args.proposer !== undefined)
+      updates.proposer = args.proposer || undefined;
+    if (args.proposedAt !== undefined)
+      updates.proposedAt = args.proposedAt || undefined;
+    if (args.respondedAt !== undefined)
+      updates.respondedAt = args.respondedAt || undefined;
+    if (args.clientContact !== undefined)
+      updates.clientContact = args.clientContact || undefined;
 
     if (args.status !== undefined) {
       const now = Date.now();
@@ -273,6 +293,10 @@ export const listByProjectViaApi = internalQuery({
       dueDate: t.dueDate,
       startedAt: t.startedAt,
       completedAt: t.completedAt,
+      proposer: t.proposer,
+      proposedAt: t.proposedAt,
+      respondedAt: t.respondedAt,
+      clientContact: t.clientContact,
       createdAt: t._creationTime,
     }));
   },
@@ -286,6 +310,10 @@ export const createViaApi = internalMutation({
     taskType: taskFields.taskType,
     projectId: v.id("projects"),
     dueDate: v.optional(v.number()),
+    proposer: v.optional(v.string()),
+    proposedAt: v.optional(v.number()),
+    respondedAt: v.optional(v.number()),
+    clientContact: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -301,6 +329,10 @@ export const createViaApi = internalMutation({
       dueDate: args.dueDate,
       startedAt,
       completedAt,
+      proposer: args.proposer,
+      proposedAt: args.proposedAt,
+      respondedAt: args.respondedAt,
+      clientContact: args.clientContact,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -318,6 +350,10 @@ export const updateViaApi = internalMutation({
     status: v.optional(taskFields.status),
     taskType: v.optional(taskFields.taskType),
     dueDate: v.optional(v.number()),
+    proposer: v.optional(v.string()),
+    proposedAt: v.optional(v.number()),
+    respondedAt: v.optional(v.number()),
+    clientContact: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get("tasks", args.taskId);
@@ -329,6 +365,14 @@ export const updateViaApi = internalMutation({
     if (args.status !== undefined) updates.status = args.status;
     if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
+    if (args.proposer !== undefined)
+      updates.proposer = args.proposer || undefined;
+    if (args.proposedAt !== undefined)
+      updates.proposedAt = args.proposedAt || undefined;
+    if (args.respondedAt !== undefined)
+      updates.respondedAt = args.respondedAt || undefined;
+    if (args.clientContact !== undefined)
+      updates.clientContact = args.clientContact || undefined;
 
     if (args.status !== undefined) {
       const now = Date.now();

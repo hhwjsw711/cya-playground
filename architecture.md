@@ -65,11 +65,11 @@ tasks                comments              activityLog
 ├─ projectId         labels                └─ entityId
 ├─ assigneeId        ├─ name
 ├─ dueDate           └─ color
-├─ startedAt (auto)                         taskLabels
-├─ startedAt (auto)                         ├─ taskId
-└─ completedAt (auto) └─ projectId          └─ labelId
-
-                      └─ projectId         taskAttachments
+├─ proposer                                taskLabels
+├─ proposedAt                               ├─ taskId
+├─ respondedAt       └─ projectId          └─ labelId
+├─ startedAt (auto)
+└─ completedAt (auto)                     taskAttachments
                                            ├─ taskId
                                            ├─ storageId
                                            ├─ fileName
@@ -131,6 +131,16 @@ tasks                comments              activityLog
 - 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
 - `startedAt` 首次进入 in_progress 时自动写入，不覆盖；`completedAt` 进入 done 时写入，回退时清空
+- 需求信息字段（proposer / proposedAt / respondedAt / clientContact）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
+
+## 需求信息
+
+任务卡片包含「需求信息」区域，支持查看/编辑切换模式：
+
+- **查看态**：紧凑一行展示（提出人 · 甲方对接人 · 提出时间 · 响应时间 + 自动计算响应耗时），无值时显示「暂无」+ 蓝色「补充」按钮
+- **编辑态**：2×2 grid 表单 + 保存/取消按钮，空字符串/空时间 → 清除对应字段
+- **新建任务**：仅填写标题、状态、类型、提出人，其余需求信息由项目经理后续补充
+- **乙方责任人**：即原 assigneeId，任务指派的乙方内部负责人
 
 ## 数据洞察
 
