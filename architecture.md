@@ -70,9 +70,9 @@ tasks                comments              activityLog
 ├─ respondedAt       └─ projectId          └─ labelId
 ├─ clientContact
 ├─ subPlatform                             taskAttachments
-├─ startedAt (auto)                         ├─ taskId
-                                           ├─ storageId
-                                           ├─ fileName
+├─ progress (0-100)                         ├─ taskId
+├─ startedAt (auto)                         ├─ storageId
+                                            ├─ fileName
                                            ├─ fileSize
                                            ├─ fileType
                                            └─ uploadedBy
@@ -132,6 +132,16 @@ tasks                comments              activityLog
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
 - `startedAt` 首次进入 in_progress 时自动写入，不覆盖；`completedAt` 进入 done 时写入，回退时清空
 - 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
+- 任务进度（progress）：0-100 可选整数，前端通过滑块（步进 5）实时调节；REST API 自动 clamp 到 0-100；进度与状态不自动联动
+
+## 任务进度
+
+任务支持 0-100% 进度标识，仅对 `in_progress` 状态的任务有实际意义，但所有状态均可设置：
+
+- **看板卡片**：进度 > 0 时在标题下方显示进度条（蓝色填充 + 百分比数字）
+- **任务详情**：截止日期旁显示滑块控件，步进 5%，可编辑角色可拖拽调整，可查看角色只读
+- **REST API**：POST/PATCH 支持 `progress` 字段，后端自动 clamp 到 0-100 范围
+- 进度与状态不自动联动（设为 done 不自动变 100%），由用户手动管理
 
 ## 需求信息
 

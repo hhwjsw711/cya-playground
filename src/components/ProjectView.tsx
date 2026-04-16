@@ -466,6 +466,21 @@ export function ProjectView({
                         className="w-full text-left p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
                       >
                         <p className="text-sm font-medium mb-2">{task.title}</p>
+                        {task.progress != null && task.progress > 0 && (
+                          <div className="mb-2">
+                            <div className="flex items-center gap-1.5">
+                              <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-blue-500 transition-all"
+                                  style={{ width: `${task.progress}%` }}
+                                />
+                              </div>
+                              <span className="text-[10px] text-slate-400 tabular-nums w-7 text-right">
+                                {task.progress}%
+                              </span>
+                            </div>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
                           {task.subPlatform && (
                             <span className="text-xs px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">

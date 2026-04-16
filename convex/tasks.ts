@@ -106,6 +106,7 @@ export const create = mutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    progress: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -135,6 +136,7 @@ export const create = mutation({
       respondedAt: args.respondedAt,
       clientContact: args.clientContact,
       subPlatform: args.subPlatform,
+      progress: args.progress,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -166,6 +168,7 @@ export const update = mutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    progress: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -202,6 +205,7 @@ export const update = mutation({
       updates.clientContact = args.clientContact || undefined;
     if (args.subPlatform !== undefined)
       updates.subPlatform = args.subPlatform || undefined;
+    if (args.progress !== undefined) updates.progress = args.progress;
 
     if (args.status !== undefined) {
       const now = Date.now();
@@ -303,6 +307,7 @@ export const listByProjectViaApi = internalQuery({
       respondedAt: t.respondedAt,
       clientContact: t.clientContact,
       subPlatform: t.subPlatform,
+      progress: t.progress,
       createdAt: t._creationTime,
     }));
   },
@@ -321,6 +326,7 @@ export const createViaApi = internalMutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    progress: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -341,6 +347,7 @@ export const createViaApi = internalMutation({
       respondedAt: args.respondedAt,
       clientContact: args.clientContact,
       subPlatform: args.subPlatform,
+      progress: args.progress,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -363,6 +370,7 @@ export const updateViaApi = internalMutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    progress: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get("tasks", args.taskId);
@@ -384,6 +392,7 @@ export const updateViaApi = internalMutation({
       updates.clientContact = args.clientContact || undefined;
     if (args.subPlatform !== undefined)
       updates.subPlatform = args.subPlatform || undefined;
+    if (args.progress !== undefined) updates.progress = args.progress;
 
     if (args.status !== undefined) {
       const now = Date.now();

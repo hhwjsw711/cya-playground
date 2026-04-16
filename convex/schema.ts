@@ -64,6 +64,7 @@ export default defineSchema({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    progress: v.optional(v.number()),
   })
     .index("by_projectId", ["projectId"])
     .index("by_assigneeId", ["assigneeId"])

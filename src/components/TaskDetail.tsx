@@ -354,6 +354,31 @@ export function TaskDetail({
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
+                进度 {task.progress ?? 0}%
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={task.progress ?? 0}
+                  onChange={(e) => {
+                    updateTask({
+                      taskId,
+                      progress: Number(e.target.value),
+                    }).catch((err: Error) => addToast(err.message));
+                  }}
+                  disabled={!canEdit}
+                  className="w-24 h-1.5 accent-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <span className="text-xs text-slate-500 tabular-nums w-8 text-right">
+                  {task.progress ?? 0}%
+                </span>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">
                 子平台
               </label>
               <select

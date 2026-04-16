@@ -236,6 +236,11 @@ http.route({
         ? b.subPlatform
         : "data_catalog_platform";
 
+    const progress =
+      b.progress !== undefined && typeof b.progress === "number"
+        ? Math.max(0, Math.min(100, b.progress))
+        : undefined;
+
     const taskId = await ctx.runMutation(internal.tasks.createViaApi, {
       title: b.title.trim(),
       description: typeof b.description === "string" ? b.description : "",
@@ -248,10 +253,11 @@ http.route({
       respondedAt,
       clientContact,
       subPlatform,
+      progress,
     });
 
     return jsonResponse(
-      { id: taskId, title: b.title, status, taskType, subPlatform },
+      { id: taskId, title: b.title, status, taskType, subPlatform, progress },
       201,
     );
   }),
@@ -364,6 +370,12 @@ http.route({
     if (b.respondedAt !== undefined) updates.respondedAt = b.respondedAt;
     if (b.clientContact !== undefined) updates.clientContact = b.clientContact;
     if (b.subPlatform !== undefined) updates.subPlatform = b.subPlatform;
+    if (b.progress !== undefined) {
+      if (typeof b.progress !== "number") {
+        return jsonResponse({ error: "progress 必须为数字" }, 400);
+      }
+      updates.progress = Math.max(0, Math.min(100, b.progress));
+    }
 
     if (Object.keys(updates).length === 0) {
       return jsonResponse({ error: "至少需要提供一个更新字段" }, 400);
@@ -386,6 +398,7 @@ http.route({
       respondedAt: updates.respondedAt as number | undefined,
       clientContact: updates.clientContact as string | undefined,
       subPlatform: updates.subPlatform as string | undefined,
+      progress: updates.progress as number | undefined,
     });
 
     return jsonResponse({ id: taskId, ...updates });
