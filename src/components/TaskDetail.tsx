@@ -31,23 +31,23 @@ const TASK_TYPE_OPTIONS = [
 type TaskType = (typeof TASK_TYPE_OPTIONS)[number]["value"];
 
 const SUB_PLATFORM_OPTIONS = [
-  "AI数据服务",
-  "DataV",
-  "工作门户",
-  "核心业务平台",
-  "企业标签",
-  "前置库",
-  "数据共享平台",
-  "数据归档平台",
-  "数据回流",
-  "数据交换平台",
-  "数据开放平台",
-  "数据目录平台",
-  "数据上报平台",
-  "数据治理平台",
-  "镇街数仓",
-  "专题库",
-  "资源视窗",
+  { value: "ai_data_service", label: "AI数据服务" },
+  { value: "datav", label: "DataV" },
+  { value: "work_portal", label: "工作门户" },
+  { value: "core_business_platform", label: "核心业务平台" },
+  { value: "enterprise_tags", label: "企业标签" },
+  { value: "staging_db", label: "前置库" },
+  { value: "data_sharing_platform", label: "数据共享平台" },
+  { value: "data_archive_platform", label: "数据归档平台" },
+  { value: "data_feedback", label: "数据回流" },
+  { value: "data_exchange_platform", label: "数据交换平台" },
+  { value: "data_open_platform", label: "数据开放平台" },
+  { value: "data_catalog_platform", label: "数据目录平台" },
+  { value: "data_report_platform", label: "数据上报平台" },
+  { value: "data_governance_platform", label: "数据治理平台" },
+  { value: "town_warehouse", label: "镇街数仓" },
+  { value: "topic_db", label: "专题库" },
+  { value: "resource_view", label: "资源视窗" },
 ];
 
 function formatFileSize(bytes: number): string {
@@ -357,7 +357,7 @@ export function TaskDetail({
                 子平台
               </label>
               <select
-                value={task.subPlatform ?? "数据目录平台"}
+                value={task.subPlatform ?? "data_catalog_platform"}
                 onChange={(e) => {
                   updateTask({
                     taskId,
@@ -367,8 +367,8 @@ export function TaskDetail({
                 className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {SUB_PLATFORM_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
                   </option>
                 ))}
               </select>

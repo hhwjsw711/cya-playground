@@ -27,20 +27,24 @@ GET ${baseUrl}
 ### 创建任务
 POST ${baseUrl}
 Content-Type: application/json
- 请求体：{ "title": "任务标题", "description": "描述", "status": "todo", "taskType": "feature_optimization", "dueDate": null, "proposer": "提出人", "proposedAt": null, "respondedAt": null, "clientContact": "甲方对接人", "subPlatform": "所属子平台" }
-- status 可选值：backlog / todo / in_progress / done
-- taskType 可选值：feature_optimization / bug_handling / incident_handling / server_config / permission_config / security_risk / security_config / third_party_integration / consultation / data_maintenance / documentation
-- dueDate 为 Unix 时间戳（毫秒），可选
-- proposer 为提出人姓名，可选
-- proposedAt 为提出时间（Unix 时间戳，毫秒），可选
-- respondedAt 为响应时间（Unix 时间戳，毫秒），可选
-- clientContact 为甲方对接人姓名，可选
-- subPlatform 为所属子平台，可选值：AI数据服务 / DataV / 工作门户 / 核心业务平台 / 企业标签 / 前置库 / 数据共享平台 / 数据归档平台 / 数据回流 / 数据交换平台 / 数据开放平台 / 数据目录平台 / 数据上报平台 / 数据治理平台 / 镇街数仓 / 专题库 / 资源视窗
+请求体示例：{ "title": "任务标题", "subPlatform": "data_catalog_platform", "taskType": "feature_optimization", "status": "todo" }
+
+各字段说明：
+- title（string，必填）：任务标题
+- subPlatform（string，所属子平台）：ai_data_service(AI数据服务) / datav(DataV) / work_portal(工作门户) / core_business_platform(核心业务平台) / enterprise_tags(企业标签) / staging_db(前置库) / data_sharing_platform(数据共享平台) / data_archive_platform(数据归档平台) / data_feedback(数据回流) / data_exchange_platform(数据交换平台) / data_open_platform(数据开放平台) / data_catalog_platform(数据目录平台，默认) / data_report_platform(数据上报平台) / data_governance_platform(数据治理平台) / town_warehouse(镇街数仓) / topic_db(专题库) / resource_view(资源视窗)
+- taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug处置) / incident_handling(故障处理) / server_config(服务器配置) / permission_config(权限配置) / security_risk(安全风险) / security_config(安全配置) / third_party_integration(三方对接) / consultation(咨询协助) / data_maintenance(数据维护统计) / documentation(文档编写)
+- status（string，状态）：backlog(未排期) / todo(未开始) / in_progress(进行中) / done(已完成)
+- description（string，可选）：任务描述
+- dueDate（number，可选）：截止时间，Unix 时间戳（毫秒）
+- proposer（string，可选）：提出人姓名
+- proposedAt（number，可选）：提出时间，Unix 时间戳（毫秒）
+- respondedAt（number，可选）：响应时间，Unix 时间戳（毫秒）
+- clientContact（string，可选）：甲方对接人姓名
 
 ### 更新任务
 PATCH ${baseUrl}/:taskId
 Content-Type: application/json
-请求体：{ "status": "done" }（至少提供一个字段）
+请求体：至少提供一个字段，如 { "status": "done" }
 可更新字段：title / description / status / taskType / dueDate / proposer / proposedAt / respondedAt / clientContact / subPlatform
 
 ### 删除任务
@@ -330,7 +334,15 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                       <td className="pr-4 py-0.5 font-mono">subPlatform</td>
                       <td className="pr-4 py-0.5">string</td>
                       <td className="pr-4 py-0.5">否</td>
-                      <td className="py-0.5">所属子平台</td>
+                      <td className="py-0.5">
+                        ai_data_service / datav / work_portal /
+                        core_business_platform / enterprise_tags / staging_db /
+                        data_sharing_platform / data_archive_platform /
+                        data_feedback / data_exchange_platform /
+                        data_open_platform / data_catalog_platform（默认） /
+                        data_report_platform / data_governance_platform /
+                        town_warehouse / topic_db / resource_view
+                      </td>
                     </tr>
                   </tbody>
                 </table>

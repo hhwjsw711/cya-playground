@@ -33,24 +33,28 @@ const TASK_TYPE_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 const SUB_PLATFORM_OPTIONS = [
-  "AI数据服务",
-  "DataV",
-  "工作门户",
-  "核心业务平台",
-  "企业标签",
-  "前置库",
-  "数据共享平台",
-  "数据归档平台",
-  "数据回流",
-  "数据交换平台",
-  "数据开放平台",
-  "数据目录平台",
-  "数据上报平台",
-  "数据治理平台",
-  "镇街数仓",
-  "专题库",
-  "资源视窗",
-];
+  { value: "ai_data_service", label: "AI数据服务" },
+  { value: "datav", label: "DataV" },
+  { value: "work_portal", label: "工作门户" },
+  { value: "core_business_platform", label: "核心业务平台" },
+  { value: "enterprise_tags", label: "企业标签" },
+  { value: "staging_db", label: "前置库" },
+  { value: "data_sharing_platform", label: "数据共享平台" },
+  { value: "data_archive_platform", label: "数据归档平台" },
+  { value: "data_feedback", label: "数据回流" },
+  { value: "data_exchange_platform", label: "数据交换平台" },
+  { value: "data_open_platform", label: "数据开放平台" },
+  { value: "data_catalog_platform", label: "数据目录平台" },
+  { value: "data_report_platform", label: "数据上报平台" },
+  { value: "data_governance_platform", label: "数据治理平台" },
+  { value: "town_warehouse", label: "镇街数仓" },
+  { value: "topic_db", label: "专题库" },
+  { value: "resource_view", label: "资源视窗" },
+] as const;
+
+const SUB_PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
+  SUB_PLATFORM_OPTIONS.map((opt) => [opt.value, opt.label]),
+);
 
 export function ProjectView({
   projectId,
@@ -81,8 +85,9 @@ export function ProjectView({
     "feature_optimization",
   );
   const [newTaskProposer, setNewTaskProposer] = useState("");
-  const [newTaskSubPlatform, setNewTaskSubPlatform] =
-    useState<string>("数据目录平台");
+  const [newTaskSubPlatform, setNewTaskSubPlatform] = useState<string>(
+    "data_catalog_platform",
+  );
   const [showMembers, setShowMembers] = useState(false);
   const [showApi, setShowApi] = useState(false);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -358,7 +363,7 @@ export function ProjectView({
                     .then(() => {
                       setNewTaskTitle("");
                       setNewTaskProposer("");
-                      setNewTaskSubPlatform("数据目录平台");
+                      setNewTaskSubPlatform("data_catalog_platform");
                       setShowCreateForm(false);
                     })
                     .catch((err: Error) => addToast(err.message));
@@ -371,8 +376,8 @@ export function ProjectView({
                   className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {SUB_PLATFORM_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
                     </option>
                   ))}
                 </select>
@@ -464,7 +469,8 @@ export function ProjectView({
                         <div className="flex items-center gap-2">
                           {task.subPlatform && (
                             <span className="text-xs px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
-                              {task.subPlatform}
+                              {SUB_PLATFORM_LABELS[task.subPlatform] ??
+                                task.subPlatform}
                             </span>
                           )}
                           {task.taskType && (

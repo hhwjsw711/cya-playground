@@ -161,23 +161,23 @@ http.route({
       "documentation",
     ];
     const validSubPlatforms = [
-      "AI数据服务",
-      "DataV",
-      "工作门户",
-      "核心业务平台",
-      "企业标签",
-      "前置库",
-      "数据共享平台",
-      "数据归档平台",
-      "数据回流",
-      "数据交换平台",
-      "数据开放平台",
-      "数据目录平台",
-      "数据上报平台",
-      "数据治理平台",
-      "镇街数仓",
-      "专题库",
-      "资源视窗",
+      "ai_data_service",
+      "datav",
+      "work_portal",
+      "core_business_platform",
+      "enterprise_tags",
+      "staging_db",
+      "data_sharing_platform",
+      "data_archive_platform",
+      "data_feedback",
+      "data_exchange_platform",
+      "data_open_platform",
+      "data_catalog_platform",
+      "data_report_platform",
+      "data_governance_platform",
+      "town_warehouse",
+      "topic_db",
+      "resource_view",
     ];
 
     if (b.status !== undefined && !validStatuses.includes(b.status as string)) {
@@ -234,7 +234,7 @@ http.route({
     const subPlatform =
       b.subPlatform !== undefined && typeof b.subPlatform === "string"
         ? b.subPlatform
-        : "数据目录平台";
+        : "data_catalog_platform";
 
     const taskId = await ctx.runMutation(internal.tasks.createViaApi, {
       title: b.title.trim(),
@@ -306,23 +306,23 @@ http.route({
       "documentation",
     ];
     const validSubPlatforms = [
-      "AI数据服务",
-      "DataV",
-      "工作门户",
-      "核心业务平台",
-      "企业标签",
-      "前置库",
-      "数据共享平台",
-      "数据归档平台",
-      "数据回流",
-      "数据交换平台",
-      "数据开放平台",
-      "数据目录平台",
-      "数据上报平台",
-      "数据治理平台",
-      "镇街数仓",
-      "专题库",
-      "资源视窗",
+      "ai_data_service",
+      "datav",
+      "work_portal",
+      "core_business_platform",
+      "enterprise_tags",
+      "staging_db",
+      "data_sharing_platform",
+      "data_archive_platform",
+      "data_feedback",
+      "data_exchange_platform",
+      "data_open_platform",
+      "data_catalog_platform",
+      "data_report_platform",
+      "data_governance_platform",
+      "town_warehouse",
+      "topic_db",
+      "resource_view",
     ];
 
     if (b.status !== undefined && !validStatuses.includes(b.status as string)) {
