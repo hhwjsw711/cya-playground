@@ -30,6 +30,26 @@ const TASK_TYPE_OPTIONS = [
 
 type TaskType = (typeof TASK_TYPE_OPTIONS)[number]["value"];
 
+const SUB_PLATFORM_OPTIONS = [
+  "AI数据服务",
+  "DataV",
+  "工作门户",
+  "核心业务平台",
+  "企业标签",
+  "前置库",
+  "数据共享平台",
+  "数据归档平台",
+  "数据回流",
+  "数据交换平台",
+  "数据开放平台",
+  "数据目录平台",
+  "数据上报平台",
+  "数据治理平台",
+  "镇街数仓",
+  "专题库",
+  "资源视窗",
+];
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -331,6 +351,27 @@ export function TaskDetail({
                 }}
                 className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">
+                子平台
+              </label>
+              <select
+                value={task.subPlatform ?? "数据目录平台"}
+                onChange={(e) => {
+                  updateTask({
+                    taskId,
+                    subPlatform: e.target.value,
+                  }).catch((err: Error) => addToast(err.message));
+                }}
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {SUB_PLATFORM_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="ml-auto flex gap-2 self-end">
               {!isEditing && (

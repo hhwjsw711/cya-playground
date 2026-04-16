@@ -160,6 +160,25 @@ http.route({
       "data_maintenance",
       "documentation",
     ];
+    const validSubPlatforms = [
+      "AI数据服务",
+      "DataV",
+      "工作门户",
+      "核心业务平台",
+      "企业标签",
+      "前置库",
+      "数据共享平台",
+      "数据归档平台",
+      "数据回流",
+      "数据交换平台",
+      "数据开放平台",
+      "数据目录平台",
+      "数据上报平台",
+      "数据治理平台",
+      "镇街数仓",
+      "专题库",
+      "资源视窗",
+    ];
 
     if (b.status !== undefined && !validStatuses.includes(b.status as string)) {
       return jsonResponse(
@@ -201,6 +220,22 @@ http.route({
         ? b.clientContact
         : undefined;
 
+    if (
+      b.subPlatform !== undefined &&
+      typeof b.subPlatform === "string" &&
+      !validSubPlatforms.includes(b.subPlatform)
+    ) {
+      return jsonResponse(
+        { error: `subPlatform 必须为 ${validSubPlatforms.join("/")}` },
+        400,
+      );
+    }
+
+    const subPlatform =
+      b.subPlatform !== undefined && typeof b.subPlatform === "string"
+        ? b.subPlatform
+        : "数据目录平台";
+
     const taskId = await ctx.runMutation(internal.tasks.createViaApi, {
       title: b.title.trim(),
       description: typeof b.description === "string" ? b.description : "",
@@ -212,9 +247,13 @@ http.route({
       proposedAt,
       respondedAt,
       clientContact,
+      subPlatform,
     });
 
-    return jsonResponse({ id: taskId, title: b.title, status, taskType }, 201);
+    return jsonResponse(
+      { id: taskId, title: b.title, status, taskType, subPlatform },
+      201,
+    );
   }),
 });
 
@@ -266,6 +305,25 @@ http.route({
       "data_maintenance",
       "documentation",
     ];
+    const validSubPlatforms = [
+      "AI数据服务",
+      "DataV",
+      "工作门户",
+      "核心业务平台",
+      "企业标签",
+      "前置库",
+      "数据共享平台",
+      "数据归档平台",
+      "数据回流",
+      "数据交换平台",
+      "数据开放平台",
+      "数据目录平台",
+      "数据上报平台",
+      "数据治理平台",
+      "镇街数仓",
+      "专题库",
+      "资源视窗",
+    ];
 
     if (b.status !== undefined && !validStatuses.includes(b.status as string)) {
       return jsonResponse(
@@ -284,6 +342,17 @@ http.route({
       );
     }
 
+    if (
+      b.subPlatform !== undefined &&
+      typeof b.subPlatform === "string" &&
+      !validSubPlatforms.includes(b.subPlatform)
+    ) {
+      return jsonResponse(
+        { error: `subPlatform 必须为 ${validSubPlatforms.join("/")}` },
+        400,
+      );
+    }
+
     const updates: Record<string, unknown> = {};
     if (b.title !== undefined) updates.title = b.title;
     if (b.description !== undefined) updates.description = b.description;
@@ -294,6 +363,7 @@ http.route({
     if (b.proposedAt !== undefined) updates.proposedAt = b.proposedAt;
     if (b.respondedAt !== undefined) updates.respondedAt = b.respondedAt;
     if (b.clientContact !== undefined) updates.clientContact = b.clientContact;
+    if (b.subPlatform !== undefined) updates.subPlatform = b.subPlatform;
 
     if (Object.keys(updates).length === 0) {
       return jsonResponse({ error: "至少需要提供一个更新字段" }, 400);
@@ -315,6 +385,7 @@ http.route({
       proposedAt: updates.proposedAt as number | undefined,
       respondedAt: updates.respondedAt as number | undefined,
       clientContact: updates.clientContact as string | undefined,
+      subPlatform: updates.subPlatform as string | undefined,
     });
 
     return jsonResponse({ id: taskId, ...updates });

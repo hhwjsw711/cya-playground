@@ -27,7 +27,7 @@ GET ${baseUrl}
 ### 创建任务
 POST ${baseUrl}
 Content-Type: application/json
-请求体：{ "title": "任务标题", "description": "描述", "status": "todo", "taskType": "feature_optimization", "dueDate": null, "proposer": "提出人", "proposedAt": null, "respondedAt": null, "clientContact": "甲方对接人" }
+ 请求体：{ "title": "任务标题", "description": "描述", "status": "todo", "taskType": "feature_optimization", "dueDate": null, "proposer": "提出人", "proposedAt": null, "respondedAt": null, "clientContact": "甲方对接人", "subPlatform": "所属子平台" }
 - status 可选值：backlog / todo / in_progress / done
 - taskType 可选值：feature_optimization / bug_handling / incident_handling / server_config / permission_config / security_risk / security_config / third_party_integration / consultation / data_maintenance / documentation
 - dueDate 为 Unix 时间戳（毫秒），可选
@@ -35,12 +35,13 @@ Content-Type: application/json
 - proposedAt 为提出时间（Unix 时间戳，毫秒），可选
 - respondedAt 为响应时间（Unix 时间戳，毫秒），可选
 - clientContact 为甲方对接人姓名，可选
+- subPlatform 为所属子平台，可选值：AI数据服务 / DataV / 工作门户 / 核心业务平台 / 企业标签 / 前置库 / 数据共享平台 / 数据归档平台 / 数据回流 / 数据交换平台 / 数据开放平台 / 数据目录平台 / 数据上报平台 / 数据治理平台 / 镇街数仓 / 专题库 / 资源视窗
 
 ### 更新任务
 PATCH ${baseUrl}/:taskId
 Content-Type: application/json
 请求体：{ "status": "done" }（至少提供一个字段）
-可更新字段：title / description / status / taskType / dueDate / proposer / proposedAt / respondedAt / clientContact
+可更新字段：title / description / status / taskType / dueDate / proposer / proposedAt / respondedAt / clientContact / subPlatform
 
 ### 删除任务
 DELETE ${baseUrl}/:taskId
@@ -325,6 +326,12 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                       <td className="pr-4 py-0.5">否</td>
                       <td className="py-0.5">甲方对接人</td>
                     </tr>
+                    <tr>
+                      <td className="pr-4 py-0.5 font-mono">subPlatform</td>
+                      <td className="pr-4 py-0.5">string</td>
+                      <td className="pr-4 py-0.5">否</td>
+                      <td className="py-0.5">所属子平台</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -350,8 +357,8 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 可更新字段：title / description / status / taskType / dueDate /
-                proposer / proposedAt / respondedAt /
-                clientContact，至少提供一个
+                proposer / proposedAt / respondedAt / clientContact /
+                subPlatform，至少提供一个
               </p>
             </div>
 

@@ -68,9 +68,9 @@ tasks                comments              activityLog
 ├─ proposer                                taskLabels
 ├─ proposedAt                               ├─ taskId
 ├─ respondedAt       └─ projectId          └─ labelId
-├─ startedAt (auto)
-└─ completedAt (auto)                     taskAttachments
-                                           ├─ taskId
+├─ clientContact
+├─ subPlatform                             taskAttachments
+├─ startedAt (auto)                         ├─ taskId
                                            ├─ storageId
                                            ├─ fileName
                                            ├─ fileSize
@@ -131,7 +131,7 @@ tasks                comments              activityLog
 - 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
 - `startedAt` 首次进入 in_progress 时自动写入，不覆盖；`completedAt` 进入 done 时写入，回退时清空
-- 需求信息字段（proposer / proposedAt / respondedAt / clientContact）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
+- 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
 
 ## 需求信息
 
@@ -141,6 +141,7 @@ tasks                comments              activityLog
 - **编辑态**：2×2 grid 表单 + 保存/取消按钮，空字符串/空时间 → 清除对应字段
 - **新建任务**：仅填写标题、状态、类型、提出人，其余需求信息由项目经理后续补充
 - **乙方责任人**：即原 assigneeId，任务指派的乙方内部负责人
+- **所属子平台**：标准选项（官网 / APP / 小程序 / H5 / 管理后台 / 开放平台）+ 自定义输入，单值可选
 
 ## 数据洞察
 

@@ -32,6 +32,26 @@ const TASK_TYPE_LABELS: Record<string, string> = Object.fromEntries(
   TASK_TYPE_OPTIONS.map((opt) => [opt.value, opt.label]),
 );
 
+const SUB_PLATFORM_OPTIONS = [
+  "AI数据服务",
+  "DataV",
+  "工作门户",
+  "核心业务平台",
+  "企业标签",
+  "前置库",
+  "数据共享平台",
+  "数据归档平台",
+  "数据回流",
+  "数据交换平台",
+  "数据开放平台",
+  "数据目录平台",
+  "数据上报平台",
+  "数据治理平台",
+  "镇街数仓",
+  "专题库",
+  "资源视窗",
+];
+
 export function ProjectView({
   projectId,
   onBack,
@@ -61,6 +81,8 @@ export function ProjectView({
     "feature_optimization",
   );
   const [newTaskProposer, setNewTaskProposer] = useState("");
+  const [newTaskSubPlatform, setNewTaskSubPlatform] =
+    useState<string>("数据目录平台");
   const [showMembers, setShowMembers] = useState(false);
   const [showApi, setShowApi] = useState(false);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -331,16 +353,29 @@ export function ProjectView({
                     taskType: newTaskType as any,
                     projectId,
                     proposer: newTaskProposer || undefined,
+                    subPlatform: newTaskSubPlatform || undefined,
                   })
                     .then(() => {
                       setNewTaskTitle("");
                       setNewTaskProposer("");
+                      setNewTaskSubPlatform("数据目录平台");
                       setShowCreateForm(false);
                     })
                     .catch((err: Error) => addToast(err.message));
                 }}
                 className="flex flex-col sm:flex-row gap-3 sm:items-end"
               >
+                <select
+                  value={newTaskSubPlatform}
+                  onChange={(e) => setNewTaskSubPlatform(e.target.value)}
+                  className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {SUB_PLATFORM_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
                 <div className="flex-1">
                   <input
                     value={newTaskTitle}
@@ -427,6 +462,11 @@ export function ProjectView({
                       >
                         <p className="text-sm font-medium mb-2">{task.title}</p>
                         <div className="flex items-center gap-2">
+                          {task.subPlatform && (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
+                              {task.subPlatform}
+                            </span>
+                          )}
                           {task.taskType && (
                             <span className="text-xs px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
                               {TASK_TYPE_LABELS[task.taskType] ?? task.taskType}
