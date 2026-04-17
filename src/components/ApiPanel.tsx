@@ -335,13 +335,14 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                       <td className="pr-4 py-0.5">string</td>
                       <td className="pr-4 py-0.5">否</td>
                       <td className="py-0.5">
-                        ai_data_service / datav / work_portal /
-                        core_business_platform / enterprise_tags / staging_db /
-                        data_sharing_platform / data_archive_platform /
-                        data_feedback / data_exchange_platform /
-                        data_open_platform / data_catalog_platform（默认） /
-                        data_report_platform / data_governance_platform /
-                        town_warehouse / topic_db / resource_view
+                        platform_wide（整个平台） / ai_data_service / datav /
+                        work_portal / core_business_platform / enterprise_tags /
+                        staging_db / data_sharing_platform /
+                        data_archive_platform / data_feedback /
+                        data_exchange_platform / data_open_platform /
+                        data_catalog_platform（默认） / data_report_platform /
+                        data_governance_platform / town_warehouse / topic_db /
+                        resource_view
                       </td>
                     </tr>
                   </tbody>

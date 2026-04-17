@@ -117,6 +117,7 @@ Authorization: Bearer <api_key>
 | proposedAt    | number                                                                                                                                                                                                    | 提出时间（Unix 时间戳） |
 | respondedAt   | number                                                                                                                                                                                                    | 响应时间（Unix 时间戳） |
 | clientContact | string                                                                                                                                                                                                    | 甲方对接人（自由文本）  |
+| subPlatform   | platform_wide / ai_data_service / datav / work_portal / core_business_platform / enterprise_tags / staging_db / data_sharing_platform / data_archive_platform / data_feedback / data_exchange_platform / data_open_platform / data_catalog_platform / data_report_platform / data_governance_platform / town_warehouse / topic_db / resource_view | 所属子平台              |
 
 ## 附件接口
 
