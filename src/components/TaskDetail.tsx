@@ -31,6 +31,7 @@ const TASK_TYPE_OPTIONS = [
 type TaskType = (typeof TASK_TYPE_OPTIONS)[number]["value"];
 
 const SUB_PLATFORM_OPTIONS = [
+  { value: "platform_wide", label: "整个平台" },
   { value: "ai_data_service", label: "AI数据服务" },
   { value: "datav", label: "DataV" },
   { value: "work_portal", label: "工作门户" },

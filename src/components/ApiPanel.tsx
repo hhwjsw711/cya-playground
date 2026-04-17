@@ -27,11 +27,11 @@ GET ${baseUrl}
 ### 创建任务
 POST ${baseUrl}
 Content-Type: application/json
-请求体示例：{ "title": "任务标题", "subPlatform": "data_catalog_platform", "taskType": "feature_optimization", "status": "todo" }
+请求体示例：{ "title": "任务标题", "subPlatform": "platform_wide", "taskType": "feature_optimization", "status": "todo" }
 
 各字段说明：
 - title（string，必填）：任务标题
-- subPlatform（string，所属子平台）：ai_data_service(AI数据服务) / datav(DataV) / work_portal(工作门户) / core_business_platform(核心业务平台) / enterprise_tags(企业标签) / staging_db(前置库) / data_sharing_platform(数据共享平台) / data_archive_platform(数据归档平台) / data_feedback(数据回流) / data_exchange_platform(数据交换平台) / data_open_platform(数据开放平台) / data_catalog_platform(数据目录平台，默认) / data_report_platform(数据上报平台) / data_governance_platform(数据治理平台) / town_warehouse(镇街数仓) / topic_db(专题库) / resource_view(资源视窗)
+- subPlatform（string，所属子平台）：platform_wide(整个平台) / ai_data_service(AI数据服务) / datav(DataV) / work_portal(工作门户) / core_business_platform(核心业务平台) / enterprise_tags(企业标签) / staging_db(前置库) / data_sharing_platform(数据共享平台) / data_archive_platform(数据归档平台) / data_feedback(数据回流) / data_exchange_platform(数据交换平台) / data_open_platform(数据开放平台) / data_catalog_platform(数据目录平台，默认) / data_report_platform(数据上报平台) / data_governance_platform(数据治理平台) / town_warehouse(镇街数仓) / topic_db(专题库) / resource_view(资源视窗)
 - taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug处置) / incident_handling(故障处理) / server_config(服务器配置) / permission_config(权限配置) / security_risk(安全风险) / security_config(安全配置) / third_party_integration(三方对接) / consultation(咨询协助) / data_maintenance(数据维护统计) / documentation(文档编写)
 - status（string，状态）：backlog(未排期) / todo(未开始) / in_progress(进行中) / done(已完成)
 - description（string，可选）：任务描述

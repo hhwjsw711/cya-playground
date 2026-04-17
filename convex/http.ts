@@ -161,6 +161,7 @@ http.route({
       "documentation",
     ];
     const validSubPlatforms = [
+      "platform_wide",
       "ai_data_service",
       "datav",
       "work_portal",
@@ -312,6 +313,7 @@ http.route({
       "documentation",
     ];
     const validSubPlatforms = [
+      "platform_wide",
       "ai_data_service",
       "datav",
       "work_portal",

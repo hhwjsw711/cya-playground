@@ -85,7 +85,7 @@ Authorization: Bearer <api_key>
   "proposedAt": 1705276800000,
   "respondedAt": 1705284000000,
   "clientContact": "甲方对接人",
-  "subPlatform": "APP"
+  "subPlatform": "platform_wide"
 }
 ```
 
