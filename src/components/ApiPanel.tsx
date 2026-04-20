@@ -40,12 +40,14 @@ Content-Type: application/json
 - proposedAt（number，可选）：提出时间，Unix 时间戳（毫秒）
 - respondedAt（number，可选）：响应时间，Unix 时间戳（毫秒）
 - clientContact（string，可选）：甲方对接人姓名
+- startedAt（number，可选）：开始时间，Unix 时间戳（毫秒）
+- completedAt（number，可选）：结束时间，Unix 时间戳（毫秒）
 
 ### 更新任务
 PATCH ${baseUrl}/:taskId
 Content-Type: application/json
 请求体：至少提供一个字段，如 { "status": "done" }
-可更新字段：title / description / status / taskType / dueDate / proposer / proposedAt / respondedAt / clientContact / subPlatform
+可更新字段：title / description / status / taskType / dueDate / proposer / proposedAt / respondedAt / clientContact / subPlatform / startedAt / completedAt
 
 ### 删除任务
 DELETE ${baseUrl}/:taskId
@@ -344,6 +346,18 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                         data_governance_platform / town_warehouse / topic_db /
                         resource_view
                       </td>
+                    </tr>
+                    <tr>
+                      <td className="pr-4 py-0.5 font-mono">startedAt</td>
+                      <td className="pr-4 py-0.5">number</td>
+                      <td className="pr-4 py-0.5">否</td>
+                      <td className="py-0.5">开始时间（Unix 时间戳）</td>
+                    </tr>
+                    <tr>
+                      <td className="pr-4 py-0.5 font-mono">completedAt</td>
+                      <td className="pr-4 py-0.5">number</td>
+                      <td className="pr-4 py-0.5">否</td>
+                      <td className="py-0.5">结束时间（Unix 时间戳）</td>
                     </tr>
                   </tbody>
                 </table>

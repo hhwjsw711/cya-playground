@@ -169,6 +169,8 @@ export const update = mutation({
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
     progress: v.optional(v.number()),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -206,22 +208,11 @@ export const update = mutation({
     if (args.subPlatform !== undefined)
       updates.subPlatform = args.subPlatform || undefined;
     if (args.progress !== undefined) updates.progress = args.progress;
-
-    if (args.status !== undefined) {
-      const now = Date.now();
-      if (
-        args.status === "in_progress" &&
-        task.status !== "in_progress" &&
-        !task.startedAt
-      ) {
-        updates.startedAt = now;
-      }
-      if (args.status === "done" && task.status !== "done") {
-        updates.completedAt = now;
-      }
-      if (args.status !== "done" && task.status === "done") {
-        updates.completedAt = undefined;
-      }
+    if (args.startedAt !== undefined) {
+      updates.startedAt = args.startedAt || undefined;
+    }
+    if (args.completedAt !== undefined) {
+      updates.completedAt = args.completedAt || undefined;
     }
 
     await ctx.db.patch("tasks", args.taskId, updates);
@@ -327,12 +318,10 @@ export const createViaApi = internalMutation({
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
     progress: v.optional(v.number()),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const now = Date.now();
-    const startedAt = args.status === "in_progress" ? now : undefined;
-    const completedAt = args.status === "done" ? now : undefined;
-
     const taskId = await ctx.db.insert("tasks", {
       title: args.title,
       description: args.description,
@@ -340,8 +329,8 @@ export const createViaApi = internalMutation({
       taskType: args.taskType,
       projectId: args.projectId,
       dueDate: args.dueDate,
-      startedAt,
-      completedAt,
+      startedAt: args.startedAt || undefined,
+      completedAt: args.completedAt || undefined,
       proposer: args.proposer,
       proposedAt: args.proposedAt,
       respondedAt: args.respondedAt,
@@ -371,6 +360,8 @@ export const updateViaApi = internalMutation({
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
     progress: v.optional(v.number()),
+    startedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const task = await ctx.db.get("tasks", args.taskId);
@@ -393,23 +384,10 @@ export const updateViaApi = internalMutation({
     if (args.subPlatform !== undefined)
       updates.subPlatform = args.subPlatform || undefined;
     if (args.progress !== undefined) updates.progress = args.progress;
-
-    if (args.status !== undefined) {
-      const now = Date.now();
-      if (
-        args.status === "in_progress" &&
-        task.status !== "in_progress" &&
-        !task.startedAt
-      ) {
-        updates.startedAt = now;
-      }
-      if (args.status === "done" && task.status !== "done") {
-        updates.completedAt = now;
-      }
-      if (args.status !== "done" && task.status === "done") {
-        updates.completedAt = undefined;
-      }
-    }
+    if (args.startedAt !== undefined)
+      updates.startedAt = args.startedAt || undefined;
+    if (args.completedAt !== undefined)
+      updates.completedAt = args.completedAt || undefined;
 
     await ctx.db.patch("tasks", args.taskId, updates);
 

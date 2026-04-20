@@ -127,6 +127,8 @@ export function TaskDetail({
   const [reqClientContact, setReqClientContact] = useState("");
   const [reqProposedAt, setReqProposedAt] = useState("");
   const [reqRespondedAt, setReqRespondedAt] = useState("");
+  const [reqStartedAt, setReqStartedAt] = useState("");
+  const [reqCompletedAt, setReqCompletedAt] = useState("");
 
   const canEdit = userRole === "admin" || userRole === "editor";
 
@@ -146,6 +148,12 @@ export function TaskDetail({
     setReqRespondedAt(
       task.respondedAt ? timestampToDatetimeLocal(task.respondedAt) : "",
     );
+    setReqStartedAt(
+      task.startedAt ? timestampToDatetimeLocal(task.startedAt) : "",
+    );
+    setReqCompletedAt(
+      task.completedAt ? timestampToDatetimeLocal(task.completedAt) : "",
+    );
     setEditingReq(true);
   };
 
@@ -156,6 +164,8 @@ export function TaskDetail({
       clientContact: reqClientContact,
       proposedAt: reqProposedAt ? new Date(reqProposedAt).getTime() : 0,
       respondedAt: reqRespondedAt ? new Date(reqRespondedAt).getTime() : 0,
+      startedAt: reqStartedAt ? new Date(reqStartedAt).getTime() : 0,
+      completedAt: reqCompletedAt ? new Date(reqCompletedAt).getTime() : 0,
     })
       .then(() => setEditingReq(false))
       .catch((err: Error) => addToast(err.message));
@@ -487,6 +497,28 @@ export function TaskDetail({
                       type="datetime-local"
                       value={reqRespondedAt}
                       onChange={(e) => setReqRespondedAt(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      开始时间
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={reqStartedAt}
+                      onChange={(e) => setReqStartedAt(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      结束时间
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={reqCompletedAt}
+                      onChange={(e) => setReqCompletedAt(e.target.value)}
                       className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>

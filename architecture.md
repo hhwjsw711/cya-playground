@@ -71,7 +71,7 @@ tasks                comments              activityLog
 ├─ clientContact
 ├─ subPlatform                             taskAttachments
 ├─ progress (0-100)                         ├─ taskId
-├─ startedAt (auto)                         ├─ storageId
+├─ startedAt                                ├─ storageId
                                             ├─ fileName
                                            ├─ fileSize
                                            ├─ fileType
@@ -130,8 +130,7 @@ tasks                comments              activityLog
 - 级联删除使用后台分批调度（BATCH_SIZE=50），通过 `scheduler.runAfter` 递归清理
 - 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
-- `startedAt` 首次进入 in_progress 时自动写入，不覆盖；`completedAt` 进入 done 时写入，回退时清空
-- 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
+- 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform / startedAt / completedAt）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
 - 任务进度（progress）：0-100 可选整数，前端通过滑块（步进 5）实时调节；REST API 自动 clamp 到 0-100；进度与状态不自动联动
 
 ## 任务进度
