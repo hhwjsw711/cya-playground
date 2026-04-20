@@ -46,6 +46,19 @@ export const getProjectStats = query({
         ? Math.round((avgCycleMs / (1000 * 60 * 60 * 24)) * 10) / 10
         : 0;
 
+    const tasksWithResponse = visibleTasks.filter(
+      (t) => t.proposedAt && t.respondedAt,
+    );
+    const avgResponseMs =
+      tasksWithResponse.length > 0
+        ? tasksWithResponse.reduce(
+            (sum, t) => sum + (t.respondedAt! - t.proposedAt!),
+            0,
+          ) / tasksWithResponse.length
+        : 0;
+    const avgResponseMins =
+      avgResponseMs > 0 ? Math.round(avgResponseMs / (1000 * 60)) : 0;
+
     const statusDistribution = [
       {
         name: "未排期",
@@ -112,21 +125,36 @@ export const getProjectStats = query({
       assigneeWorkload.push({ name: "未分配", count: unassignedCount });
     }
 
-    const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
-    const since = now - FOURTEEN_DAYS_MS;
-    const completedInRange = visibleTasks.filter(
-      (t) => t.completedAt && t.completedAt >= since,
-    );
+    const SUB_PLATFORM_LABELS: Record<string, string> = {
+      platform_wide: "整个平台",
+      ai_data_service: "AI数据服务",
+      datav: "DataV",
+      work_portal: "工作门户",
+      core_business_platform: "核心业务平台",
+      enterprise_tags: "企业标签",
+      staging_db: "前置库",
+      data_sharing_platform: "数据共享平台",
+      data_archive_platform: "数据归档平台",
+      data_feedback: "数据回流",
+      data_exchange_platform: "数据交换平台",
+      data_open_platform: "数据开放平台",
+      data_catalog_platform: "数据目录平台",
+      data_report_platform: "数据上报平台",
+      data_governance_platform: "数据治理平台",
+      town_warehouse: "镇街数仓",
+      topic_db: "专题库",
+      resource_view: "资源视窗",
+    };
 
-    const dailyCompletion: { date: number; count: number }[] = [];
-    for (let i = 13; i >= 0; i--) {
-      const dayStart = now - i * 24 * 60 * 60 * 1000;
-      const dayEnd = dayStart + 24 * 60 * 60 * 1000;
-      const count = completedInRange.filter(
-        (t) => t.completedAt! >= dayStart && t.completedAt! < dayEnd,
-      ).length;
-      dailyCompletion.push({ date: dayStart, count });
-    }
+    const subPlatformDistribution = Object.entries(
+      visibleTasks.reduce<Record<string, number>>((acc, t) => {
+        const key = t.subPlatform ?? "未分配";
+        acc[key] = (acc[key] ?? 0) + 1;
+        return acc;
+      }, {}),
+    )
+      .map(([key, value]) => ({ name: SUB_PLATFORM_LABELS[key] ?? key, value }))
+      .sort((a, b) => b.value - a.value);
 
     return {
       totalTasks,
@@ -134,11 +162,12 @@ export const getProjectStats = query({
       completionRate:
         totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0,
       avgCycleDays,
+      avgResponseMins,
       overdueTasks,
       statusDistribution,
       taskTypeDistribution,
       assigneeWorkload,
-      dailyCompletion,
+      subPlatformDistribution,
       truncated,
     };
   },

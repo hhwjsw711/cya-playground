@@ -11,9 +11,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  CartesianGrid,
 } from "recharts";
 
 const STATUS_COLORS = ["#94a3b8", "#60a5fa", "#f59e0b", "#34d399"];
@@ -51,8 +48,14 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
           bg="bg-emerald-50 dark:bg-emerald-900/20"
         />
         <StatCard
-          label="平均周期"
-          value={stats.avgCycleDays > 0 ? `${stats.avgCycleDays} 天` : "--"}
+          label="平均响应周期"
+          value={
+            stats.avgResponseMins > 0
+              ? stats.avgResponseMins >= 1440
+                ? `${Math.round(stats.avgResponseMins / 1440)} 天`
+                : `${stats.avgResponseMins} 分钟`
+              : "--"
+          }
           color="text-violet-600 dark:text-violet-400"
           bg="bg-violet-50 dark:bg-violet-900/20"
         />
@@ -100,37 +103,6 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="近 14 天完成趋势">
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart
-              data={stats.dailyCompletion.map((d) => ({
-                ...d,
-                date: new Date(d.date).toLocaleDateString("zh-CN", {
-                  month: "short",
-                  day: "numeric",
-                }),
-              }))}
-            >
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11 }}
-                interval="preserveStartEnd"
-              />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="count"
-                name="完成数"
-                stroke="#34d399"
-                strokeWidth={2}
-                dot={{ r: 3 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
         <ChartCard title="任务类型分布">
           {stats.taskTypeDistribution.length === 0 ? (
             <div className="flex items-center justify-center h-60 text-sm text-slate-400">
@@ -159,6 +131,41 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
                   dataKey="value"
                   name="任务数"
                   fill="#818cf8"
+                  radius={[0, 4, 4, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </ChartCard>
+
+        <ChartCard title="子平台分布">
+          {stats.subPlatformDistribution.length === 0 ? (
+            <div className="flex items-center justify-center h-60 text-sm text-slate-400">
+              暂无子平台数据
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={500}>
+              <BarChart
+                data={stats.subPlatformDistribution}
+                layout="vertical"
+                margin={{ left: 20 }}
+              >
+                <XAxis
+                  type="number"
+                  allowDecimals={false}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 12 }}
+                  width={80}
+                />
+                <Tooltip />
+                <Bar
+                  dataKey="value"
+                  name="任务数"
+                  fill="#f59e0b"
                   radius={[0, 4, 4, 0]}
                 />
               </BarChart>
