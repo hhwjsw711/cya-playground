@@ -53,19 +53,25 @@ const SUB_PLATFORM_OPTIONS = [
 
 function formatDuration(ms: number): string {
   const hours = Math.floor(ms / (1000 * 60 * 60));
-  if (hours < 24) return `${hours} 小时`;
+  if (hours < 24) return "< 1 天";
   const days = Math.floor(hours / 24);
   const remainHours = hours % 24;
   return remainHours > 0 ? `${days} 天 ${remainHours} 小时` : `${days} 天`;
 }
 
-function formatDateTime(ts: number): string {
-  return new Date(ts).toLocaleString("zh-CN", {
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function formatDurationMinutes(ms: number): string {
+  const minutes = Math.floor(ms / (1000 * 60));
+  if (minutes < 60) return `${minutes} 分钟`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    const remainMinutes = minutes % 60;
+    return remainMinutes > 0
+      ? `${hours} 小时 ${remainMinutes} 分钟`
+      : `${hours} 小时`;
+  }
+  const days = Math.floor(hours / 24);
+  const remainHours = hours % 24;
+  return remainHours > 0 ? `${days} 天 ${remainHours} 小时` : `${days} 天`;
 }
 
 function formatDateMinute(ts: number): string {
@@ -82,6 +88,12 @@ function timestampToDatetimeLocal(ts: number): string {
   const d = new Date(ts);
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function timestampToDateInput(ts: number): string {
+  const d = new Date(ts);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
 export function TaskDetail({
@@ -115,10 +127,9 @@ export function TaskDetail({
   const [reqClientContact, setReqClientContact] = useState("");
   const [reqProposedAt, setReqProposedAt] = useState("");
   const [reqRespondedAt, setReqRespondedAt] = useState("");
-  const [reqStartedAt, setReqStartedAt] = useState("");
-  const [reqCompletedAt, setReqCompletedAt] = useState("");
 
   const canEdit = userRole === "admin" || userRole === "editor";
+  const [mountedAt] = useState(() => Date.now());
 
   if (!task) {
     return null;
@@ -126,6 +137,9 @@ export function TaskDetail({
 
   const hasReqInfo =
     task.proposer || task.clientContact || task.proposedAt || task.respondedAt;
+
+  const isOverdue =
+    task.status !== "done" && task.dueDate && task.dueDate < mountedAt;
 
   const startEditReq = () => {
     setReqProposer(task.proposer ?? "");
@@ -135,12 +149,6 @@ export function TaskDetail({
     );
     setReqRespondedAt(
       task.respondedAt ? timestampToDatetimeLocal(task.respondedAt) : "",
-    );
-    setReqStartedAt(
-      task.startedAt ? timestampToDatetimeLocal(task.startedAt) : "",
-    );
-    setReqCompletedAt(
-      task.completedAt ? timestampToDatetimeLocal(task.completedAt) : "",
     );
     setEditingReq(true);
   };
@@ -152,8 +160,6 @@ export function TaskDetail({
       clientContact: reqClientContact,
       proposedAt: reqProposedAt ? new Date(reqProposedAt).getTime() : 0,
       respondedAt: reqRespondedAt ? new Date(reqRespondedAt).getTime() : 0,
-      startedAt: reqStartedAt ? new Date(reqStartedAt).getTime() : 0,
-      completedAt: reqCompletedAt ? new Date(reqCompletedAt).getTime() : 0,
     })
       .then(() => setEditingReq(false))
       .catch((err: Error) => addToast(err.message));
@@ -219,26 +225,26 @@ export function TaskDetail({
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3 mb-4">
             <div>
-              <label className="text-xs text-slate-500 block mb-1">状态</label>
+              <label className="text-xs text-slate-500 block mb-1">
+                子平台
+              </label>
               <select
-                value={task.status}
-                onChange={(e) =>
-                  onStatusChange(
-                    e.target.value as
-                      | "backlog"
-                      | "todo"
-                      | "in_progress"
-                      | "done",
-                  )
-                }
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={task.subPlatform ?? "data_catalog_platform"}
+                onChange={(e) => {
+                  updateTask({
+                    taskId,
+                    subPlatform: e.target.value,
+                  }).catch((err: Error) => addToast(err.message));
+                }}
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="backlog">未排期</option>
-                <option value="todo">未开始</option>
-                <option value="in_progress">进行中</option>
-                <option value="done">已完成</option>
+                {SUB_PLATFORM_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -253,7 +259,7 @@ export function TaskDetail({
                     taskType: e.target.value as TaskType,
                   }).catch((err: Error) => addToast(err.message));
                 }}
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {TASK_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -276,7 +282,7 @@ export function TaskDetail({
                       : undefined,
                   }).catch((err: Error) => addToast(err.message));
                 }}
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">未指派</option>
                 {members.map((m) => (
@@ -288,99 +294,136 @@ export function TaskDetail({
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
+                进度{" "}
+                <span className="font-medium text-blue-600 dark:text-blue-400">
+                  {task.progress ?? 0}%
+                </span>
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={task.progress ?? 0}
+                onChange={(e) => {
+                  updateTask({
+                    taskId,
+                    progress: Number(e.target.value),
+                  }).catch((err: Error) => addToast(err.message));
+                }}
+                disabled={!canEdit}
+                className="w-full h-1.5 accent-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">
                 截止日期
               </label>
               <input
                 type="date"
-                value={
-                  task.dueDate
-                    ? new Date(task.dueDate).toISOString().split("T")[0]
-                    : ""
-                }
+                value={task.dueDate ? timestampToDateInput(task.dueDate) : ""}
                 onChange={(e) => {
                   const val = e.target.value;
                   updateTask({
                     taskId,
                     dueDate: val
-                      ? new Date(val + "T23:59:59").getTime()
+                      ? new Date(val + "T00:00:00Z").getTime()
                       : undefined,
                   }).catch((err: Error) => addToast(err.message));
                 }}
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">状态</label>
+              <select
+                value={task.status}
+                onChange={(e) =>
+                  onStatusChange(
+                    e.target.value as
+                      | "backlog"
+                      | "todo"
+                      | "in_progress"
+                      | "done",
+                  )
+                }
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="backlog">未排期</option>
+                <option value="todo">未开始</option>
+                <option value="in_progress">进行中</option>
+                <option value="done">已完成</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">
+                开始日期
+              </label>
+              <input
+                type="date"
+                value={
+                  task.startedAt ? timestampToDateInput(task.startedAt) : ""
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateTask({
+                    taskId,
+                    startedAt: val
+                      ? new Date(val + "T00:00:00Z").getTime()
+                      : undefined,
+                  }).catch((err: Error) => addToast(err.message));
+                }}
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
-                进度 {task.progress ?? 0}%
+                结束日期
               </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={5}
-                  value={task.progress ?? 0}
-                  onChange={(e) => {
-                    updateTask({
-                      taskId,
-                      progress: Number(e.target.value),
-                    }).catch((err: Error) => addToast(err.message));
-                  }}
-                  disabled={!canEdit}
-                  className="w-24 h-1.5 accent-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-                <span className="text-xs text-slate-500 tabular-nums w-8 text-right">
-                  {task.progress ?? 0}%
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className="text-xs text-slate-500 block mb-1">
-                子平台
-              </label>
-              <select
-                value={task.subPlatform ?? "data_catalog_platform"}
+              <input
+                type="date"
+                value={
+                  task.completedAt ? timestampToDateInput(task.completedAt) : ""
+                }
                 onChange={(e) => {
+                  const val = e.target.value;
                   updateTask({
                     taskId,
-                    subPlatform: e.target.value,
+                    completedAt: val
+                      ? new Date(val + "T00:00:00Z").getTime()
+                      : undefined,
                   }).catch((err: Error) => addToast(err.message));
                 }}
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {SUB_PLATFORM_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            <div className="ml-auto flex gap-2 self-end">
-              {!isEditing && (
-                <button
-                  onClick={() => {
-                    setEditTitle(task.title);
-                    setEditDescription(task.description);
-                    setIsEditing(true);
-                  }}
-                  className="px-3 py-1 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
-                >
-                  编辑
-                </button>
-              )}
+          </div>
+
+          <div className="flex justify-end gap-2 mb-4">
+            {!isEditing && (
               <button
                 onClick={() => {
-                  if (confirm("确认删除该任务？")) {
-                    deleteTask({ taskId })
-                      .then(() => onClose())
-                      .catch((err: Error) => addToast(err.message));
-                  }
+                  setEditTitle(task.title);
+                  setEditDescription(task.description);
+                  setIsEditing(true);
                 }}
-                className="px-3 py-1 rounded bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 text-sm transition-colors"
+                className="px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-sm transition-colors"
               >
-                删除
+                编辑
               </button>
-            </div>
+            )}
+            <button
+              onClick={() => {
+                if (confirm("确认删除该任务？")) {
+                  deleteTask({ taskId })
+                    .then(() => onClose())
+                    .catch((err: Error) => addToast(err.message));
+                }
+              }}
+              className="px-3 py-1.5 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 text-sm transition-colors"
+            >
+              删除
+            </button>
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-3 mb-4">
@@ -399,7 +442,7 @@ export function TaskDetail({
             </div>
             {editingReq ? (
               <div className="space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">
                       提出人
@@ -446,28 +489,6 @@ export function TaskDetail({
                       className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs text-slate-500 block mb-1">
-                      开始时间
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={reqStartedAt}
-                      onChange={(e) => setReqStartedAt(e.target.value)}
-                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-500 block mb-1">
-                      结束时间
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={reqCompletedAt}
-                      onChange={(e) => setReqCompletedAt(e.target.value)}
-                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -511,7 +532,10 @@ export function TaskDetail({
                     {task.proposedAt && task.respondedAt > task.proposedAt && (
                       <span className="text-blue-500 ml-1">
                         （耗时{" "}
-                        {formatDuration(task.respondedAt - task.proposedAt)}）
+                        {formatDurationMinutes(
+                          task.respondedAt - task.proposedAt,
+                        )}
+                        ）
                       </span>
                     )}
                   </span>
@@ -527,33 +551,34 @@ export function TaskDetail({
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                 {task.dueDate && (
                   <span>
-                    截止：{new Date(task.dueDate).toLocaleDateString("zh-CN")}
-                    {task.status !== "done" && task.dueDate < Date.now() && (
+                    截止：
+                    {new Date(task.dueDate).toLocaleDateString("zh-CN")}
+                    {isOverdue && (
                       <span className="ml-1 text-red-500 font-medium">
                         （已逾期）
                       </span>
                     )}
                   </span>
                 )}
+                <span>
+                  状态：
+                  {task.status === "backlog"
+                    ? "未排期"
+                    : task.status === "todo"
+                      ? "未开始"
+                      : task.status === "in_progress"
+                        ? "进行中"
+                        : "已完成"}
+                </span>
                 {task.startedAt && (
                   <span>
-                    开始：{formatDateTime(task.startedAt)}
-                    {task.completedAt && (
-                      <span className="ml-2">
-                        耗时：
-                        {formatDuration(task.completedAt - task.startedAt)}
-                      </span>
-                    )}
-                    {!task.completedAt && task.status === "in_progress" && (
-                      <span className="ml-2">
-                        已进行：{formatDuration(Date.now() - task.startedAt)}
-                      </span>
-                    )}
+                    开始：{new Date(task.startedAt).toLocaleDateString("zh-CN")}
                   </span>
                 )}
                 {task.completedAt && (
                   <span>
-                    完成：{formatDateTime(task.completedAt)}
+                    结束：
+                    {new Date(task.completedAt).toLocaleDateString("zh-CN")}
                     {task.dueDate && task.completedAt > task.dueDate && (
                       <span className="ml-1 text-red-500">
                         （逾期 {formatDuration(task.completedAt - task.dueDate)}

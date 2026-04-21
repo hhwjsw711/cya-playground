@@ -237,6 +237,15 @@ http.route({
         ? b.subPlatform
         : "data_catalog_platform";
 
+    const startedAt =
+      b.startedAt !== undefined && typeof b.startedAt === "number"
+        ? b.startedAt
+        : undefined;
+    const completedAt =
+      b.completedAt !== undefined && typeof b.completedAt === "number"
+        ? b.completedAt
+        : undefined;
+
     const progress =
       b.progress !== undefined && typeof b.progress === "number"
         ? Math.max(0, Math.min(100, b.progress))
@@ -254,6 +263,8 @@ http.route({
       respondedAt,
       clientContact,
       subPlatform,
+      startedAt,
+      completedAt,
       progress,
     });
 
@@ -372,6 +383,8 @@ http.route({
     if (b.respondedAt !== undefined) updates.respondedAt = b.respondedAt;
     if (b.clientContact !== undefined) updates.clientContact = b.clientContact;
     if (b.subPlatform !== undefined) updates.subPlatform = b.subPlatform;
+    if (b.startedAt !== undefined) updates.startedAt = b.startedAt;
+    if (b.completedAt !== undefined) updates.completedAt = b.completedAt;
     if (b.progress !== undefined) {
       if (typeof b.progress !== "number") {
         return jsonResponse({ error: "progress 必须为数字" }, 400);
@@ -400,6 +413,8 @@ http.route({
       respondedAt: updates.respondedAt as number | undefined,
       clientContact: updates.clientContact as string | undefined,
       subPlatform: updates.subPlatform as string | undefined,
+      startedAt: updates.startedAt as number | undefined,
+      completedAt: updates.completedAt as number | undefined,
       progress: updates.progress as number | undefined,
     });
 

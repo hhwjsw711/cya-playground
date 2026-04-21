@@ -130,7 +130,7 @@ tasks                comments              activityLog
 - 级联删除使用后台分批调度（BATCH_SIZE=50），通过 `scheduler.runAfter` 递归清理
 - 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
-- 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform / startedAt / completedAt）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
+- 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
 - 任务进度（progress）：0-100 可选整数，前端通过滑块（步进 5）实时调节；REST API 自动 clamp 到 0-100；进度与状态不自动联动
 
 ## 任务进度
@@ -141,6 +141,19 @@ tasks                comments              activityLog
 - **任务详情**：截止日期旁显示滑块控件，步进 5%，可编辑角色可拖拽调整，可查看角色只读
 - **REST API**：POST/PATCH 支持 `progress` 字段，后端自动 clamp 到 0-100 范围
 - 进度与状态不自动联动（设为 done 不自动变 100%），由用户手动管理
+
+## 任务日期
+
+| 字段     | 含义                 | 精度 | 说明                               |
+| -------- | -------------------- | ---- | ---------------------------------- |
+| 截止日期 | 业主给的计划完成时间 | 天   | 必须填写，作为任务的时间约束       |
+| 开始日期 | 任务实际开始时间     | 天   | 进行中的任务可填写，用于计算耗时   |
+| 结束日期 | 任务实际完成时间     | 天   | 已完成的任务填写，用于计算实际耗时 |
+
+- 截止日期：在任务详情第一行与状态一起显示，任务详情第二行与开始/结束日期一起显示
+- 开始日期/结束日期：精确到天，与截止日期同排展示
+- 耗时计算：当开始日期和结束日期都有值时显示实际耗时，进行中任务显示已进行时长
+- 逾期判断：已完成后若结束日期晚于截止日期显示逾期时长
 
 ## 需求信息
 
