@@ -126,7 +126,7 @@ export const getProjectStats = query({
     }
 
     const SUB_PLATFORM_LABELS: Record<string, string> = {
-      platform_wide: "整个平台",
+      platform_wide: "公共数据平台",
       ai_data_service: "AI数据服务",
       datav: "DataV",
       work_portal: "工作门户",

@@ -33,7 +33,7 @@ const TASK_TYPE_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 const SUB_PLATFORM_OPTIONS = [
-  { value: "platform_wide", label: "整个平台" },
+  { value: "platform_wide", label: "公共数据平台" },
   { value: "ai_data_service", label: "AI数据服务" },
   { value: "datav", label: "DataV" },
   { value: "work_portal", label: "工作门户" },

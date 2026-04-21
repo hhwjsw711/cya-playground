@@ -84,10 +84,10 @@ export const remove = mutation({
     if (!userId) throw new Error("未登录");
 
     const comment = await ctx.db.get("comments", args.commentId);
-    if (!comment) throw new Error("评论不存在");
+    if (!comment) throw new Error("情况说明不存在");
 
     if (comment.authorId !== userId) {
-      throw new Error("只能删除自己的评论");
+      throw new Error("只能删除自己的情况说明");
     }
 
     await ctx.db.delete("comments", args.commentId);

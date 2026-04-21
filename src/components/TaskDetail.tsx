@@ -31,7 +31,7 @@ const TASK_TYPE_OPTIONS = [
 type TaskType = (typeof TASK_TYPE_OPTIONS)[number]["value"];
 
 const SUB_PLATFORM_OPTIONS = [
-  { value: "platform_wide", label: "整个平台" },
+  { value: "platform_wide", label: "公共数据平台" },
   { value: "ai_data_service", label: "AI数据服务" },
   { value: "datav", label: "DataV" },
   { value: "work_portal", label: "工作门户" },
@@ -709,7 +709,7 @@ export function TaskDetail({
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
             <h3 className="font-semibold mb-3">
-              评论 ({comments?.length ?? 0}
+              情况说明 ({comments?.length ?? 0}
               {(comments?.length ?? 0) >= 100 ? "+" : ""})
             </h3>
             <div className="space-y-3 mb-4">
@@ -746,11 +746,11 @@ export function TaskDetail({
                 </div>
               ))}
               {comments?.length === 0 && (
-                <p className="text-sm text-slate-400">暂无评论</p>
+                <p className="text-sm text-slate-400">暂无情况说明</p>
               )}
               {(comments?.length ?? 0) >= 100 && (
                 <p className="text-xs text-slate-400">
-                  仅显示最近 100 条评论。
+                  仅显示最近 100 条情况说明。
                 </p>
               )}
             </div>
@@ -767,7 +767,7 @@ export function TaskDetail({
               <input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder="添加评论..."
+                placeholder="添加情况说明..."
                 className="flex-1 px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button

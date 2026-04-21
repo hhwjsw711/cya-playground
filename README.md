@@ -10,7 +10,7 @@
 - 任务指派（乙方责任人）、优先级、截止日期
 - 需求信息追踪（提出人、甲方对接人、提出时间、响应时间、所属子平台，自动计算响应耗时）
 - 任务时间自动追踪（开始/完成时间戳、耗时统计、逾期标记）
-- 任务评论
+- 任务情况说明
 - 活动日志
 - 标签管理，支持任务与标签关联
 - 成员管理（添加 / 角色变更 / 移除）
@@ -109,14 +109,14 @@ Authorization: Bearer <api_key>
 
 ### 状态值
 
-| 字段          | 可选值                                                                                                                                                                                                    | 说明                    |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| status        | backlog / todo / in_progress / done                                                                                                                                                                       |                         |
-| taskType      | feature_optimization / bug_handling / incident_handling / server_config / permission_config / security_risk / security_config / third_party_integration / consultation / data_maintenance / documentation |                         |
-| proposer      | string                                                                                                                                                                                                    | 提出人（自由文本）      |
-| proposedAt    | number                                                                                                                                                                                                    | 提出时间（Unix 时间戳） |
-| respondedAt   | number                                                                                                                                                                                                    | 响应时间（Unix 时间戳） |
-| clientContact | string                                                                                                                                                                                                    | 甲方对接人（自由文本）  |
+| 字段          | 可选值                                                                                                                                                                                                                                                                                                                                            | 说明                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| status        | backlog / todo / in_progress / done                                                                                                                                                                                                                                                                                                               |                         |
+| taskType      | feature_optimization / bug_handling / incident_handling / server_config / permission_config / security_risk / security_config / third_party_integration / consultation / data_maintenance / documentation                                                                                                                                         |                         |
+| proposer      | string                                                                                                                                                                                                                                                                                                                                            | 提出人（自由文本）      |
+| proposedAt    | number                                                                                                                                                                                                                                                                                                                                            | 提出时间（Unix 时间戳） |
+| respondedAt   | number                                                                                                                                                                                                                                                                                                                                            | 响应时间（Unix 时间戳） |
+| clientContact | string                                                                                                                                                                                                                                                                                                                                            | 甲方对接人（自由文本）  |
 | subPlatform   | platform_wide / ai_data_service / datav / work_portal / core_business_platform / enterprise_tags / staging_db / data_sharing_platform / data_archive_platform / data_feedback / data_exchange_platform / data_open_platform / data_catalog_platform / data_report_platform / data_governance_platform / town_warehouse / topic_db / resource_view | 所属子平台              |
 
 ## 附件接口
