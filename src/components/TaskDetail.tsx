@@ -68,6 +68,20 @@ const DISTRICT_LABELS: Record<string, string> = Object.fromEntries(
   DISTRICT_OPTIONS.map((opt) => [opt.value, opt.label]),
 );
 
+const DOC_TYPE_OPTIONS = [
+  { value: "demand_form", label: "需求单" },
+  { value: "update_form", label: "更新单" },
+  { value: "bug_report", label: "Bug分析报告" },
+  { value: "incident_report", label: "故障分析报告" },
+  { value: "security_confirm", label: "安全风险处置确认单" },
+  { value: "permission_form", label: "权限申请表" },
+  { value: "cloud_resource_form", label: "云资源申请表" },
+] as const;
+
+const DOC_TYPE_LABELS: Record<string, string> = Object.fromEntries(
+  DOC_TYPE_OPTIONS.map((opt) => [opt.value, opt.label]),
+);
+
 function formatDuration(ms: number): string {
   const hours = Math.floor(ms / (1000 * 60 * 60));
   if (hours < 24) return "< 1 天";
@@ -135,6 +149,8 @@ export function TaskDetail({
 
   const { addToast } = useToast();
   const [commentText, setCommentText] = useState("");
+  const [newDocType, setNewDocType] = useState("");
+  const [newDocNumber, setNewDocNumber] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -646,6 +662,87 @@ export function TaskDetail({
               </div>
             </div>
           )}
+
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+            <h3 className="font-semibold mb-3">
+              关联文档 ({task.documentLinks?.length ?? 0})
+            </h3>
+            <div className="space-y-2 mb-3">
+              {task.documentLinks?.map((link, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-md"
+                >
+                  <span className="text-sm">
+                    {DOC_TYPE_LABELS[link.docType] ?? link.docType}
+                  </span>
+                  <span className="text-sm font-mono text-blue-600 dark:text-blue-400">
+                    {link.docNumber}
+                  </span>
+                  {canEdit && (
+                    <button
+                      onClick={() => {
+                        const newLinks = (task.documentLinks ?? []).filter(
+                          (_, i) => i !== idx,
+                        );
+                        updateTask({ taskId, documentLinks: newLinks }).catch(
+                          (err: Error) => addToast(err.message),
+                        );
+                      }}
+                      className="ml-auto text-xs text-red-500 hover:underline"
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+              ))}
+              {(!task.documentLinks || task.documentLinks.length === 0) && (
+                <p className="text-sm text-slate-400">暂无关联文档</p>
+              )}
+            </div>
+            {canEdit && (
+              <div className="flex gap-2">
+                <select
+                  value={newDocType}
+                  onChange={(e) => setNewDocType(e.target.value)}
+                  className="px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">选择文档类型</option>
+                  {DOC_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={newDocNumber}
+                  onChange={(e) => setNewDocNumber(e.target.value)}
+                  placeholder="文档编号"
+                  className="flex-1 px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={() => {
+                    if (!newDocType || !newDocNumber.trim()) return;
+                    const newLinks = [
+                      ...(task.documentLinks ?? []),
+                      { docType: newDocType, docNumber: newDocNumber.trim() },
+                    ];
+                    updateTask({ taskId, documentLinks: newLinks })
+                      .then(() => {
+                        setNewDocType("");
+                        setNewDocNumber("");
+                      })
+                      .catch((err: Error) => addToast(err.message));
+                  }}
+                  disabled={!newDocType || !newDocNumber.trim()}
+                  className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  添加
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
             <h3 className="font-semibold mb-3">

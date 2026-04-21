@@ -108,6 +108,14 @@ export const create = mutation({
     subPlatform: v.optional(v.string()),
     district: v.optional(v.string()),
     progress: v.optional(v.number()),
+    documentLinks: v.optional(
+      v.array(
+        v.object({
+          docType: v.string(),
+          docNumber: v.string(),
+        }),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -139,6 +147,7 @@ export const create = mutation({
       subPlatform: args.subPlatform,
       district: args.district,
       progress: args.progress,
+      documentLinks: args.documentLinks,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -172,6 +181,14 @@ export const update = mutation({
     subPlatform: v.optional(v.string()),
     district: v.optional(v.string()),
     progress: v.optional(v.number()),
+    documentLinks: v.optional(
+      v.array(
+        v.object({
+          docType: v.string(),
+          docNumber: v.string(),
+        }),
+      ),
+    ),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
   },
@@ -213,6 +230,8 @@ export const update = mutation({
     if (args.district !== undefined)
       updates.district = args.district || undefined;
     if (args.progress !== undefined) updates.progress = args.progress;
+    if (args.documentLinks !== undefined)
+      updates.documentLinks = args.documentLinks || undefined;
     if (args.startedAt !== undefined) {
       updates.startedAt = args.startedAt || undefined;
     }
@@ -305,6 +324,7 @@ export const listByProjectViaApi = internalQuery({
       subPlatform: t.subPlatform,
       district: t.district,
       progress: t.progress,
+      documentLinks: t.documentLinks,
       createdAt: t._creationTime,
     }));
   },
@@ -325,6 +345,14 @@ export const createViaApi = internalMutation({
     subPlatform: v.optional(v.string()),
     district: v.optional(v.string()),
     progress: v.optional(v.number()),
+    documentLinks: v.optional(
+      v.array(
+        v.object({
+          docType: v.string(),
+          docNumber: v.string(),
+        }),
+      ),
+    ),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
   },
@@ -345,6 +373,7 @@ export const createViaApi = internalMutation({
       subPlatform: args.subPlatform,
       district: args.district,
       progress: args.progress,
+      documentLinks: args.documentLinks,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -369,6 +398,14 @@ export const updateViaApi = internalMutation({
     subPlatform: v.optional(v.string()),
     district: v.optional(v.string()),
     progress: v.optional(v.number()),
+    documentLinks: v.optional(
+      v.array(
+        v.object({
+          docType: v.string(),
+          docNumber: v.string(),
+        }),
+      ),
+    ),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
   },
@@ -395,6 +432,8 @@ export const updateViaApi = internalMutation({
     if (args.district !== undefined)
       updates.district = args.district || undefined;
     if (args.progress !== undefined) updates.progress = args.progress;
+    if (args.documentLinks !== undefined)
+      updates.documentLinks = args.documentLinks || undefined;
     if (args.startedAt !== undefined)
       updates.startedAt = args.startedAt || undefined;
     if (args.completedAt !== undefined)

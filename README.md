@@ -10,6 +10,7 @@
 - 任务指派（乙方责任人）、优先级、截止日期
 - 需求信息追踪（提出人、甲方对接人、提出时间、响应时间、所属子平台、所属区县，自动计算响应耗时）
 - 任务时间自动追踪（开始/完成时间戳、耗时统计、逾期标记）
+- 关联文档追踪（需求单、更新单、Bug分析报告、故障分析报告、安全风险处置确认单、权限申请表、云资源申请表）
 - 任务情况说明
 - 活动日志
 - 标签管理，支持任务与标签关联
@@ -118,6 +119,8 @@ Authorization: Bearer <api_key>
 | clientContact | string                                                                                                                                                                                                                                                                                                                                            | 甲方对接人（自由文本）  |
 | subPlatform   | platform_wide / ai_data_service / datav / work_portal / core_business_platform / enterprise_tags / staging_db / data_sharing_platform / data_archive_platform / data_feedback / data_exchange_platform / data_open_platform / data_catalog_platform / data_report_platform / data_governance_platform / town_warehouse / topic_db / resource_view | 所属子平台              |
 | district      | city_level / liandu / qingtian / jinyun / suichang / songyang / yunhe / qingtian_county / jingning / longquan                                                                                                                                                                                                                                     | 所属区县                |
+| documentLinks | array                                                                                                                                                                                                                                                                                                                                             | 关联文档数组            |
+| docType       | demand_form(需求单) / update_form(更新单) / bug_report(Bug分析报告) / incident_report(故障分析报告) / security_confirm(安全风险处置确认单) / permission_form(权限申请表) / cloud_resource_form(云资源申请表)                                                                                                                                      | 文档类型                |
 
 ## 附件接口
 

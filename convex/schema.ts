@@ -66,6 +66,14 @@ export default defineSchema({
     subPlatform: v.optional(v.string()),
     district: v.optional(v.string()),
     progress: v.optional(v.number()),
+    documentLinks: v.optional(
+      v.array(
+        v.object({
+          docType: v.string(),
+          docNumber: v.string(),
+        }),
+      ),
+    ),
   })
     .index("by_projectId", ["projectId"])
     .index("by_assigneeId", ["assigneeId"])

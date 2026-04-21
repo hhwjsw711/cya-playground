@@ -69,10 +69,13 @@ tasks                comments              activityLog
 ├─ proposedAt                               ├─ taskId
 ├─ respondedAt       └─ projectId          └─ labelId
 ├─ clientContact
-├─ subPlatform                             taskAttachments
-├─ district                                ├─ taskId
-├─ progress (0-100)                         ├─ storageId
-├─ startedAt                                ├─ fileName
+├─ subPlatform
+├─ district
+├─ progress (0-100)
+├─ documentLinks
+│   ├─ docType
+│   └─ docNumber
+├─ startedAt
                                             ├─ fileSize
                                             ├─ fileType
                                             └─ uploadedBy
@@ -132,6 +135,7 @@ tasks                comments              activityLog
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
 - 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform / district）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
 - 任务进度（progress）：0-100 可选整数，前端通过滑块（步进 5）实时调节；REST API 自动 clamp 到 0-100；进度与状态不自动联动
+- 关联文档（documentLinks）：任务关联的文档编号列表，用于周报生成；文档类型 demand_form(需求单) / update_form(更新单) / bug_report(Bug分析报告) / incident_report(故障分析报告) / security_confirm(安全风险处置确认单) / permission_form(权限申请表) / cloud_resource_form(云资源申请表)
 
 ## 任务进度
 
