@@ -210,6 +210,14 @@ export function ProjectView({
                   新建任务
                 </button>
               )}
+              <a
+                href="https://todo.isllm.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-1.5 rounded-md bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors"
+              >
+                周报生成
+              </a>
             </>
           )}
         </div>
