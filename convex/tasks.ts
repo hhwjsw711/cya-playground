@@ -106,6 +106,7 @@ export const create = mutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    district: v.optional(v.string()),
     progress: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -136,6 +137,7 @@ export const create = mutation({
       respondedAt: args.respondedAt,
       clientContact: args.clientContact,
       subPlatform: args.subPlatform,
+      district: args.district,
       progress: args.progress,
     });
 
@@ -168,6 +170,7 @@ export const update = mutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    district: v.optional(v.string()),
     progress: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
@@ -207,6 +210,8 @@ export const update = mutation({
       updates.clientContact = args.clientContact || undefined;
     if (args.subPlatform !== undefined)
       updates.subPlatform = args.subPlatform || undefined;
+    if (args.district !== undefined)
+      updates.district = args.district || undefined;
     if (args.progress !== undefined) updates.progress = args.progress;
     if (args.startedAt !== undefined) {
       updates.startedAt = args.startedAt || undefined;
@@ -298,6 +303,7 @@ export const listByProjectViaApi = internalQuery({
       respondedAt: t.respondedAt,
       clientContact: t.clientContact,
       subPlatform: t.subPlatform,
+      district: t.district,
       progress: t.progress,
       createdAt: t._creationTime,
     }));
@@ -317,6 +323,7 @@ export const createViaApi = internalMutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    district: v.optional(v.string()),
     progress: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
@@ -336,6 +343,7 @@ export const createViaApi = internalMutation({
       respondedAt: args.respondedAt,
       clientContact: args.clientContact,
       subPlatform: args.subPlatform,
+      district: args.district,
       progress: args.progress,
     });
 
@@ -359,6 +367,7 @@ export const updateViaApi = internalMutation({
     respondedAt: v.optional(v.number()),
     clientContact: v.optional(v.string()),
     subPlatform: v.optional(v.string()),
+    district: v.optional(v.string()),
     progress: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
@@ -383,6 +392,8 @@ export const updateViaApi = internalMutation({
       updates.clientContact = args.clientContact || undefined;
     if (args.subPlatform !== undefined)
       updates.subPlatform = args.subPlatform || undefined;
+    if (args.district !== undefined)
+      updates.district = args.district || undefined;
     if (args.progress !== undefined) updates.progress = args.progress;
     if (args.startedAt !== undefined)
       updates.startedAt = args.startedAt || undefined;

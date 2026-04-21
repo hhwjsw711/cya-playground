@@ -70,12 +70,12 @@ tasks                comments              activityLog
 ├─ respondedAt       └─ projectId          └─ labelId
 ├─ clientContact
 ├─ subPlatform                             taskAttachments
-├─ progress (0-100)                         ├─ taskId
-├─ startedAt                                ├─ storageId
-                                            ├─ fileName
-                                           ├─ fileSize
-                                           ├─ fileType
-                                           └─ uploadedBy
+├─ district                                ├─ taskId
+├─ progress (0-100)                         ├─ storageId
+├─ startedAt                                ├─ fileName
+                                            ├─ fileSize
+                                            ├─ fileType
+                                            └─ uploadedBy
 ```
 
 ### 索引
@@ -130,7 +130,7 @@ tasks                comments              activityLog
 - 级联删除使用后台分批调度（BATCH_SIZE=50），通过 `scheduler.runAfter` 递归清理
 - 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
-- 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
+- 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform / district）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
 - 任务进度（progress）：0-100 可选整数，前端通过滑块（步进 5）实时调节；REST API 自动 clamp 到 0-100；进度与状态不自动联动
 
 ## 任务进度
@@ -159,11 +159,12 @@ tasks                comments              activityLog
 
 任务卡片包含「需求信息」区域，支持查看/编辑切换模式：
 
-- **查看态**：紧凑一行展示（提出人 · 甲方对接人 · 提出时间 · 响应时间 + 自动计算响应耗时），无值时显示「暂无」+ 蓝色「补充」按钮
-- **编辑态**：2×2 grid 表单 + 保存/取消按钮，空字符串/空时间 → 清除对应字段
+- **查看态**：紧凑一行展示（所属区县 · 提出人 · 甲方对接人 · 提出时间 · 响应时间 + 自动计算响应耗时），无值时显示「暂无」+ 蓝色「补充」按钮
+- **编辑态**：2×3 grid 表单 + 保存/取消按钮，空字符串/空时间 → 清除对应字段
 - **新建任务**：仅填写标题、状态、类型、提出人，其余需求信息由项目经理后续补充
 - **乙方责任人**：即原 assigneeId，任务指派的乙方内部负责人
 - **所属子平台**：标准选项（公共数据平台 / AI数据服务 / DataV / 工作门户 / 核心业务平台 / 企业标签 / 前置库 / 数据共享平台 / 数据归档平台 / 数据回流 / 数据交换平台 / 数据开放平台 / 数据目录平台 / 数据上报平台 / 数据治理平台 / 镇街数仓 / 专题库 / 资源视窗），单值可选，用于标记任务归属范围
+- **所属区县**：市本级（默认） / 莲都区 / 青田县 / 缙云县 / 遂昌县 / 松阳县 / 云和县 / 庆元县 / 景宁县 / 龙泉市，单值可选，用于标记任务所属区县
 
 ## 数据洞察
 
@@ -186,6 +187,8 @@ tasks                comments              activityLog
 | 任务状态分布     | 环形图（Donut） | tasks.status 分组          |
 | 近 14 天完成趋势 | 折线图          | tasks.completedAt 按日分桶 |
 | 任务类型分布     | 横向条形图      | tasks.taskType 分组        |
+| 子平台分布       | 横向条形图      | tasks.subPlatform 分组     |
+| 区县分布         | 横向条形图      | tasks.district 分组        |
 
 ### 后端查询
 

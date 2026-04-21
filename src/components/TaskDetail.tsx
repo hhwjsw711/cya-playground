@@ -51,6 +51,23 @@ const SUB_PLATFORM_OPTIONS = [
   { value: "resource_view", label: "资源视窗" },
 ];
 
+const DISTRICT_OPTIONS = [
+  { value: "city_level", label: "市本级" },
+  { value: "liandu", label: "莲都区" },
+  { value: "qingtian", label: "青田县" },
+  { value: "jinyun", label: "缙云县" },
+  { value: "suichang", label: "遂昌县" },
+  { value: "songyang", label: "松阳县" },
+  { value: "yunhe", label: "云和县" },
+  { value: "qingtian_county", label: "庆元县" },
+  { value: "jingning", label: "景宁县" },
+  { value: "longquan", label: "龙泉市" },
+];
+
+const DISTRICT_LABELS: Record<string, string> = Object.fromEntries(
+  DISTRICT_OPTIONS.map((opt) => [opt.value, opt.label]),
+);
+
 function formatDuration(ms: number): string {
   const hours = Math.floor(ms / (1000 * 60 * 60));
   if (hours < 24) return "< 1 天";
@@ -127,6 +144,7 @@ export function TaskDetail({
   const [reqClientContact, setReqClientContact] = useState("");
   const [reqProposedAt, setReqProposedAt] = useState("");
   const [reqRespondedAt, setReqRespondedAt] = useState("");
+  const [reqDistrict, setReqDistrict] = useState("");
 
   const canEdit = userRole === "admin" || userRole === "editor";
   const [mountedAt] = useState(() => Date.now());
@@ -136,7 +154,11 @@ export function TaskDetail({
   }
 
   const hasReqInfo =
-    task.proposer || task.clientContact || task.proposedAt || task.respondedAt;
+    task.proposer ||
+    task.clientContact ||
+    task.proposedAt ||
+    task.respondedAt ||
+    task.district;
 
   const isOverdue =
     task.status !== "done" && task.dueDate && task.dueDate < mountedAt;
@@ -150,6 +172,7 @@ export function TaskDetail({
     setReqRespondedAt(
       task.respondedAt ? timestampToDatetimeLocal(task.respondedAt) : "",
     );
+    setReqDistrict(task.district ?? "city_level");
     setEditingReq(true);
   };
 
@@ -160,6 +183,7 @@ export function TaskDetail({
       clientContact: reqClientContact,
       proposedAt: reqProposedAt ? new Date(reqProposedAt).getTime() : 0,
       respondedAt: reqRespondedAt ? new Date(reqRespondedAt).getTime() : 0,
+      district: reqDistrict,
     })
       .then(() => setEditingReq(false))
       .catch((err: Error) => addToast(err.message));
@@ -442,7 +466,23 @@ export function TaskDetail({
             </div>
             {editingReq ? (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                <div className="grid grid-cols-3 gap-x-3 gap-y-2">
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">
+                      所属区县
+                    </label>
+                    <select
+                      value={reqDistrict}
+                      onChange={(e) => setReqDistrict(e.target.value)}
+                      className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {DISTRICT_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">
                       提出人
@@ -467,6 +507,8 @@ export function TaskDetail({
                       className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
+                </div>
+                <div className="grid grid-cols-3 gap-x-3 gap-y-2">
                   <div>
                     <label className="text-xs text-slate-500 block mb-1">
                       提出时间
@@ -489,6 +531,7 @@ export function TaskDetail({
                       className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
+                  <div></div>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -506,40 +549,53 @@ export function TaskDetail({
                 </div>
               </div>
             ) : hasReqInfo ? (
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
-                {task.proposer && (
-                  <span>
-                    提出人{" "}
-                    <span className="font-medium text-slate-800 dark:text-slate-200">
-                      {task.proposer}
-                    </span>
-                  </span>
-                )}
-                {task.clientContact && (
-                  <span>
-                    甲方对接人{" "}
-                    <span className="font-medium text-slate-800 dark:text-slate-200">
-                      {task.clientContact}
-                    </span>
-                  </span>
-                )}
-                {task.proposedAt && (
-                  <span>提出 {formatDateMinute(task.proposedAt)}</span>
-                )}
-                {task.respondedAt && (
-                  <span>
-                    响应 {formatDateMinute(task.respondedAt)}
-                    {task.proposedAt && task.respondedAt > task.proposedAt && (
-                      <span className="text-blue-500 ml-1">
-                        （耗时{" "}
-                        {formatDurationMinutes(
-                          task.respondedAt - task.proposedAt,
-                        )}
-                        ）
+              <div className="space-y-1">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                  {task.district && (
+                    <span>
+                      所属{" "}
+                      <span className="font-medium text-slate-800 dark:text-slate-200">
+                        {DISTRICT_LABELS[task.district] ?? task.district}
                       </span>
-                    )}
-                  </span>
-                )}
+                    </span>
+                  )}
+                  {task.proposer && (
+                    <span>
+                      提出人{" "}
+                      <span className="font-medium text-slate-800 dark:text-slate-200">
+                        {task.proposer}
+                      </span>
+                    </span>
+                  )}
+                  {task.clientContact && (
+                    <span>
+                      甲方对接人{" "}
+                      <span className="font-medium text-slate-800 dark:text-slate-200">
+                        {task.clientContact}
+                      </span>
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                  {task.proposedAt && (
+                    <span>提出 {formatDateMinute(task.proposedAt)}</span>
+                  )}
+                  {task.respondedAt && (
+                    <span>
+                      响应 {formatDateMinute(task.respondedAt)}
+                      {task.proposedAt &&
+                        task.respondedAt > task.proposedAt && (
+                          <span className="text-blue-500 ml-1">
+                            （耗时{" "}
+                            {formatDurationMinutes(
+                              task.respondedAt - task.proposedAt,
+                            )}
+                            ）
+                          </span>
+                        )}
+                    </span>
+                  )}
+                </div>
               </div>
             ) : (
               <p className="text-xs text-slate-400">暂无</p>

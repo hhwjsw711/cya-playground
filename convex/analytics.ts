@@ -118,6 +118,29 @@ export const getProjectStats = query({
       .map(([key, value]) => ({ name: SUB_PLATFORM_LABELS[key] ?? key, value }))
       .sort((a, b) => b.value - a.value);
 
+    const DISTRICT_LABELS: Record<string, string> = {
+      city_level: "市本级",
+      liandu: "莲都区",
+      qingtian: "青田县",
+      jinyun: "缙云县",
+      suichang: "遂昌县",
+      songyang: "松阳县",
+      yunhe: "云和县",
+      qingtian_county: "庆元县",
+      jingning: "景宁县",
+      longquan: "龙泉市",
+    };
+
+    const districtDistribution = Object.entries(
+      visibleTasks.reduce<Record<string, number>>((acc, t) => {
+        const key = t.district ?? "city_level";
+        acc[key] = (acc[key] ?? 0) + 1;
+        return acc;
+      }, {}),
+    )
+      .map(([key, value]) => ({ name: DISTRICT_LABELS[key] ?? key, value }))
+      .sort((a, b) => b.value - a.value);
+
     return {
       totalTasks,
       doneTasks,
@@ -128,6 +151,7 @@ export const getProjectStats = query({
       statusDistribution,
       taskTypeDistribution,
       subPlatformDistribution,
+      districtDistribution,
       truncated,
     };
   },

@@ -8,7 +8,7 @@
 - 项目管理，支持角色权限控制（管理员 / 可编辑 / 可查看）
 - 看板任务面板（待规划、待办、进行中、已完成）
 - 任务指派（乙方责任人）、优先级、截止日期
-- 需求信息追踪（提出人、甲方对接人、提出时间、响应时间、所属子平台，自动计算响应耗时）
+- 需求信息追踪（提出人、甲方对接人、提出时间、响应时间、所属子平台、所属区县，自动计算响应耗时）
 - 任务时间自动追踪（开始/完成时间戳、耗时统计、逾期标记）
 - 任务情况说明
 - 活动日志
@@ -117,6 +117,7 @@ Authorization: Bearer <api_key>
 | respondedAt   | number                                                                                                                                                                                                                                                                                                                                            | 响应时间（Unix 时间戳） |
 | clientContact | string                                                                                                                                                                                                                                                                                                                                            | 甲方对接人（自由文本）  |
 | subPlatform   | platform_wide / ai_data_service / datav / work_portal / core_business_platform / enterprise_tags / staging_db / data_sharing_platform / data_archive_platform / data_feedback / data_exchange_platform / data_open_platform / data_catalog_platform / data_report_platform / data_governance_platform / town_warehouse / topic_db / resource_view | 所属子平台              |
+| district      | city_level / liandu / qingtian / jinyun / suichang / songyang / yunhe / qingtian_county / jingning / longquan                                                                                                                                                                                                                                     | 所属区县                |
 
 ## 附件接口
 

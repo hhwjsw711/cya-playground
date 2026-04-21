@@ -53,8 +53,25 @@ const SUB_PLATFORM_OPTIONS = [
   { value: "resource_view", label: "资源视窗" },
 ] as const;
 
+const DISTRICT_OPTIONS = [
+  { value: "city_level", label: "市本级" },
+  { value: "liandu", label: "莲都区" },
+  { value: "qingtian", label: "青田县" },
+  { value: "jinyun", label: "缙云县" },
+  { value: "suichang", label: "遂昌县" },
+  { value: "songyang", label: "松阳县" },
+  { value: "yunhe", label: "云和县" },
+  { value: "qingtian_county", label: "庆元县" },
+  { value: "jingning", label: "景宁县" },
+  { value: "longquan", label: "龙泉市" },
+] as const;
+
 const SUB_PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
   SUB_PLATFORM_OPTIONS.map((opt) => [opt.value, opt.label]),
+);
+
+const DISTRICT_LABELS: Record<string, string> = Object.fromEntries(
+  DISTRICT_OPTIONS.map((opt) => [opt.value, opt.label]),
 );
 
 export function ProjectView({
@@ -89,6 +106,7 @@ export function ProjectView({
   const [newTaskSubPlatform, setNewTaskSubPlatform] = useState<string>(
     "data_catalog_platform",
   );
+  const [newTaskDistrict, setNewTaskDistrict] = useState<string>("city_level");
   const [showMembers, setShowMembers] = useState(false);
   const [showApi, setShowApi] = useState(false);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
@@ -360,11 +378,13 @@ export function ProjectView({
                     projectId,
                     proposer: newTaskProposer || undefined,
                     subPlatform: newTaskSubPlatform || undefined,
+                    district: newTaskDistrict || undefined,
                   })
                     .then(() => {
                       setNewTaskTitle("");
                       setNewTaskProposer("");
                       setNewTaskSubPlatform("data_catalog_platform");
+                      setNewTaskDistrict("city_level");
                       setShowCreateForm(false);
                     })
                     .catch((err: Error) => addToast(err.message));
@@ -377,6 +397,17 @@ export function ProjectView({
                   className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {SUB_PLATFORM_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={newTaskType}
+                  onChange={(e) => setNewTaskType(e.target.value)}
+                  className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {TASK_TYPE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
@@ -405,11 +436,11 @@ export function ProjectView({
                   ))}
                 </select>
                 <select
-                  value={newTaskType}
-                  onChange={(e) => setNewTaskType(e.target.value)}
+                  value={newTaskDistrict}
+                  onChange={(e) => setNewTaskDistrict(e.target.value)}
                   className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {TASK_TYPE_OPTIONS.map((opt) => (
+                  {DISTRICT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
@@ -483,6 +514,11 @@ export function ProjectView({
                           </div>
                         )}
                         <div className="flex items-center gap-2">
+                          {task.district && (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                              {DISTRICT_LABELS[task.district] ?? task.district}
+                            </span>
+                          )}
                           {task.subPlatform && (
                             <span className="text-xs px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">
                               {SUB_PLATFORM_LABELS[task.subPlatform] ??

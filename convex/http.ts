@@ -180,6 +180,18 @@ http.route({
       "topic_db",
       "resource_view",
     ];
+    const validDistricts = [
+      "city_level",
+      "liandu",
+      "qingtian",
+      "jinyun",
+      "suichang",
+      "songyang",
+      "yunhe",
+      "qingtian_county",
+      "jingning",
+      "longquan",
+    ];
 
     if (b.status !== undefined && !validStatuses.includes(b.status as string)) {
       return jsonResponse(
@@ -237,6 +249,22 @@ http.route({
         ? b.subPlatform
         : "data_catalog_platform";
 
+    if (
+      b.district !== undefined &&
+      typeof b.district === "string" &&
+      !validDistricts.includes(b.district)
+    ) {
+      return jsonResponse(
+        { error: `district 必须为 ${validDistricts.join("/")}` },
+        400,
+      );
+    }
+
+    const district =
+      b.district !== undefined && typeof b.district === "string"
+        ? b.district
+        : "city_level";
+
     const startedAt =
       b.startedAt !== undefined && typeof b.startedAt === "number"
         ? b.startedAt
@@ -263,13 +291,22 @@ http.route({
       respondedAt,
       clientContact,
       subPlatform,
+      district,
       startedAt,
       completedAt,
       progress,
     });
 
     return jsonResponse(
-      { id: taskId, title: b.title, status, taskType, subPlatform, progress },
+      {
+        id: taskId,
+        title: b.title,
+        status,
+        taskType,
+        subPlatform,
+        district,
+        progress,
+      },
       201,
     );
   }),
@@ -343,6 +380,18 @@ http.route({
       "topic_db",
       "resource_view",
     ];
+    const validDistricts = [
+      "city_level",
+      "liandu",
+      "qingtian",
+      "jinyun",
+      "suichang",
+      "songyang",
+      "yunhe",
+      "qingtian_county",
+      "jingning",
+      "longquan",
+    ];
 
     if (b.status !== undefined && !validStatuses.includes(b.status as string)) {
       return jsonResponse(
@@ -372,6 +421,17 @@ http.route({
       );
     }
 
+    if (
+      b.district !== undefined &&
+      typeof b.district === "string" &&
+      !validDistricts.includes(b.district)
+    ) {
+      return jsonResponse(
+        { error: `district 必须为 ${validDistricts.join("/")}` },
+        400,
+      );
+    }
+
     const updates: Record<string, unknown> = {};
     if (b.title !== undefined) updates.title = b.title;
     if (b.description !== undefined) updates.description = b.description;
@@ -383,6 +443,7 @@ http.route({
     if (b.respondedAt !== undefined) updates.respondedAt = b.respondedAt;
     if (b.clientContact !== undefined) updates.clientContact = b.clientContact;
     if (b.subPlatform !== undefined) updates.subPlatform = b.subPlatform;
+    if (b.district !== undefined) updates.district = b.district;
     if (b.startedAt !== undefined) updates.startedAt = b.startedAt;
     if (b.completedAt !== undefined) updates.completedAt = b.completedAt;
     if (b.progress !== undefined) {
@@ -413,6 +474,7 @@ http.route({
       respondedAt: updates.respondedAt as number | undefined,
       clientContact: updates.clientContact as string | undefined,
       subPlatform: updates.subPlatform as string | undefined,
+      district: updates.district as string | undefined,
       startedAt: updates.startedAt as number | undefined,
       completedAt: updates.completedAt as number | undefined,
       progress: updates.progress as number | undefined,

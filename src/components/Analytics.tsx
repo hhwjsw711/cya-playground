@@ -172,6 +172,41 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
             </ResponsiveContainer>
           )}
         </ChartCard>
+
+        <ChartCard title="区县分布">
+          {stats.districtDistribution.length === 0 ? (
+            <div className="flex items-center justify-center h-60 text-sm text-slate-400">
+              暂无区县数据
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={500}>
+              <BarChart
+                data={stats.districtDistribution}
+                layout="vertical"
+                margin={{ left: 20 }}
+              >
+                <XAxis
+                  type="number"
+                  allowDecimals={false}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 12 }}
+                  width={80}
+                />
+                <Tooltip />
+                <Bar
+                  dataKey="value"
+                  name="任务数"
+                  fill="#8b5cf6"
+                  radius={[0, 4, 4, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </ChartCard>
       </div>
     </div>
   );
