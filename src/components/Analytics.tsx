@@ -172,41 +172,6 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
             </ResponsiveContainer>
           )}
         </ChartCard>
-
-        <ChartCard title="成员工作量">
-          {stats.assigneeWorkload.length === 0 ? (
-            <div className="flex items-center justify-center h-60 text-sm text-slate-400">
-              暂无分配数据
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart
-                data={stats.assigneeWorkload}
-                layout="vertical"
-                margin={{ left: 20 }}
-              >
-                <XAxis
-                  type="number"
-                  allowDecimals={false}
-                  tick={{ fontSize: 11 }}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fontSize: 12 }}
-                  width={60}
-                />
-                <Tooltip />
-                <Bar
-                  dataKey="count"
-                  name="任务数"
-                  fill="#60a5fa"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </ChartCard>
       </div>
     </div>
   );

@@ -102,29 +102,6 @@ export const getProjectStats = query({
       .map(([key, value]) => ({ name: TASK_TYPE_LABELS[key] ?? key, value }))
       .sort((a, b) => b.value - a.value);
 
-    const assigneeMap = new Map<string, { name: string; count: number }>();
-    for (const task of visibleTasks) {
-      if (!task.assigneeId) continue;
-      const existing = assigneeMap.get(task.assigneeId);
-      if (existing) {
-        existing.count++;
-      } else {
-        const user = await ctx.db.get("users", task.assigneeId);
-        assigneeMap.set(task.assigneeId, {
-          name: user?.name ?? "未知",
-          count: 1,
-        });
-      }
-    }
-    const assigneeWorkload = Array.from(assigneeMap.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
-
-    const unassignedCount = visibleTasks.filter((t) => !t.assigneeId).length;
-    if (unassignedCount > 0) {
-      assigneeWorkload.push({ name: "未分配", count: unassignedCount });
-    }
-
     const SUB_PLATFORM_LABELS: Record<string, string> = {
       platform_wide: "公共数据平台",
       ai_data_service: "AI数据服务",
@@ -166,7 +143,6 @@ export const getProjectStats = query({
       overdueTasks,
       statusDistribution,
       taskTypeDistribution,
-      assigneeWorkload,
       subPlatformDistribution,
       truncated,
     };
