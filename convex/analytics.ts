@@ -31,21 +31,6 @@ export const getProjectStats = query({
       (t) => t.dueDate && t.dueDate < now && t.status !== "done",
     ).length;
 
-    const completedWithDuration = visibleTasks.filter(
-      (t) => t.startedAt && t.completedAt,
-    );
-    const avgCycleMs =
-      completedWithDuration.length > 0
-        ? completedWithDuration.reduce(
-            (sum, t) => sum + (t.completedAt! - t.startedAt!),
-            0,
-          ) / completedWithDuration.length
-        : 0;
-    const avgCycleDays =
-      avgCycleMs > 0
-        ? Math.round((avgCycleMs / (1000 * 60 * 60 * 24)) * 10) / 10
-        : 0;
-
     const tasksWithResponse = visibleTasks.filter(
       (t) => t.proposedAt && t.respondedAt,
     );
@@ -138,7 +123,6 @@ export const getProjectStats = query({
       doneTasks,
       completionRate:
         totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0,
-      avgCycleDays,
       avgResponseMins,
       overdueTasks,
       statusDistribution,
