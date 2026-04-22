@@ -142,14 +142,10 @@ export function TaskDetail({
   userRole?: "admin" | "editor" | "viewer";
 }) {
   const task = useQuery(api.tasks.get, { taskId });
-  const comments = useQuery(api.comments.listByTask, { taskId });
   const updateTask = useMutation(api.tasks.update);
-  const addComment = useMutation(api.comments.create);
-  const deleteComment = useMutation(api.comments.remove);
   const deleteTask = useMutation(api.tasks.remove);
 
   const { addToast } = useToast();
-  const [commentText, setCommentText] = useState("");
   const [newDocType, setNewDocType] = useState("");
   const [newDocNumber, setNewDocNumber] = useState("");
   const [isEditing, setIsEditing] = useState(false);
