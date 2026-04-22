@@ -40,13 +40,13 @@ Content-Type: application/json
 - taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug处置) / incident_handling(故障处理) / server_config(服务器配置) / permission_config(权限配置) / security_risk(安全风险) / security_config(安全配置) / third_party_integration(三方对接) / consultation(咨询协助) / data_maintenance(数据维护统计) / documentation(文档编写)
 - status（string，状态）：backlog(未排期) / todo(未开始) / in_progress(进行中) / done(已完成)
 - description（string，可选）：任务描述
-- dueDate（number，可选）：截止时间，Unix 时间戳（毫秒）
+- dueDate（number，可选）：计划完成时间，Unix 时间戳（毫秒）
 - proposer（string，可选）：提出人姓名
 - proposedAt（number，可选）：提出时间，Unix 时间戳（毫秒）
 - respondedAt（number，可选）：响应时间，Unix 时间戳（毫秒）
 - clientContact（string，可选）：甲方对接人姓名
-- startedAt（number，可选）：开始时间，Unix 时间戳（毫秒）
-- completedAt（number，可选）：结束时间，Unix 时间戳（毫秒）
+- startedAt（number，可选）：实际开始时间，Unix 时间戳（毫秒）
+- completedAt（number，可选）：实际完成时间，Unix 时间戳（毫秒）
 
 ### 更新任务
 PATCH ${baseUrl}/:taskId
@@ -311,7 +311,7 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                       <td className="pr-4 py-0.5 font-mono">dueDate</td>
                       <td className="pr-4 py-0.5">number</td>
                       <td className="pr-4 py-0.5">否</td>
-                      <td className="py-0.5">截止时间（Unix 时间戳）</td>
+                      <td className="py-0.5">计划完成时间（Unix 时间戳）</td>
                     </tr>
                     <tr>
                       <td className="pr-4 py-0.5 font-mono">proposer</td>

@@ -356,25 +356,6 @@ export function TaskDetail({
               />
             </div>
             <div>
-              <label className="text-xs text-slate-500 block mb-1">
-                截止日期
-              </label>
-              <input
-                type="date"
-                value={task.dueDate ? timestampToDateInput(task.dueDate) : ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  updateTask({
-                    taskId,
-                    dueDate: val
-                      ? new Date(val + "T00:00:00Z").getTime()
-                      : undefined,
-                  }).catch((err: Error) => addToast(err.message));
-                }}
-                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
               <label className="text-xs text-slate-500 block mb-1">状态</label>
               <select
                 value={task.status}
@@ -397,7 +378,26 @@ export function TaskDetail({
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
-                开始日期
+                计划完成时间
+              </label>
+              <input
+                type="date"
+                value={task.dueDate ? timestampToDateInput(task.dueDate) : ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateTask({
+                    taskId,
+                    dueDate: val
+                      ? new Date(val + "T00:00:00Z").getTime()
+                      : undefined,
+                  }).catch((err: Error) => addToast(err.message));
+                }}
+                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">
+                实际开始时间
               </label>
               <input
                 type="date"
@@ -418,7 +418,7 @@ export function TaskDetail({
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">
-                结束日期
+                实际完成时间
               </label>
               <input
                 type="date"
@@ -594,11 +594,11 @@ export function TaskDetail({
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
                   {task.proposedAt && (
-                    <span>提出 {formatDateMinute(task.proposedAt)}</span>
+                    <span>提出时间 {formatDateMinute(task.proposedAt)}</span>
                   )}
                   {task.respondedAt && (
                     <span>
-                      响应 {formatDateMinute(task.respondedAt)}
+                      响应时间 {formatDateMinute(task.respondedAt)}
                       {task.proposedAt &&
                         task.respondedAt > task.proposedAt && (
                           <span className="text-blue-500 ml-1">
@@ -623,7 +623,7 @@ export function TaskDetail({
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                 {task.dueDate && (
                   <span>
-                    截止：
+                    计划完成时间：
                     {new Date(task.dueDate).toLocaleDateString("zh-CN")}
                     {isOverdue && (
                       <span className="ml-1 text-red-500 font-medium">
@@ -644,12 +644,13 @@ export function TaskDetail({
                 </span>
                 {task.startedAt && (
                   <span>
-                    开始：{new Date(task.startedAt).toLocaleDateString("zh-CN")}
+                    实际开始时间：
+                    {new Date(task.startedAt).toLocaleDateString("zh-CN")}
                   </span>
                 )}
                 {task.completedAt && (
                   <span>
-                    结束：
+                    实际完成时间：
                     {new Date(task.completedAt).toLocaleDateString("zh-CN")}
                     {task.dueDate && task.completedAt > task.dueDate && (
                       <span className="ml-1 text-red-500">
