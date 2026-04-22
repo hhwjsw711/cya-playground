@@ -12,6 +12,7 @@
 - 任务时间自动追踪（开始/完成时间戳、耗时统计、逾期标记）
 - 关联文档追踪（需求单、更新单、Bug分析报告、故障分析报告、安全风险处置确认单、权限申请表、云资源申请表）
 - 任务情况说明
+- 任务备注（个人标记提醒，可关键字筛选）
 - 活动日志
 - 标签管理，支持任务与标签关联
 - 成员管理（添加 / 角色变更 / 移除）
@@ -121,6 +122,8 @@ Authorization: Bearer <api_key>
 | district      | city_level / development_zone / liandu / qingtian / jinyun / suichang / songyang / yunhe / qingtian_county / jingning / longquan                                                                                                                                                                                                                  | 所属区县                |
 | documentLinks | array                                                                                                                                                                                                                                                                                                                                             | 关联文档数组            |
 | docType       | demand_form(需求单) / update_form(更新单) / bug_report(Bug分析报告) / incident_report(故障分析报告) / security_confirm(安全风险处置确认单) / permission_form(权限申请表) / cloud_resource_form(云资源申请表)                                                                                                                                      | 文档类型                |
+| tags          | array                                                                                                                                                                                                                                                                                                                                             | 备注数组（字符串）      |
+| notes         | array                                                                                                                                                                                                                                                                                                                                             | 情况说明数组（字符串）  |
 
 ## 附件接口
 

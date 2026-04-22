@@ -66,8 +66,8 @@ tasks                comments              activityLog
 ├─ assigneeId        ├─ name
 ├─ dueDate           └─ color
 ├─ proposer                                taskLabels
-├─ proposedAt                               ├─ taskId
-├─ respondedAt       └─ projectId          └─ labelId
+├─ proposedAt       ├─ taskId             ├─ taskId
+├─ respondedAt      └─ labelId            └─ labelId
 ├─ clientContact
 ├─ subPlatform
 ├─ district
@@ -75,6 +75,7 @@ tasks                comments              activityLog
 ├─ documentLinks
 │   ├─ docType
 │   └─ docNumber
+├─ tags (string[])
 ├─ startedAt
                                             ├─ fileSize
                                             ├─ fileType
@@ -145,6 +146,16 @@ tasks                comments              activityLog
 - **任务详情**：截止日期旁显示滑块控件，步进 5%，可编辑角色可拖拽调整，可查看角色只读
 - **REST API**：POST/PATCH 支持 `progress` 字段，后端自动 clamp 到 0-100 范围
 - 进度与状态不自动联动（设为 done 不自动变 100%），由用户手动管理
+
+## 任务备注
+
+任务支持简短备注作为个人标记提醒，区别于情况说明（多人协作记录）：
+
+- **卡片显示**：标题下方，玫瑰红色标签，醒目提醒
+- **任务详情**：情况说明下方独立区块，列表展示每条备注
+- **添加/删除**：可编辑角色可见输入框和删除按钮
+- **关键字筛选**：看板顶部搜索框，输入关键字过滤包含该备注的任务
+- REST API：POST/PATCH 支持 `tags` 字段（字符串数组）
 
 ## 任务日期
 

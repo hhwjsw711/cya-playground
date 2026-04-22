@@ -48,6 +48,8 @@ export const listByProject = query({
         ...task,
         assigneeName,
         hasComments: hasComments.length > 0,
+        hasNotes: (task.notes?.length ?? 0) > 0,
+        hasTags: (task.tags?.length ?? 0) > 0,
       });
     }
 
@@ -116,6 +118,8 @@ export const create = mutation({
         }),
       ),
     ),
+    tags: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -148,6 +152,8 @@ export const create = mutation({
       district: args.district,
       progress: args.progress,
       documentLinks: args.documentLinks,
+      tags: args.tags,
+      notes: args.notes,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -189,6 +195,8 @@ export const update = mutation({
         }),
       ),
     ),
+    tags: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.string())),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
   },
@@ -232,6 +240,8 @@ export const update = mutation({
     if (args.progress !== undefined) updates.progress = args.progress;
     if (args.documentLinks !== undefined)
       updates.documentLinks = args.documentLinks || undefined;
+    if (args.tags !== undefined) updates.tags = args.tags || undefined;
+    if (args.notes !== undefined) updates.notes = args.notes || undefined;
     if (args.startedAt !== undefined) {
       updates.startedAt = args.startedAt || undefined;
     }
@@ -325,6 +335,8 @@ export const listByProjectViaApi = internalQuery({
       district: t.district,
       progress: t.progress,
       documentLinks: t.documentLinks,
+      tags: t.tags,
+      notes: t.notes,
       createdAt: t._creationTime,
     }));
   },
@@ -353,6 +365,8 @@ export const createViaApi = internalMutation({
         }),
       ),
     ),
+    tags: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.string())),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
   },
@@ -374,6 +388,8 @@ export const createViaApi = internalMutation({
       district: args.district,
       progress: args.progress,
       documentLinks: args.documentLinks,
+      tags: args.tags,
+      notes: args.notes,
     });
 
     const newTask = await ctx.db.get("tasks", taskId);
@@ -406,6 +422,8 @@ export const updateViaApi = internalMutation({
         }),
       ),
     ),
+    tags: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.string())),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
   },
@@ -431,9 +449,12 @@ export const updateViaApi = internalMutation({
       updates.subPlatform = args.subPlatform || undefined;
     if (args.district !== undefined)
       updates.district = args.district || undefined;
-    if (args.progress !== undefined) updates.progress = args.progress;
+    if (args.progress !== undefined)
+      updates.progress = Math.max(0, Math.min(100, args.progress));
     if (args.documentLinks !== undefined)
       updates.documentLinks = args.documentLinks || undefined;
+    if (args.tags !== undefined) updates.tags = args.tags || undefined;
+    if (args.notes !== undefined) updates.notes = args.notes || undefined;
     if (args.startedAt !== undefined)
       updates.startedAt = args.startedAt || undefined;
     if (args.completedAt !== undefined)

@@ -74,6 +74,8 @@ export default defineSchema({
         }),
       ),
     ),
+    tags: v.optional(v.array(v.string())),
+    notes: v.optional(v.array(v.string())),
   })
     .index("by_projectId", ["projectId"])
     .index("by_assigneeId", ["assigneeId"])

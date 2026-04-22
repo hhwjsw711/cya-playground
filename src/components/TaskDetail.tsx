@@ -162,6 +162,8 @@ export function TaskDetail({
   const [reqProposedAt, setReqProposedAt] = useState("");
   const [reqRespondedAt, setReqRespondedAt] = useState("");
   const [reqDistrict, setReqDistrict] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [noteInput, setNoteInput] = useState("");
 
   const canEdit = userRole === "admin" || userRole === "editor";
   const [mountedAt] = useState(() => Date.now());
@@ -816,6 +818,138 @@ export function TaskDetail({
                 发送
               </button>
             </form>
+          </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+            <h3 className="font-semibold mb-3">
+              情况说明（新） ({(task.notes ?? []).length})
+            </h3>
+            <div className="space-y-2 mb-4">
+              {(task.notes ?? []).length === 0 && (
+                <p className="text-sm text-slate-400">暂无情况说明</p>
+              )}
+              {(task.notes ?? []).map((note, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg"
+                >
+                  <span className="text-sm text-slate-600 dark:text-slate-300">
+                    {note}
+                  </span>
+                  {canEdit && (
+                    <button
+                      onClick={() => {
+                        const newNotes = (task.notes ?? []).filter(
+                          (_, i) => i !== idx,
+                        );
+                        updateTask({ taskId, notes: newNotes }).catch(
+                          (err: Error) => addToast(err.message),
+                        );
+                      }}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {canEdit && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!noteInput.trim()) return;
+                  updateTask({
+                    taskId,
+                    notes: [...(task.notes ?? []), noteInput.trim()],
+                  })
+                    .then(() => setNoteInput(""))
+                    .catch((err: Error) => addToast(err.message));
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  value={noteInput}
+                  onChange={(e) => setNoteInput(e.target.value)}
+                  placeholder="添加情况说明..."
+                  className="flex-1 px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                >
+                  添加
+                </button>
+              </form>
+            )}
+          </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+            <h3 className="font-semibold mb-3">
+              备注 ({(task.tags ?? []).length})
+            </h3>
+            <div className="space-y-2 mb-4">
+              {(task.tags ?? []).length === 0 && (
+                <p className="text-sm text-slate-400">暂无备注</p>
+              )}
+              {(task.tags ?? []).map((tag, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg"
+                >
+                  <span className="text-sm text-slate-600 dark:text-slate-300">
+                    {tag}
+                  </span>
+                  {canEdit && (
+                    <button
+                      onClick={() => {
+                        const newTags = (task.tags ?? []).filter(
+                          (_, i) => i !== idx,
+                        );
+                        updateTask({ taskId, tags: newTags }).catch(
+                          (err: Error) => addToast(err.message),
+                        );
+                      }}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {canEdit && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!tagInput.trim()) return;
+                  if (task.tags?.includes(tagInput.trim())) {
+                    addToast("备注已存在");
+                    return;
+                  }
+                  updateTask({
+                    taskId,
+                    tags: [...(task.tags ?? []), tagInput.trim()],
+                  })
+                    .then(() => setTagInput(""))
+                    .catch((err: Error) => addToast(err.message));
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  placeholder="添加备注..."
+                  className="flex-1 px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                >
+                  添加
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

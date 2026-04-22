@@ -280,6 +280,16 @@ http.route({
         ? Math.max(0, Math.min(100, b.progress))
         : undefined;
 
+    const tags =
+      b.tags !== undefined && Array.isArray(b.tags)
+        ? b.tags.filter((t): t is string => typeof t === "string")
+        : undefined;
+
+    const notes =
+      b.notes !== undefined && Array.isArray(b.notes)
+        ? b.notes.filter((t): t is string => typeof t === "string")
+        : undefined;
+
     const taskId = await ctx.runMutation(internal.tasks.createViaApi, {
       title: b.title.trim(),
       description: typeof b.description === "string" ? b.description : "",
@@ -296,6 +306,8 @@ http.route({
       startedAt,
       completedAt,
       progress,
+      tags,
+      notes,
     });
 
     return jsonResponse(
@@ -307,6 +319,8 @@ http.route({
         subPlatform,
         district,
         progress,
+        tags,
+        notes,
       },
       201,
     );
@@ -454,6 +468,18 @@ http.route({
       }
       updates.progress = Math.max(0, Math.min(100, b.progress));
     }
+    if (b.tags !== undefined) {
+      if (!Array.isArray(b.tags)) {
+        return jsonResponse({ error: "tags 必须为数组" }, 400);
+      }
+      updates.tags = b.tags.filter((t): t is string => typeof t === "string");
+    }
+    if (b.notes !== undefined) {
+      if (!Array.isArray(b.notes)) {
+        return jsonResponse({ error: "notes 必须为数组" }, 400);
+      }
+      updates.notes = b.notes.filter((t): t is string => typeof t === "string");
+    }
 
     if (Object.keys(updates).length === 0) {
       return jsonResponse({ error: "至少需要提供一个更新字段" }, 400);
@@ -480,6 +506,8 @@ http.route({
       startedAt: updates.startedAt as number | undefined,
       completedAt: updates.completedAt as number | undefined,
       progress: updates.progress as number | undefined,
+      tags: updates.tags as string[] | undefined,
+      notes: updates.notes as string[] | undefined,
     });
 
     return jsonResponse({ id: taskId, ...updates });

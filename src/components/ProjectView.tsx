@@ -122,6 +122,7 @@ export function ProjectView({
     district: "" as string,
     assigneeId: "" as string,
     overdue: false,
+    tagSearch: "" as string,
   });
 
   const updateFilter = (key: keyof typeof filters, value: string | boolean) => {
@@ -135,6 +136,7 @@ export function ProjectView({
       district: "",
       assigneeId: "",
       overdue: false,
+      tagSearch: "",
     });
   };
 
@@ -143,7 +145,8 @@ export function ProjectView({
     filters.taskType ||
     filters.district ||
     filters.assigneeId ||
-    filters.overdue;
+    filters.overdue ||
+    filters.tagSearch;
 
   const filteredTasks = tasks?.filter((t) => {
     if (filters.subPlatform && t.subPlatform !== filters.subPlatform)
@@ -151,6 +154,13 @@ export function ProjectView({
     if (filters.taskType && t.taskType !== filters.taskType) return false;
     if (filters.district && t.district !== filters.district) return false;
     if (filters.assigneeId && t.assigneeId !== filters.assigneeId) return false;
+    if (filters.tagSearch) {
+      const searchLower = filters.tagSearch.toLowerCase();
+      const hasMatch = (t.tags ?? []).some((tag) =>
+        tag.toLowerCase().includes(searchLower),
+      );
+      if (!hasMatch) return false;
+    }
     if (filters.overdue) {
       const now = Date.now();
       if (!t.dueDate || t.dueDate >= now || t.status === "done") return false;
@@ -476,6 +486,13 @@ export function ProjectView({
                 />
                 逾期
               </label>
+              <input
+                type="text"
+                value={filters.tagSearch}
+                onChange={(e) => updateFilter("tagSearch", e.target.value)}
+                placeholder="备注搜索..."
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-24"
+              />
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -624,6 +641,18 @@ export function ProjectView({
                         className="w-full text-left p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
                       >
                         <p className="text-sm font-medium mb-2">{task.title}</p>
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="mb-2 flex flex-wrap gap-1">
+                            {task.tags.map((tag, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center text-xs px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 font-medium"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         {task.progress != null && task.progress > 0 && (
                           <div className="mb-2">
                             <div className="flex items-center gap-1.5">
@@ -674,7 +703,7 @@ export function ProjectView({
                               )}
                             </span>
                           )}
-                          {task.hasComments && (
+                          {task.hasNotes && (
                             <span className="text-xs text-slate-400 ml-auto">
                               💬
                             </span>
