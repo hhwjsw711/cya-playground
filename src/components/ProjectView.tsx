@@ -668,7 +668,7 @@ export function ProjectView({
                             </div>
                           </div>
                         )}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {task.district && (
                             <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                               {DISTRICT_LABELS[task.district] ?? task.district}
@@ -685,14 +685,16 @@ export function ProjectView({
                               {TASK_TYPE_LABELS[task.taskType] ?? task.taskType}
                             </span>
                           )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1.5">
                           {task.assigneeName && (
-                            <span className="text-xs text-slate-400">
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                               {task.assigneeName}
                             </span>
                           )}
                           {task.dueDate && task.status !== "done" && (
                             <span
-                              className={`text-xs ${task.dueDate < Date.now() ? "text-red-500 font-medium" : "text-slate-400"}`}
+                              className={`text-xs px-1.5 py-0.5 rounded ${task.dueDate < Date.now() ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"}`}
                             >
                               {new Date(task.dueDate).toLocaleDateString(
                                 "zh-CN",
@@ -703,12 +705,12 @@ export function ProjectView({
                               )}
                             </span>
                           )}
-                          {task.hasNotes && (
-                            <span className="text-xs text-slate-400 ml-auto">
-                              💬
-                            </span>
-                          )}
                         </div>
+                        {task.hasNotes && (
+                          <div className="flex justify-end">
+                            <span className="text-xs">💬</span>
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
