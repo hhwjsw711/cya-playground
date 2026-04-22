@@ -53,6 +53,7 @@ const SUB_PLATFORM_OPTIONS = [
 
 const DISTRICT_OPTIONS = [
   { value: "city_level", label: "市本级" },
+  { value: "development_zone", label: "开发区" },
   { value: "liandu", label: "莲都区" },
   { value: "qingtian", label: "青田县" },
   { value: "jinyun", label: "缙云县" },

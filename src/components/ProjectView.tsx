@@ -55,6 +55,7 @@ const SUB_PLATFORM_OPTIONS = [
 
 const DISTRICT_OPTIONS = [
   { value: "city_level", label: "市本级" },
+  { value: "development_zone", label: "开发区" },
   { value: "liandu", label: "莲都区" },
   { value: "qingtian", label: "青田县" },
   { value: "jinyun", label: "缙云县" },
@@ -115,6 +116,47 @@ export function ProjectView({
     "admin" | "editor" | "viewer"
   >("editor");
   const [activeTab, setActiveTab] = useState<"board" | "analytics">("board");
+  const [filters, setFilters] = useState({
+    subPlatform: "" as string,
+    taskType: "" as string,
+    district: "" as string,
+    assigneeId: "" as string,
+    overdue: false,
+  });
+
+  const updateFilter = (key: keyof typeof filters, value: string | boolean) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      subPlatform: "",
+      taskType: "",
+      district: "",
+      assigneeId: "",
+      overdue: false,
+    });
+  };
+
+  const hasActiveFilters =
+    filters.subPlatform ||
+    filters.taskType ||
+    filters.district ||
+    filters.assigneeId ||
+    filters.overdue;
+
+  const filteredTasks = tasks?.filter((t) => {
+    if (filters.subPlatform && t.subPlatform !== filters.subPlatform)
+      return false;
+    if (filters.taskType && t.taskType !== filters.taskType) return false;
+    if (filters.district && t.district !== filters.district) return false;
+    if (filters.assigneeId && t.assigneeId !== filters.assigneeId) return false;
+    if (filters.overdue) {
+      const now = Date.now();
+      if (!t.dueDate || t.dueDate >= now || t.status === "done") return false;
+    }
+    return true;
+  });
 
   if (project === undefined || tasks === undefined) {
     return <div className="text-slate-500">加载中...</div>;
@@ -372,6 +414,82 @@ export function ProjectView({
             </div>
           )}
 
+          <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-slate-500 dark:text-slate-400">
+                筛选:
+              </span>
+              <select
+                value={filters.subPlatform}
+                onChange={(e) => updateFilter("subPlatform", e.target.value)}
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">全部子平台</option>
+                {SUB_PLATFORM_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={filters.taskType}
+                onChange={(e) => updateFilter("taskType", e.target.value)}
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">全部类型</option>
+                {TASK_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={filters.district}
+                onChange={(e) => updateFilter("district", e.target.value)}
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">全部区县</option>
+                {DISTRICT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={filters.assigneeId}
+                onChange={(e) => updateFilter("assigneeId", e.target.value)}
+                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">全部责任人</option>
+                {members?.map((m) => (
+                  <option key={m.userId} value={m.userId}>
+                    {m.userName}
+                  </option>
+                ))}
+              </select>
+              <label className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={filters.overdue}
+                  onChange={(e) => updateFilter("overdue", e.target.checked)}
+                  className="rounded border-slate-300"
+                />
+                逾期
+              </label>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="px-2 py-1 rounded text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                >
+                  清除
+                </button>
+              )}
+              <span className="text-xs text-slate-400 ml-2">
+                {filteredTasks?.length ?? 0} / {tasks?.length ?? 0}
+              </span>
+            </div>
+          </div>
+
           {showCreateForm && (
             <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
               <h3 className="font-semibold mb-3">新建任务</h3>
@@ -477,7 +595,7 @@ export function ProjectView({
             </div>
           )}
 
-          {tasks && tasks.length >= 200 && (
+          {filteredTasks && filteredTasks.length >= 200 && (
             <p className="mb-4 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-md">
               仅显示前 200 个任务，部分任务可能未显示。
             </p>
@@ -485,7 +603,7 @@ export function ProjectView({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {STATUS_COLUMNS.map((col) => {
-              const columnTasks = (tasks ?? []).filter(
+              const columnTasks = (filteredTasks ?? []).filter(
                 (t) => t.status === col.key,
               );
               return (

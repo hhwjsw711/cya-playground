@@ -120,6 +120,7 @@ export const getProjectStats = query({
 
     const DISTRICT_LABELS: Record<string, string> = {
       city_level: "市本级",
+      development_zone: "开发区",
       liandu: "莲都区",
       qingtian: "青田县",
       jinyun: "缙云县",

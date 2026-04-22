@@ -32,7 +32,7 @@ Content-Type: application/json
  各字段说明：
  - title（string，必填）：任务标题
  - subPlatform（string，所属子平台）：platform_wide(公共数据平台) / ai_data_service(AI数据服务) / datav(DataV) / work_portal(工作门户) / core_business_platform(核心业务平台) / enterprise_tags(企业标签) / staging_db(前置库) / data_sharing_platform(数据共享平台) / data_archive_platform(数据归档平台) / data_feedback(数据回流) / data_exchange_platform(数据交换平台) / data_open_platform(数据开放平台) / data_catalog_platform(数据目录平台，默认) / data_report_platform(数据上报平台) / data_governance_platform(数据治理平台) / town_warehouse(镇街数仓) / topic_db(专题库) / resource_view(资源视窗)
- - district（string，所属区县）：city_level(市本级) / liandu(莲都区) / qingtian(青田县) / jinyun(缙云县) / suichang(遂昌县) / songyang(松阳县) / yunhe(云和县) / qingtian_county(庆元县) / jingning(景宁县) / longquan(龙泉市)
+ - district（string，所属区县）：city_level(市本级) / development_zone(开发区) / liandu(莲都区) / qingtian(青田县) / jinyun(缙云县) / suichang(遂昌县) / songyang(松阳县) / yunhe(云和县) / qingtian_county(庆元县) / jingning(景宁县) / longquan(龙泉市)
  - progress（number，0-100）：任务进度百分比
  - documentLinks（array，可选）：关联文档数组，[{ "docType": "需求单", "docNumber": "HXYW-REQ-20260205-001" }]
 - docType（string）：文档类型：demand_form(需求单) / update_form(更新单) / bug_report(Bug分析报告) / incident_report(故障分析报告) / security_confirm(安全风险处置确认单) / permission_form(权限申请表) / cloud_resource_form(云资源申请表)
@@ -357,9 +357,9 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                       <td className="pr-4 py-0.5">string</td>
                       <td className="pr-4 py-0.5">否</td>
                       <td className="py-0.5">
-                        city_level（市本级） / liandu / qingtian / jinyun /
-                        suichang / songyang / yunhe / qingtian_county / jingning
-                        / longquan
+                        city_level（市本级） / development_zone（开发区） /
+                        liandu / qingtian / jinyun / suichang / songyang / yunhe
+                        / qingtian_county / jingning / longquan
                       </td>
                     </tr>
                     <tr>

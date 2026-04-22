@@ -182,6 +182,7 @@ http.route({
     ];
     const validDistricts = [
       "city_level",
+      "development_zone",
       "liandu",
       "qingtian",
       "jinyun",
@@ -382,6 +383,7 @@ http.route({
     ];
     const validDistricts = [
       "city_level",
+      "development_zone",
       "liandu",
       "qingtian",
       "jinyun",
