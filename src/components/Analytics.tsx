@@ -141,7 +141,7 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard title="任务状态分布">
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={400}>
             <PieChart>
               <Pie
                 data={stats.statusDistribution}
