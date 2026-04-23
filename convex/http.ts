@@ -161,6 +161,8 @@ http.route({
       "data_migration",
       "emergency_drill",
       "documentation",
+      "data_security",
+      "password_service_guarantee",
       "other",
     ];
     const validSubPlatforms = [
@@ -380,6 +382,8 @@ http.route({
       "data_migration",
       "emergency_drill",
       "documentation",
+      "data_security",
+      "password_service_guarantee",
       "other",
     ];
     const validSubPlatforms = [

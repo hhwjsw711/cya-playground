@@ -33,7 +33,7 @@ export const listByProject = query({
 
     const result = [];
     for (const task of tasks) {
-      let assigneeNames: string[] = [];
+      const assigneeNames: string[] = [];
       const assigneeIdList =
         (task.assigneeIds?.length ?? 0) > 0
           ? task.assigneeIds!
@@ -82,7 +82,7 @@ export const get = query({
       .unique();
     if (!membership) return null;
 
-    let assigneeNames: string[] = [];
+    const assigneeNames: string[] = [];
     const assigneeIdList =
       (task.assigneeIds?.length ?? 0) > 0
         ? task.assigneeIds!

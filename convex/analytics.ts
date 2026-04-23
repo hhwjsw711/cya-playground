@@ -102,6 +102,8 @@ export const getProjectStats = query({
       data_migration: "数据迁移",
       emergency_drill: "应急演练",
       documentation: "文档管理",
+      data_security: "数据安全",
+      password_service_guarantee: "密码服务接口保障",
       other: "其他",
     };
 

@@ -55,6 +55,8 @@ export default defineSchema({
       v.literal("data_migration"),
       v.literal("emergency_drill"),
       v.literal("documentation"),
+      v.literal("data_security"),
+      v.literal("password_service_guarantee"),
       v.literal("other"),
     ),
     projectId: v.id("projects"),

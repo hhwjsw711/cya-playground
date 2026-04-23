@@ -288,6 +288,8 @@ feature_optimization /
   data_migration /
   emergency_drill /
   documentation /
+  data_security /
+  password_service_guarantee /
   other;
 ```
 

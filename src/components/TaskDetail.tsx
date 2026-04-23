@@ -43,6 +43,8 @@ const TASK_TYPE_OPTIONS = [
   { value: "data_migration", label: "数据迁移" },
   { value: "emergency_drill", label: "应急演练" },
   { value: "documentation", label: "文档管理" },
+  { value: "data_security", label: "数据安全" },
+  { value: "password_service_guarantee", label: "密码服务接口保障" },
   { value: "other", label: "其他" },
 ] as const;
 
