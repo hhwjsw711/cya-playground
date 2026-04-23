@@ -311,25 +311,46 @@ export function TaskDetail({
               <label className="text-xs text-slate-500 block mb-1">
                 乙方责任人
               </label>
-              <select
-                value={task.assigneeId ?? ""}
-                onChange={(e) => {
-                  updateTask({
-                    taskId,
-                    assigneeId: e.target.value
-                      ? (e.target.value as Id<"users">)
-                      : undefined,
-                  }).catch((err: Error) => addToast(err.message));
-                }}
-                className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">未指派</option>
-                {members.map((m) => (
-                  <option key={m.userId} value={m.userId}>
-                    {m.userName}
-                  </option>
-                ))}
-              </select>
+              <div className="border border-slate-300 dark:border-slate-600 rounded-md max-h-32 overflow-y-auto bg-white dark:bg-slate-700">
+                {members.map((m) => {
+                  const isSelected =
+                    (task.assigneeIds?.includes(m.userId) ?? false) ||
+                    task.assigneeId === m.userId;
+                  return (
+                    <label
+                      key={m.userId}
+                      className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-600 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          const current = task.assigneeIds?.length
+                            ? task.assigneeIds
+                            : task.assigneeId
+                              ? [task.assigneeId]
+                              : [];
+                          const newAssigneeIds = e.target.checked
+                            ? [
+                                ...current.filter((id) => id !== m.userId),
+                                m.userId,
+                              ]
+                            : current.filter((id) => id !== m.userId);
+                          updateTask({
+                            taskId,
+                            assigneeIds:
+                              newAssigneeIds.length > 0
+                                ? newAssigneeIds
+                                : undefined,
+                          }).catch((err: Error) => addToast(err.message));
+                        }}
+                        className="w-4 h-4 accent-blue-600"
+                      />
+                      <span className="text-sm">{m.userName}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div>
               <label className="text-xs text-slate-500 block mb-1">

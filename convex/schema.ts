@@ -56,6 +56,7 @@ export default defineSchema({
     ),
     projectId: v.id("projects"),
     assigneeId: v.optional(v.id("users")),
+    assigneeIds: v.optional(v.array(v.id("users"))),
     dueDate: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
@@ -79,8 +80,10 @@ export default defineSchema({
   })
     .index("by_projectId", ["projectId"])
     .index("by_assigneeId", ["assigneeId"])
+    .index("by_assigneeIds", ["assigneeIds"])
     .index("by_projectId_and_status", ["projectId", "status"])
-    .index("by_projectId_and_assigneeId", ["projectId", "assigneeId"]),
+    .index("by_projectId_and_assigneeId", ["projectId", "assigneeId"])
+    .index("by_projectId_and_assigneeIds", ["projectId", "assigneeIds"]),
 
   comments: defineTable({
     content: v.string(),

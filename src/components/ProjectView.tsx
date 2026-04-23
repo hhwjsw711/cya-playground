@@ -120,12 +120,15 @@ export function ProjectView({
     subPlatform: "" as string,
     taskType: "" as string,
     district: "" as string,
-    assigneeId: "" as string,
+    assigneeIds: [] as string[],
     overdue: false,
-    tagSearch: "" as string,
+    hasTags: false,
   });
 
-  const updateFilter = (key: keyof typeof filters, value: string | boolean) => {
+  const updateFilter = (
+    key: keyof typeof filters,
+    value: string | boolean | string[],
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -134,9 +137,9 @@ export function ProjectView({
       subPlatform: "",
       taskType: "",
       district: "",
-      assigneeId: "",
+      assigneeIds: [],
       overdue: false,
-      tagSearch: "",
+      hasTags: false,
     });
   };
 
@@ -144,22 +147,28 @@ export function ProjectView({
     filters.subPlatform ||
     filters.taskType ||
     filters.district ||
-    filters.assigneeId ||
+    filters.assigneeIds.length > 0 ||
     filters.overdue ||
-    filters.tagSearch;
+    filters.hasTags;
 
   const filteredTasks = tasks?.filter((t) => {
     if (filters.subPlatform && t.subPlatform !== filters.subPlatform)
       return false;
     if (filters.taskType && t.taskType !== filters.taskType) return false;
     if (filters.district && t.district !== filters.district) return false;
-    if (filters.assigneeId && t.assigneeId !== filters.assigneeId) return false;
-    if (filters.tagSearch) {
-      const searchLower = filters.tagSearch.toLowerCase();
-      const hasMatch = (t.tags ?? []).some((tag) =>
-        tag.toLowerCase().includes(searchLower),
+    if (filters.assigneeIds.length > 0) {
+      const taskAssignees = t.assigneeIds?.length
+        ? t.assigneeIds
+        : t.assigneeId
+          ? [t.assigneeId]
+          : [];
+      const hasMatch = filters.assigneeIds.some((id) =>
+        taskAssignees.includes(id as Id<"users">),
       );
       if (!hasMatch) return false;
+    }
+    if (filters.hasTags) {
+      if (!t.tags || t.tags.length === 0) return false;
     }
     if (filters.overdue) {
       const now = Date.now();
@@ -465,18 +474,26 @@ export function ProjectView({
                   </option>
                 ))}
               </select>
-              <select
-                value={filters.assigneeId}
-                onChange={(e) => updateFilter("assigneeId", e.target.value)}
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">全部责任人</option>
+              <div className="flex items-center gap-1 text-xs">
                 {members?.map((m) => (
-                  <option key={m.userId} value={m.userId}>
+                  <button
+                    key={m.userId}
+                    onClick={() => {
+                      const newIds = filters.assigneeIds.includes(m.userId)
+                        ? filters.assigneeIds.filter((id) => id !== m.userId)
+                        : [...filters.assigneeIds, m.userId];
+                      updateFilter("assigneeIds", newIds);
+                    }}
+                    className={`px-1.5 py-0.5 rounded border ${
+                      filters.assigneeIds.includes(m.userId)
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                    }`}
+                  >
                     {m.userName}
-                  </option>
+                  </button>
                 ))}
-              </select>
+              </div>
               <label className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
                 <input
                   type="checkbox"
@@ -486,13 +503,15 @@ export function ProjectView({
                 />
                 逾期
               </label>
-              <input
-                type="text"
-                value={filters.tagSearch}
-                onChange={(e) => updateFilter("tagSearch", e.target.value)}
-                placeholder="备注搜索..."
-                className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-24"
-              />
+              <label className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={filters.hasTags}
+                  onChange={(e) => updateFilter("hasTags", e.target.checked)}
+                  className="rounded border-slate-300"
+                />
+                有备注
+              </label>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -687,11 +706,19 @@ export function ProjectView({
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-1.5">
-                          {task.assigneeName && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                              {task.assigneeName}
-                            </span>
-                          )}
+                          {task.assigneeNames &&
+                            task.assigneeNames.length > 0 && (
+                              <>
+                                {task.assigneeNames.map((name, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                  >
+                                    {name}
+                                  </span>
+                                ))}
+                              </>
+                            )}
                           {task.dueDate && task.status !== "done" && (
                             <span
                               className={`text-xs px-1.5 py-0.5 rounded ${task.dueDate < Date.now() ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"}`}

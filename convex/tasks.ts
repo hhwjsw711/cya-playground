@@ -33,10 +33,18 @@ export const listByProject = query({
 
     const result = [];
     for (const task of tasks) {
-      let assigneeName: string | undefined;
-      if (task.assigneeId) {
-        const assignee = await ctx.db.get("users", task.assigneeId);
-        assigneeName = assignee?.name ?? "未知";
+      let assigneeNames: string[] = [];
+      const assigneeIdList =
+        (task.assigneeIds?.length ?? 0) > 0
+          ? task.assigneeIds!
+          : task.assigneeId
+            ? [task.assigneeId]
+            : [];
+      if (assigneeIdList.length) {
+        for (const assigneeId of assigneeIdList) {
+          const assignee = await ctx.db.get("users", assigneeId);
+          assigneeNames.push(assignee?.name ?? "未知");
+        }
       }
 
       const hasComments = await ctx.db
@@ -46,7 +54,7 @@ export const listByProject = query({
 
       result.push({
         ...task,
-        assigneeName,
+        assigneeNames,
         hasComments: hasComments.length > 0,
         hasNotes: (task.notes?.length ?? 0) > 0,
         hasTags: (task.tags?.length ?? 0) > 0,
@@ -74,10 +82,18 @@ export const get = query({
       .unique();
     if (!membership) return null;
 
-    let assigneeName: string | undefined;
-    if (task.assigneeId) {
-      const assignee = await ctx.db.get("users", task.assigneeId);
-      assigneeName = assignee?.name ?? "未知";
+    let assigneeNames: string[] = [];
+    const assigneeIdList =
+      (task.assigneeIds?.length ?? 0) > 0
+        ? task.assigneeIds!
+        : task.assigneeId
+          ? [task.assigneeId]
+          : [];
+    if (assigneeIdList.length) {
+      for (const assigneeId of assigneeIdList) {
+        const assignee = await ctx.db.get("users", assigneeId);
+        assigneeNames.push(assignee?.name ?? "未知");
+      }
     }
 
     const commentSample = await ctx.db
@@ -87,7 +103,7 @@ export const get = query({
 
     return {
       ...task,
-      assigneeName,
+      assigneeNames,
       commentCount: Math.min(commentSample.length, 100),
       commentCountCapped: commentSample.length > 100,
     };
@@ -101,7 +117,7 @@ export const create = mutation({
     status: taskFields.status,
     taskType: taskFields.taskType,
     projectId: v.id("projects"),
-    assigneeId: v.optional(v.id("users")),
+    assigneeIds: v.optional(v.array(v.id("users"))),
     dueDate: v.optional(v.number()),
     proposer: v.optional(v.string()),
     proposedAt: v.optional(v.number()),
@@ -142,7 +158,7 @@ export const create = mutation({
       status: args.status,
       taskType: args.taskType,
       projectId: args.projectId,
-      assigneeId: args.assigneeId,
+      assigneeIds: args.assigneeIds,
       dueDate: args.dueDate,
       proposer: args.proposer,
       proposedAt: args.proposedAt,
@@ -178,7 +194,7 @@ export const update = mutation({
     description: v.optional(v.string()),
     status: v.optional(taskFields.status),
     taskType: v.optional(taskFields.taskType),
-    assigneeId: v.optional(v.id("users")),
+    assigneeIds: v.optional(v.array(v.id("users"))),
     dueDate: v.optional(v.number()),
     proposer: v.optional(v.string()),
     proposedAt: v.optional(v.number()),
@@ -223,7 +239,7 @@ export const update = mutation({
     if (args.description !== undefined) updates.description = args.description;
     if (args.status !== undefined) updates.status = args.status;
     if (args.taskType !== undefined) updates.taskType = args.taskType;
-    if (args.assigneeId !== undefined) updates.assigneeId = args.assigneeId;
+    if (args.assigneeIds !== undefined) updates.assigneeIds = args.assigneeIds;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
     if (args.proposer !== undefined)
       updates.proposer = args.proposer || undefined;
@@ -323,6 +339,7 @@ export const listByProjectViaApi = internalQuery({
       description: t.description,
       status: t.status,
       taskType: t.taskType,
+      assigneeIds: t.assigneeIds,
       assigneeId: t.assigneeId,
       dueDate: t.dueDate,
       startedAt: t.startedAt,
@@ -349,6 +366,8 @@ export const createViaApi = internalMutation({
     status: taskFields.status,
     taskType: taskFields.taskType,
     projectId: v.id("projects"),
+    assigneeIds: v.optional(v.array(v.id("users"))),
+    assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
     proposer: v.optional(v.string()),
     proposedAt: v.optional(v.number()),
@@ -377,6 +396,8 @@ export const createViaApi = internalMutation({
       status: args.status,
       taskType: args.taskType,
       projectId: args.projectId,
+      assigneeIds: args.assigneeIds,
+      assigneeId: args.assigneeId,
       dueDate: args.dueDate,
       startedAt: args.startedAt || undefined,
       completedAt: args.completedAt || undefined,
@@ -406,6 +427,8 @@ export const updateViaApi = internalMutation({
     description: v.optional(v.string()),
     status: v.optional(taskFields.status),
     taskType: v.optional(taskFields.taskType),
+    assigneeIds: v.optional(v.array(v.id("users"))),
+    assigneeId: v.optional(v.id("users")),
     dueDate: v.optional(v.number()),
     proposer: v.optional(v.string()),
     proposedAt: v.optional(v.number()),
@@ -436,6 +459,8 @@ export const updateViaApi = internalMutation({
     if (args.description !== undefined) updates.description = args.description;
     if (args.status !== undefined) updates.status = args.status;
     if (args.taskType !== undefined) updates.taskType = args.taskType;
+    if (args.assigneeIds !== undefined) updates.assigneeIds = args.assigneeIds;
+    if (args.assigneeId !== undefined) updates.assigneeId = args.assigneeId;
     if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
     if (args.proposer !== undefined)
       updates.proposer = args.proposer || undefined;
