@@ -90,18 +90,18 @@ export const getProjectStats = query({
 
     const TASK_TYPE_LABELS: Record<string, string> = {
       feature_optimization: "功能优化",
-      bug_handling: "Bug处置",
-      incident_handling: "故障处理",
-      server_config: "服务器配置",
-      permission_config: "权限配置",
-      security_risk: "安全风险",
-      security_config: "安全配置",
-      third_party_integration: "三方对接",
+      bug_handling: "BUG处置",
+      incident_handling: "故障处置",
+      server_config: "服务器资源配置",
+      permission_config: "权限配置管理",
+      security_risk: "安全风险处理",
+      security_config: "安全配置管理",
+      third_party_integration: "和其他平台对接",
       consultation: "咨询协助",
-      data_maintenance: "数据维护统计",
+      data_maintenance: "数据维护与统计",
       data_migration: "数据迁移",
       emergency_drill: "应急演练",
-      documentation: "文档编写",
+      documentation: "文档管理",
       other: "其他",
     };
 

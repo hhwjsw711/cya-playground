@@ -30,18 +30,18 @@ const STATUS_COLUMNS = [
 
 const TASK_TYPE_OPTIONS = [
   { value: "feature_optimization", label: "功能优化" },
-  { value: "bug_handling", label: "Bug处置" },
-  { value: "incident_handling", label: "故障处理" },
-  { value: "server_config", label: "服务器配置" },
-  { value: "permission_config", label: "权限配置" },
-  { value: "security_risk", label: "安全风险" },
-  { value: "security_config", label: "安全配置" },
-  { value: "third_party_integration", label: "三方对接" },
+  { value: "bug_handling", label: "BUG处置" },
+  { value: "incident_handling", label: "故障处置" },
+  { value: "server_config", label: "服务器资源配置" },
+  { value: "permission_config", label: "权限配置管理" },
+  { value: "security_risk", label: "安全风险处理" },
+  { value: "security_config", label: "安全配置管理" },
+  { value: "third_party_integration", label: "和其他平台对接" },
   { value: "consultation", label: "咨询协助" },
-  { value: "data_maintenance", label: "数据维护统计" },
+  { value: "data_maintenance", label: "数据维护与统计" },
   { value: "data_migration", label: "数据迁移" },
   { value: "emergency_drill", label: "应急演练" },
-  { value: "documentation", label: "文档编写" },
+  { value: "documentation", label: "文档管理" },
   { value: "other", label: "其他" },
 ] as const;
 
