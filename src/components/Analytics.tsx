@@ -12,11 +12,26 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useState } from "react";
 
 const STATUS_COLORS = ["#94a3b8", "#60a5fa", "#f59e0b", "#34d399"];
 
+function toDateValue(dateStr: string): number | undefined {
+  if (!dateStr) return undefined;
+  return new Date(dateStr).getTime();
+}
+
 export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
-  const stats = useQuery(api.analytics.getProjectStats, { projectId });
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [appliedStart, setAppliedStart] = useState("");
+  const [appliedEnd, setAppliedEnd] = useState("");
+
+  const stats = useQuery(api.analytics.getProjectStats, {
+    projectId,
+    startDate: appliedStart ? toDateValue(appliedStart) : undefined,
+    endDate: appliedEnd ? toDateValue(appliedEnd) : undefined,
+  });
 
   if (stats === undefined) {
     return <div className="text-slate-500 py-12 text-center">加载中...</div>;
@@ -28,6 +43,55 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
 
   return (
     <div>
+      <div className="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-slate-600 dark:text-slate-400">
+            开始日期
+          </label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="text-sm border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-slate-600 dark:text-slate-400">
+            结束日期
+          </label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="text-sm border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"
+          />
+        </div>
+        {(startDate || endDate) && (
+          <button
+            onClick={() => {
+              setAppliedStart(startDate);
+              setAppliedEnd(endDate);
+            }}
+            className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!(startDate && endDate)}
+          >
+            应用筛选
+          </button>
+        )}
+        {(appliedStart || appliedEnd) && (
+          <button
+            onClick={() => {
+              setStartDate("");
+              setEndDate("");
+              setAppliedStart("");
+              setAppliedEnd("");
+            }}
+            className="text-sm text-red-600 dark:text-red-400 hover:underline"
+          >
+            清除筛选
+          </button>
+        )}
+      </div>
       {stats.truncated && (
         <p className="mb-4 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-md">
           任务数超过 500，统计数据可能不完整。

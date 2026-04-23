@@ -3,7 +3,11 @@ import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const getProjectStats = query({
-  args: { projectId: v.id("projects") },
+  args: {
+    projectId: v.id("projects"),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+  },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return null;
@@ -22,14 +26,31 @@ export const getProjectStats = query({
       .take(501);
 
     const truncated = tasks.length > 500;
-    const visibleTasks = truncated ? tasks.slice(0, 500) : tasks;
+    const rawTasks = truncated ? tasks.slice(0, 500) : tasks;
 
     const now = Date.now();
+
+    const pendingTasks = rawTasks.filter(
+      (t) =>
+        t.status === "backlog" ||
+        t.status === "todo" ||
+        t.status === "in_progress",
+    );
+
+    const doneInRange = rawTasks.filter((t) => {
+      if (t.status !== "done") return false;
+      const inRange = (ts: number) =>
+        (!args.startDate || ts >= args.startDate) &&
+        (!args.endDate || ts <= args.endDate);
+      const started = t.startedAt && inRange(t.startedAt);
+      const completed = t.completedAt && inRange(t.completedAt);
+      return started || completed;
+    });
+
+    const visibleTasks = [...pendingTasks, ...doneInRange];
+
     const totalTasks = visibleTasks.length;
-    const doneTasks = visibleTasks.filter((t) => t.status === "done").length;
-    const overdueTasks = visibleTasks.filter(
-      (t) => t.dueDate && t.dueDate < now && t.status !== "done",
-    ).length;
+    const doneTasks = doneInRange.length;
 
     const tasksWithResponse = visibleTasks.filter(
       (t) => t.proposedAt && t.respondedAt && t.respondedAt >= t.proposedAt,
@@ -59,9 +80,13 @@ export const getProjectStats = query({
       },
       {
         name: "已完成",
-        value: visibleTasks.filter((t) => t.status === "done").length,
+        value: doneTasks,
       },
     ];
+
+    const overdueTasks = pendingTasks.filter(
+      (t) => t.dueDate && t.dueDate < now,
+    ).length;
 
     const TASK_TYPE_LABELS: Record<string, string> = {
       feature_optimization: "功能优化",
