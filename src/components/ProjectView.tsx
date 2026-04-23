@@ -7,6 +7,20 @@ import { ApiPanel } from "./ApiPanel";
 import { Analytics } from "./Analytics";
 import { useToast } from "./Toast";
 
+const isOverdueDate = (dueDate: number) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  return due < today;
+};
+
+const formatDateShort = (ts: number) =>
+  new Date(ts).toLocaleDateString("zh-CN", {
+    month: "short",
+    day: "numeric",
+  });
+
 const STATUS_COLUMNS = [
   { key: "backlog" as const, label: "未排期" },
   { key: "todo" as const, label: "未开始" },
@@ -174,12 +188,7 @@ export function ProjectView({
       if (!t.tags || t.tags.length === 0) return false;
     }
     if (filters.overdue) {
-      const today = new Date().toLocaleDateString("zh-CN");
-      if (
-        !t.dueDate ||
-        new Date(t.dueDate).toLocaleDateString("zh-CN") >= today ||
-        t.status === "done"
-      )
+      if (!t.dueDate || !isOverdueDate(t.dueDate) || t.status === "done")
         return false;
     }
     return true;
@@ -730,20 +739,12 @@ export function ProjectView({
                           {task.dueDate && task.status !== "done" && (
                             <span
                               className={`text-xs px-1.5 py-0.5 rounded ${
-                                new Date(task.dueDate).toLocaleDateString(
-                                  "zh-CN",
-                                ) < new Date().toLocaleDateString("zh-CN")
+                                isOverdueDate(task.dueDate)
                                   ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                                   : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                               }`}
                             >
-                              {new Date(task.dueDate).toLocaleDateString(
-                                "zh-CN",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                },
-                              )}
+                              {formatDateShort(task.dueDate)}
                             </span>
                           )}
                         </div>

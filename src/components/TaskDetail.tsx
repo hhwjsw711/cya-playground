@@ -4,6 +4,21 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useState } from "react";
 import { useToast } from "./Toast";
 
+const isOverdueDate = (dueDate: number) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  return due < today;
+};
+
+const formatDate = (ts: number) =>
+  new Date(ts).toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
 type Member = {
   _id: Id<"projectMembers">;
   userId: Id<"users">;
@@ -187,10 +202,7 @@ export function TaskDetail({
     task.district;
 
   const isOverdue =
-    task.status !== "done" &&
-    task.dueDate &&
-    new Date(task.dueDate).toLocaleDateString("zh-CN") <
-      new Date().toLocaleDateString("zh-CN");
+    task.status !== "done" && task.dueDate && isOverdueDate(task.dueDate);
 
   const startEditReq = () => {
     setReqProposer(task.proposer ?? "");
@@ -662,7 +674,7 @@ export function TaskDetail({
                 {task.dueDate && (
                   <span>
                     计划完成时间：
-                    {new Date(task.dueDate).toLocaleDateString("zh-CN")}
+                    {formatDate(task.dueDate)}
                     {isOverdue && (
                       <span className="ml-1 text-red-500 font-medium">
                         （已逾期）
@@ -683,13 +695,13 @@ export function TaskDetail({
                 {task.startedAt && (
                   <span>
                     实际开始时间：
-                    {new Date(task.startedAt).toLocaleDateString("zh-CN")}
+                    {formatDate(task.startedAt)}
                   </span>
                 )}
                 {task.completedAt && (
                   <span>
                     实际完成时间：
-                    {new Date(task.completedAt).toLocaleDateString("zh-CN")}
+                    {formatDate(task.completedAt)}
                     {task.dueDate && task.completedAt > task.dueDate && (
                       <span className="ml-1 text-red-500">
                         （逾期 {formatDuration(task.completedAt - task.dueDate)}
