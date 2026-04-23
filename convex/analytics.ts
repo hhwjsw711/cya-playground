@@ -32,7 +32,7 @@ export const getProjectStats = query({
     ).length;
 
     const tasksWithResponse = visibleTasks.filter(
-      (t) => t.proposedAt && t.respondedAt,
+      (t) => t.proposedAt && t.respondedAt && t.respondedAt >= t.proposedAt,
     );
     const avgResponseMs =
       tasksWithResponse.length > 0

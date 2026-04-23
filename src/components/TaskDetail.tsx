@@ -102,7 +102,7 @@ const DOC_TYPE_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 function formatDuration(ms: number): string {
-  if (ms < 0) return "时间错误";
+  if (ms <= 0) return "按时完成";
   const hours = ms / (1000 * 60 * 60);
   if (hours < 24) return "< 1 天";
   const days = Math.floor(hours / 24);
@@ -114,9 +114,9 @@ function formatDurationMinutes(ms: number): {
   text: string;
   isError: boolean;
 } {
-  if (ms < 0) return { text: "时间错误", isError: true };
+  if (ms < 0) return { text: "时间异常", isError: true };
   const minutes = ms / (1000 * 60);
-  if (minutes < 1) return { text: "< 1 分钟", isError: false };
+  if (minutes < 1) return { text: "耗时 < 1 分钟", isError: false };
   if (minutes < 60)
     return { text: `耗时 ${Math.floor(minutes)} 分钟`, isError: false };
   const hours = Math.floor(minutes / 60);
@@ -702,12 +702,14 @@ export function TaskDetail({
                   <span>
                     实际完成时间：
                     {formatDate(task.completedAt)}
-                    {task.dueDate && task.completedAt > task.dueDate && (
-                      <span className="ml-1 text-red-500">
-                        （逾期 {formatDuration(task.completedAt - task.dueDate)}
-                        ）
-                      </span>
-                    )}
+                    {task.dueDate &&
+                      task.completedAt &&
+                      task.completedAt > task.dueDate && (
+                        <span className="ml-2 text-red-500">
+                          （逾期{" "}
+                          {formatDuration(task.completedAt - task.dueDate)}）
+                        </span>
+                      )}
                   </span>
                 )}
               </div>

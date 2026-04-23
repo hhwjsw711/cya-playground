@@ -459,15 +459,18 @@ http.route({
     if (b.description !== undefined) updates.description = b.description;
     if (b.status !== undefined) updates.status = b.status;
     if (b.taskType !== undefined) updates.taskType = b.taskType;
-    if (b.dueDate !== undefined) updates.dueDate = b.dueDate;
+    if (b.dueDate !== undefined) updates.dueDate = b.dueDate || undefined;
     if (b.proposer !== undefined) updates.proposer = b.proposer;
-    if (b.proposedAt !== undefined) updates.proposedAt = b.proposedAt;
-    if (b.respondedAt !== undefined) updates.respondedAt = b.respondedAt;
+    if (b.proposedAt !== undefined)
+      updates.proposedAt = b.proposedAt || undefined;
+    if (b.respondedAt !== undefined)
+      updates.respondedAt = b.respondedAt || undefined;
     if (b.clientContact !== undefined) updates.clientContact = b.clientContact;
     if (b.subPlatform !== undefined) updates.subPlatform = b.subPlatform;
     if (b.district !== undefined) updates.district = b.district;
-    if (b.startedAt !== undefined) updates.startedAt = b.startedAt;
-    if (b.completedAt !== undefined) updates.completedAt = b.completedAt;
+    if (b.startedAt !== undefined) updates.startedAt = b.startedAt || undefined;
+    if (b.completedAt !== undefined)
+      updates.completedAt = b.completedAt || undefined;
     if (b.progress !== undefined) {
       if (typeof b.progress !== "number") {
         return jsonResponse({ error: "progress 必须为数字" }, 400);
