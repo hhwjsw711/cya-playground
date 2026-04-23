@@ -174,8 +174,13 @@ export function ProjectView({
       if (!t.tags || t.tags.length === 0) return false;
     }
     if (filters.overdue) {
-      const now = Date.now();
-      if (!t.dueDate || t.dueDate >= now || t.status === "done") return false;
+      const today = new Date().toLocaleDateString("zh-CN");
+      if (
+        !t.dueDate ||
+        new Date(t.dueDate).toLocaleDateString("zh-CN") >= today ||
+        t.status === "done"
+      )
+        return false;
     }
     return true;
   });
@@ -724,7 +729,13 @@ export function ProjectView({
                             )}
                           {task.dueDate && task.status !== "done" && (
                             <span
-                              className={`text-xs px-1.5 py-0.5 rounded ${task.dueDate < Date.now() ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"}`}
+                              className={`text-xs px-1.5 py-0.5 rounded ${
+                                new Date(task.dueDate).toLocaleDateString(
+                                  "zh-CN",
+                                ) < new Date().toLocaleDateString("zh-CN")
+                                  ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                                  : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                              }`}
                             >
                               {new Date(task.dueDate).toLocaleDateString(
                                 "zh-CN",

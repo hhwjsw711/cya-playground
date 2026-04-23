@@ -87,26 +87,35 @@ const DOC_TYPE_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 function formatDuration(ms: number): string {
-  const hours = Math.floor(ms / (1000 * 60 * 60));
+  if (ms < 0) return "时间错误";
+  const hours = ms / (1000 * 60 * 60);
   if (hours < 24) return "< 1 天";
   const days = Math.floor(hours / 24);
-  const remainHours = hours % 24;
+  const remainHours = Math.floor(hours % 24);
   return remainHours > 0 ? `${days} 天 ${remainHours} 小时` : `${days} 天`;
 }
 
-function formatDurationMinutes(ms: number): string {
-  const minutes = Math.floor(ms / (1000 * 60));
-  if (minutes < 60) return `${minutes} 分钟`;
+function formatDurationMinutes(ms: number): {
+  text: string;
+  isError: boolean;
+} {
+  if (ms < 0) return { text: "时间错误", isError: true };
+  const minutes = ms / (1000 * 60);
+  if (minutes < 1) return { text: "< 1 分钟", isError: false };
+  if (minutes < 60)
+    return { text: `耗时 ${Math.floor(minutes)} 分钟`, isError: false };
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
     const remainMinutes = minutes % 60;
     return remainMinutes > 0
-      ? `${hours} 小时 ${remainMinutes} 分钟`
-      : `${hours} 小时`;
+      ? { text: `耗时 ${hours} 小时 ${remainMinutes} 分钟`, isError: false }
+      : { text: `耗时 ${hours} 小时`, isError: false };
   }
   const days = Math.floor(hours / 24);
   const remainHours = hours % 24;
-  return remainHours > 0 ? `${days} 天 ${remainHours} 小时` : `${days} 天`;
+  return remainHours > 0
+    ? { text: `${days} 天 ${remainHours} 小时`, isError: false }
+    : { text: `${days} 天`, isError: false };
 }
 
 function formatDateMinute(ts: number): string {
@@ -165,7 +174,6 @@ export function TaskDetail({
   const [noteInput, setNoteInput] = useState("");
 
   const canEdit = userRole === "admin" || userRole === "editor";
-  const [mountedAt] = useState(() => Date.now());
 
   if (!task) {
     return null;
@@ -179,7 +187,10 @@ export function TaskDetail({
     task.district;
 
   const isOverdue =
-    task.status !== "done" && task.dueDate && task.dueDate < mountedAt;
+    task.status !== "done" &&
+    task.dueDate &&
+    new Date(task.dueDate).toLocaleDateString("zh-CN") <
+      new Date().toLocaleDateString("zh-CN");
 
   const startEditReq = () => {
     setReqProposer(task.proposer ?? "");
@@ -410,9 +421,7 @@ export function TaskDetail({
                   const val = e.target.value;
                   updateTask({
                     taskId,
-                    dueDate: val
-                      ? new Date(val + "T00:00:00Z").getTime()
-                      : undefined,
+                    dueDate: val ? new Date(val + "T00:00:00Z").getTime() : 0,
                   }).catch((err: Error) => addToast(err.message));
                 }}
                 className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -431,9 +440,7 @@ export function TaskDetail({
                   const val = e.target.value;
                   updateTask({
                     taskId,
-                    startedAt: val
-                      ? new Date(val + "T00:00:00Z").getTime()
-                      : undefined,
+                    startedAt: val ? new Date(val + "T00:00:00Z").getTime() : 0,
                   }).catch((err: Error) => addToast(err.message));
                 }}
                 className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -454,7 +461,7 @@ export function TaskDetail({
                     taskId,
                     completedAt: val
                       ? new Date(val + "T00:00:00Z").getTime()
-                      : undefined,
+                      : 0,
                   }).catch((err: Error) => addToast(err.message));
                 }}
                 className="w-full px-2 py-1.5 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -623,15 +630,23 @@ export function TaskDetail({
                     <span>
                       响应时间 {formatDateMinute(task.respondedAt)}
                       {task.proposedAt &&
-                        task.respondedAt > task.proposedAt && (
-                          <span className="text-blue-500 ml-1">
-                            （耗时{" "}
-                            {formatDurationMinutes(
-                              task.respondedAt - task.proposedAt,
-                            )}
-                            ）
-                          </span>
-                        )}
+                        task.respondedAt &&
+                        (() => {
+                          const result = formatDurationMinutes(
+                            task.respondedAt - task.proposedAt,
+                          );
+                          return (
+                            <span
+                              className={`ml-1 ${
+                                result.isError
+                                  ? "text-red-500"
+                                  : "text-blue-500"
+                              }`}
+                            >
+                              （{result.text}）
+                            </span>
+                          );
+                        })()}
                     </span>
                   )}
                 </div>

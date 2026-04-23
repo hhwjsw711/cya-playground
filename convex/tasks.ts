@@ -240,7 +240,7 @@ export const update = mutation({
     if (args.status !== undefined) updates.status = args.status;
     if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.assigneeIds !== undefined) updates.assigneeIds = args.assigneeIds;
-    if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
+    if (args.dueDate !== undefined) updates.dueDate = args.dueDate || undefined;
     if (args.proposer !== undefined)
       updates.proposer = args.proposer || undefined;
     if (args.proposedAt !== undefined)
@@ -461,7 +461,7 @@ export const updateViaApi = internalMutation({
     if (args.taskType !== undefined) updates.taskType = args.taskType;
     if (args.assigneeIds !== undefined) updates.assigneeIds = args.assigneeIds;
     if (args.assigneeId !== undefined) updates.assigneeId = args.assigneeId;
-    if (args.dueDate !== undefined) updates.dueDate = args.dueDate;
+    if (args.dueDate !== undefined) updates.dueDate = args.dueDate || undefined;
     if (args.proposer !== undefined)
       updates.proposer = args.proposer || undefined;
     if (args.proposedAt !== undefined)
