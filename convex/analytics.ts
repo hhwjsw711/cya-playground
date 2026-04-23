@@ -74,7 +74,10 @@ export const getProjectStats = query({
       third_party_integration: "三方对接",
       consultation: "咨询协助",
       data_maintenance: "数据维护统计",
+      data_migration: "数据迁移",
+      emergency_drill: "应急演练",
       documentation: "文档编写",
+      other: "其他",
     };
 
     const taskTypeDistribution = Object.entries(

@@ -158,7 +158,10 @@ http.route({
       "third_party_integration",
       "consultation",
       "data_maintenance",
+      "data_migration",
+      "emergency_drill",
       "documentation",
+      "other",
     ];
     const validSubPlatforms = [
       "platform_wide",
@@ -373,7 +376,10 @@ http.route({
       "third_party_integration",
       "consultation",
       "data_maintenance",
+      "data_migration",
+      "emergency_drill",
       "documentation",
+      "other",
     ];
     const validSubPlatforms = [
       "platform_wide",

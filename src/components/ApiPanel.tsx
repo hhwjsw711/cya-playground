@@ -37,7 +37,7 @@ Content-Type: application/json
 - documentLinks（array，可选）：关联文档数组，[{ "docType": "需求单", "docNumber": "HXYW-REQ-20260205-001" }]
 - docType（string）：文档类型：demand_form(需求单) / update_form(更新单) / bug_report(Bug分析报告) / incident_report(故障分析报告) / security_confirm(安全风险处置确认单) / permission_form(权限申请表) / cloud_resource_form(云资源申请表)
 - docNumber（string）：文档编号，如 HXYW-REQ-20260205-001
-- taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug处置) / incident_handling(故障处理) / server_config(服务器配置) / permission_config(权限配置) / security_risk(安全风险) / security_config(安全配置) / third_party_integration(三方对接) / consultation(咨询协助) / data_maintenance(数据维护统计) / documentation(文档编写)
+- taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug处置) / incident_handling(故障处理) / server_config(服务器配置) / permission_config(权限配置) / security_risk(安全风险) / security_config(安全配置) / third_party_integration(三方对接) / consultation(咨询协助) / data_maintenance(数据维护统计) / data_migration(数据迁移) / emergency_drill(应急演练) / documentation(文档编写) / other(其他)
 - status（string，状态）：backlog(未排期) / todo(未开始) / in_progress(进行中) / done(已完成)
 - description（string，可选）：任务描述
 - dueDate（number，可选）：计划完成时间，Unix 时间戳（毫秒）
@@ -306,7 +306,8 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                         feature_optimization / bug_handling / incident_handling
                         / server_config / permission_config / security_risk /
                         security_config / third_party_integration / consultation
-                        / data_maintenance / documentation
+                        / data_maintenance / data_migration / emergency_drill /
+                        documentation / other
                       </td>
                     </tr>
                     <tr>

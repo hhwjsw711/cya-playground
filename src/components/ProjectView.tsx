@@ -25,7 +25,10 @@ const TASK_TYPE_OPTIONS = [
   { value: "third_party_integration", label: "三方对接" },
   { value: "consultation", label: "咨询协助" },
   { value: "data_maintenance", label: "数据维护统计" },
+  { value: "data_migration", label: "数据迁移" },
+  { value: "emergency_drill", label: "应急演练" },
   { value: "documentation", label: "文档编写" },
+  { value: "other", label: "其他" },
 ] as const;
 
 const TASK_TYPE_LABELS: Record<string, string> = Object.fromEntries(
