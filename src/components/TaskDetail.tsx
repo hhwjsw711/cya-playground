@@ -67,6 +67,7 @@ const SUB_PLATFORM_OPTIONS = [
   { value: "town_warehouse", label: "镇街数仓" },
   { value: "topic_db", label: "专题库" },
   { value: "resource_view", label: "资源视窗" },
+  { value: "authorized_operation", label: "授权运营" },
 ];
 
 const DISTRICT_OPTIONS = [

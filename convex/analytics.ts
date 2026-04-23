@@ -109,6 +109,7 @@ export const getProjectStats = query({
       town_warehouse: "镇街数仓",
       topic_db: "专题库",
       resource_view: "资源视窗",
+      authorized_operation: "授权运营",
     };
 
     const subPlatformDistribution = Object.entries(

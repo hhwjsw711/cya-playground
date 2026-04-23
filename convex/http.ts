@@ -182,6 +182,7 @@ http.route({
       "town_warehouse",
       "topic_db",
       "resource_view",
+      "authorized_operation",
     ];
     const validDistricts = [
       "city_level",
@@ -400,6 +401,7 @@ http.route({
       "town_warehouse",
       "topic_db",
       "resource_view",
+      "authorized_operation",
     ];
     const validDistricts = [
       "city_level",

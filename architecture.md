@@ -178,7 +178,7 @@ tasks                comments              activityLog
 - **编辑态**：2×3 grid 表单 + 保存/取消按钮，空字符串/空时间 → 清除对应字段
 - **新建任务**：仅填写标题、状态、类型、提出人，其余需求信息由项目经理后续补充
 - **乙方责任人**：即原 assigneeId，任务指派的乙方内部负责人
-- **所属子平台**：标准选项（公共数据平台 / AI数据服务 / DataV / 工作门户 / 核心业务平台 / 企业标签 / 前置库 / 数据共享平台 / 数据归档平台 / 数据回流 / 数据交换平台 / 数据开放平台 / 数据目录平台 / 数据上报平台 / 数据治理平台 / 镇街数仓 / 专题库 / 资源视窗），单值可选，用于标记任务归属范围
+- **所属子平台**：标准选项（公共数据平台 / AI数据服务 / DataV / 工作门户 / 核心业务平台 / 企业标签 / 前置库 / 数据共享平台 / 数据归档平台 / 数据回流 / 数据交换平台 / 数据开放平台 / 数据目录平台 / 数据上报平台 / 数据治理平台 / 镇街数仓 / 专题库 / 资源视窗 / 授权运营），单值可选，用于标记任务归属范围
 - **所属区县**：市本级（默认） / 开发区 / 莲都区 / 青田县 / 缙云县 / 遂昌县 / 松阳县 / 云和县 / 庆元县 / 景宁县 / 龙泉市，单值可选，用于标记任务所属区县
 
 ## 数据洞察
@@ -299,4 +299,41 @@ feature_optimization /
 - `src/components/TaskDetail.tsx` - TASK_TYPE_OPTIONS
 - `src/components/ProjectView.tsx` - TASK_TYPE_OPTIONS
 - `src/components/ApiPanel.tsx` - AI 提示词 + 接口文档表格（两处）
+- `README.md` - API 接口文档表格
+
+### 子平台扩展
+
+所属子平台 `subPlatform` 为 string 枚举，新增子平台时需同步修改所有文件：
+
+```typescript
+// 子平台列表
+platform_wide /
+  ai_data_service /
+  datav /
+  work_portal /
+  core_business_platform /
+  enterprise_tags /
+  staging_db /
+  data_sharing_platform /
+  data_archive_platform /
+  data_feedback /
+  data_exchange_platform /
+  data_open_platform /
+  data_catalog_platform /
+  data_report_platform /
+  data_governance_platform /
+  town_warehouse /
+  topic_db /
+  resource_view /
+  authorized_operation;
+```
+
+修改文件（每次新增子平台必须全部更新）：
+
+- `src/components/TaskDetail.tsx` - SUB_PLATFORM_OPTIONS
+- `src/components/ProjectView.tsx` - SUB_PLATFORM_OPTIONS
+- `convex/analytics.ts` - SUB_PLATFORM_LABELS
+- `convex/http.ts` - validSubPlatforms 数组（POST + PATCH 两处，使用 `replaceAll` 批量替换）
+- `src/components/ApiPanel.tsx` - AI 提示词 + 接口文档表格（两处）
+- `architecture.md` - 本文档
 - `README.md` - API 接口文档表格
