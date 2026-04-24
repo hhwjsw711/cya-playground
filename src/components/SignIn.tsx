@@ -11,10 +11,10 @@ export function SignIn() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
       <div className="w-full max-w-sm">
         <h1 className="text-3xl font-bold text-center mb-2 text-slate-900 dark:text-slate-100">
-          任务流
+          项目管理
         </h1>
         <p className="text-center text-slate-500 dark:text-slate-400 mb-8">
-          团队任务管理
+          用 ❤️ 为吴津津打造
         </p>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">

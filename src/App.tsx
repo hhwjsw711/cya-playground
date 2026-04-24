@@ -43,7 +43,7 @@ function AuthenticatedApp({ userName }: { userName: string }) {
             onClick={() => setRoute({ page: "dashboard" })}
             className="text-lg font-bold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            任务流
+            项目管理
           </button>
           {route.page === "project" && (
             <span className="text-slate-400 dark:text-slate-500">/ 项目</span>
