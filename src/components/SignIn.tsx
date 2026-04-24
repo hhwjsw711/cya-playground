@@ -14,7 +14,7 @@ export function SignIn() {
           项目管理
         </h1>
         <p className="text-center text-slate-500 dark:text-slate-400 mb-8">
-          用 ❤️ 为吴津津打造
+          她告诉你不用担心项目管理
         </p>
 
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
