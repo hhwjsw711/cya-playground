@@ -290,6 +290,9 @@ feature_optimization /
   documentation /
   data_security /
   password_service_guarantee /
+  security_compliance /
+  consultation_assist /
+  routine_inspection /
   other;
 ```
 

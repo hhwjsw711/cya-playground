@@ -37,7 +37,7 @@ Content-Type: application/json
 - documentLinks（array，可选）：关联文档数组，[{ "docType": "需求单", "docNumber": "HXYW-REQ-20260205-001" }]
 - docType（string）：文档类型：demand_form(需求单) / update_form(更新单) / bug_report(Bug分析报告) / incident_report(故障分析报告) / security_confirm(安全风险处置确认单) / permission_form(权限申请表) / cloud_resource_form(云资源申请表)
 - docNumber（string）：文档编号，如 HXYW-REQ-20260205-001
-- taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(BUG处置) / incident_handling(故障处置) / server_config(服务器资源配置) / permission_config(权限配置管理) / security_risk(安全风险处理) / security_config(安全配置管理) / third_party_integration(和其他平台对接) / consultation(咨询协助) / data_maintenance(数据维护与统计) / data_migration(数据迁移) / emergency_drill(应急演练) / documentation(文档管理) / data_security(数据安全) / password_service_guarantee(密码服务接口保障) / other(其他)
+- taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug修复) / incident_handling(故障处置) / server_config(服务器资源配置) / permission_config(配置管理) / security_risk(安全风险处理) / security_config(安全配置管理) / third_party_integration(与其他平台对接) / consultation(技术咨询) / data_maintenance(数据维护与统计) / data_migration(数据迁移) / emergency_drill(应急演练) / documentation(文档管理) / data_security(数据安全) / password_service_guarantee(密码服务接口保障) / security_compliance(安全合规性保障) / consultation_assist(咨询协助) / routine_inspection(例行巡检) / other(其他)
 - status（string，状态）：backlog(未排期) / todo(未开始) / in_progress(进行中) / done(已完成)
 - description（string，可选）：任务描述
 - dueDate（number，可选）：计划完成时间，Unix 时间戳（毫秒）
@@ -308,7 +308,8 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                         security_config / third_party_integration / consultation
                         / data_maintenance / data_migration / emergency_drill /
                         documentation / data_security /
-                        password_service_guarantee / other
+                        password_service_guarantee / security_compliance /
+                        consultation_assist / routine_inspection / other
                       </td>
                     </tr>
                     <tr>

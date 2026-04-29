@@ -30,20 +30,23 @@ const STATUS_COLUMNS = [
 
 const TASK_TYPE_OPTIONS = [
   { value: "feature_optimization", label: "功能优化" },
-  { value: "bug_handling", label: "BUG处置" },
+  { value: "bug_handling", label: "Bug修复" },
   { value: "incident_handling", label: "故障处置" },
   { value: "server_config", label: "服务器资源配置" },
-  { value: "permission_config", label: "权限配置管理" },
+  { value: "permission_config", label: "配置管理" },
   { value: "security_risk", label: "安全风险处理" },
   { value: "security_config", label: "安全配置管理" },
-  { value: "third_party_integration", label: "和其他平台对接" },
-  { value: "consultation", label: "咨询协助" },
+  { value: "third_party_integration", label: "与其他平台对接" },
+  { value: "consultation", label: "技术咨询" },
   { value: "data_maintenance", label: "数据维护与统计" },
   { value: "data_migration", label: "数据迁移" },
   { value: "emergency_drill", label: "应急演练" },
   { value: "documentation", label: "文档管理" },
   { value: "data_security", label: "数据安全" },
   { value: "password_service_guarantee", label: "密码服务接口保障" },
+  { value: "security_compliance", label: "安全合规性保障" },
+  { value: "consultation_assist", label: "咨询协助" },
+  { value: "routine_inspection", label: "例行巡检" },
   { value: "other", label: "其他" },
 ] as const;
 
