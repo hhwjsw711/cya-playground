@@ -39,7 +39,7 @@ Content-Type: application/json
 - docNumber（string）：文档编号，如 HXYW-REQ-20260205-001
 - taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug修复) / incident_handling(故障处置) / server_config(服务器资源配置) / permission_config(配置管理) / security_risk(安全风险处理) / security_config(安全配置管理) / third_party_integration(与其他平台对接) / consultation(技术咨询) / data_maintenance(数据维护与统计) / data_migration(数据迁移) / emergency_drill(应急演练) / documentation(文档管理) / data_security(数据安全) / password_service_guarantee(密码服务接口保障) / security_compliance(安全合规性保障) / consultation_assist(咨询协助) / routine_inspection(例行巡检) / other(其他)
 - status（string，状态）：backlog(未排期) / todo(未开始) / in_progress(进行中) / done(已完成)
-- assigneeIds（array，可选）：乙方责任人 ID 数组，如 ["userId1", "userId2"]
+- assigneeIds（array，可选）：乙方责任人 ID 数组，用于创建/更新任务，如 ["userId1", "userId2"]。GET 返回的 tasks 中包含 assignees 字段（用户名称数组），无需再查用户表
 - description（string，可选）：任务描述
 - dueDate（number，可选）：计划完成时间，Unix 时间戳（毫秒）
 - proposer（string，可选）：提出人姓名

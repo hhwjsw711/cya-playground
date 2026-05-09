@@ -262,7 +262,7 @@ API 面板内置 AI 助手入口，用户可一键复制包含完整 API 文档�
 - **schema**: 同时保留 `assigneeId` 和 `assigneeIds` 两个字段
 - **读取逻辑**: `assigneeIds?.length > 0 ? assigneeIds : assigneeId ? [assigneeId] : []`
 - **索引**: `by_assigneeId`, `by_assigneeIds`, `by_projectId_and_assigneeId`, `by_projectId_and_assigneeIds`
-- **REST API**: POST/PATCH 支持 `assigneeIds`（数组），GET 返回自然包含该字段
+- **REST API**: POST/PATCH 支持 `assigneeIds`（ID 数组），GET 返回 `assignees`（用户名称数组）
 
 修改文件：
 

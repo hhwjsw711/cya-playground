@@ -333,29 +333,47 @@ export const listByProjectViaApi = internalQuery({
       .withIndex("by_projectId", (q) => q.eq("projectId", args.projectId))
       .take(200);
 
-    return tasks.map((t) => ({
-      id: t._id,
-      title: t.title,
-      description: t.description,
-      status: t.status,
-      taskType: t.taskType,
-      assigneeIds: t.assigneeIds,
-      assigneeId: t.assigneeId,
-      dueDate: t.dueDate,
-      startedAt: t.startedAt,
-      completedAt: t.completedAt,
-      proposer: t.proposer,
-      proposedAt: t.proposedAt,
-      respondedAt: t.respondedAt,
-      clientContact: t.clientContact,
-      subPlatform: t.subPlatform,
-      district: t.district,
-      progress: t.progress,
-      documentLinks: t.documentLinks,
-      tags: t.tags,
-      notes: t.notes,
-      createdAt: t._creationTime,
-    }));
+    const result = [];
+    for (const t of tasks) {
+      const assigneeIds = t.assigneeIds?.length
+        ? t.assigneeIds
+        : t.assigneeId
+          ? [t.assigneeId]
+          : undefined;
+      const assignees = assigneeIds
+        ? await Promise.all(
+            assigneeIds.map(async (id) => {
+              const user = await ctx.db.get("users", id);
+              return user?.name ?? "未知";
+            }),
+          )
+        : undefined;
+
+      result.push({
+        id: t._id,
+        title: t.title,
+        description: t.description,
+        status: t.status,
+        taskType: t.taskType,
+        assignees,
+        dueDate: t.dueDate,
+        startedAt: t.startedAt,
+        completedAt: t.completedAt,
+        proposer: t.proposer,
+        proposedAt: t.proposedAt,
+        respondedAt: t.respondedAt,
+        clientContact: t.clientContact,
+        subPlatform: t.subPlatform,
+        district: t.district,
+        progress: t.progress,
+        documentLinks: t.documentLinks,
+        tags: t.tags,
+        notes: t.notes,
+        createdAt: t._creationTime,
+      });
+    }
+
+    return result;
   },
 });
 
