@@ -82,6 +82,7 @@ Authorization: Bearer <api_key>
   "description": "任务描述",
   "status": "todo",
   "taskType": "feature_optimization",
+  "assigneeIds": ["userId1", "userId2"],
   "proposer": "提出人",
   "proposedAt": 1705276800000,
   "respondedAt": 1705284000000,
@@ -114,6 +115,7 @@ Authorization: Bearer <api_key>
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
 | status        | backlog / todo / in_progress / done                                                                                                                                                                                                                                                                                                                                      |                         |
 | taskType      | feature_optimization / bug_handling / incident_handling / server_config / permission_config / security_risk / security_config / third_party_integration / consultation / data_maintenance / data_migration / emergency_drill / documentation / data_security / password_service_guarantee / security_compliance / consultation_assist / routine_inspection / other       |                         |
+| assigneeIds   | array                                                                                                                                                                                                                                                                                                                                                                    | 乙方责任人 ID 数组      |
 | proposer      | string                                                                                                                                                                                                                                                                                                                                                                   | 提出人（自由文本）      |
 | proposedAt    | number                                                                                                                                                                                                                                                                                                                                                                   | 提出时间（Unix 时间戳） |
 | respondedAt   | number                                                                                                                                                                                                                                                                                                                                                                   | 响应时间（Unix 时间戳） |

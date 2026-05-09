@@ -135,6 +135,7 @@ tasks                comments              activityLog
 - 级联删除同步清理 File Storage（`ctx.storage.delete`），防止存储泄漏
 - 附件上传采用两步流程：先获取 upload URL，上传文件后创建附件记录
 - 需求信息字段（proposer / proposedAt / respondedAt / clientContact / subPlatform / district）支持清空：前端传空字符串或 0，后端 handler 统一 `|| undefined` 转换后 `db.patch` 删除字段
+- 多乙方责任人（assigneeIds）：数组类型，REST API POST/PATCH 均支持，旧数据 `assigneeId` 通过后端回退逻辑兼容（优先取 `assigneeIds`，为空时回退 `assigneeId`）
 - 任务进度（progress）：0-100 可选整数，前端通过滑块（步进 5）实时调节；REST API 自动 clamp 到 0-100；进度与状态不自动联动
 - 关联文档（documentLinks）：任务关联的文档编号列表，用于周报生成；文档类型 demand_form(需求单) / update_form(更新单) / bug_report(Bug分析报告) / incident_report(故障分析报告) / security_confirm(安全风险处置确认单) / permission_form(权限申请表) / cloud_resource_form(云资源申请表)
 
@@ -261,13 +262,17 @@ API 面板内置 AI 助手入口，用户可一键复制包含完整 API 文档�
 - **schema**: 同时保留 `assigneeId` 和 `assigneeIds` 两个字段
 - **读取逻辑**: `assigneeIds?.length > 0 ? assigneeIds : assigneeId ? [assigneeId] : []`
 - **索引**: `by_assigneeId`, `by_assigneeIds`, `by_projectId_and_assigneeId`, `by_projectId_and_assigneeIds`
+- **REST API**: POST/PATCH 支持 `assigneeIds`（数组），GET 返回自然包含该字段
 
 修改文件：
 
 - `convex/schema.ts` - 添加字段 + 索引
 - `convex/tasks.ts` - 读取回退兼容
+- `convex/http.ts` - 添加 POST/PATCH 支持
 - `src/components/TaskDetail.tsx` - 多选复选框
 - `src/components/ProjectView.tsx` - 多选筛选 + 展示
+- `src/components/ApiPanel.tsx` - AI 提示词 + 接口文档表格
+- `README.md` - API 接口文档表格
 
 ### 任务类型扩展
 

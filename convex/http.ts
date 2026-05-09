@@ -299,12 +299,18 @@ http.route({
         ? b.notes.filter((t): t is string => typeof t === "string")
         : undefined;
 
+    const assigneeIds =
+      b.assigneeIds !== undefined && Array.isArray(b.assigneeIds)
+        ? b.assigneeIds.filter((id): id is string => typeof id === "string")
+        : undefined;
+
     const taskId = await ctx.runMutation(internal.tasks.createViaApi, {
       title: b.title.trim(),
       description: typeof b.description === "string" ? b.description : "",
       status: status as "backlog" | "todo" | "in_progress" | "done",
       taskType: taskType as any,
       projectId,
+      assigneeIds: assigneeIds as any,
       dueDate,
       proposer,
       proposedAt,
@@ -501,6 +507,14 @@ http.route({
       }
       updates.notes = b.notes.filter((t): t is string => typeof t === "string");
     }
+    if (b.assigneeIds !== undefined) {
+      if (!Array.isArray(b.assigneeIds)) {
+        return jsonResponse({ error: "assigneeIds 必须为数组" }, 400);
+      }
+      updates.assigneeIds = b.assigneeIds.filter(
+        (id): id is string => typeof id === "string",
+      );
+    }
 
     if (Object.keys(updates).length === 0) {
       return jsonResponse({ error: "至少需要提供一个更新字段" }, 400);
@@ -529,6 +543,7 @@ http.route({
       progress: updates.progress as number | undefined,
       tags: updates.tags as string[] | undefined,
       notes: updates.notes as string[] | undefined,
+      assigneeIds: updates.assigneeIds as any,
     });
 
     return jsonResponse({ id: taskId, ...updates });

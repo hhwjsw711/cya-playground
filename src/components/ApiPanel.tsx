@@ -39,6 +39,7 @@ Content-Type: application/json
 - docNumber（string）：文档编号，如 HXYW-REQ-20260205-001
 - taskType（string，任务类型）：feature_optimization(功能优化) / bug_handling(Bug修复) / incident_handling(故障处置) / server_config(服务器资源配置) / permission_config(配置管理) / security_risk(安全风险处理) / security_config(安全配置管理) / third_party_integration(与其他平台对接) / consultation(技术咨询) / data_maintenance(数据维护与统计) / data_migration(数据迁移) / emergency_drill(应急演练) / documentation(文档管理) / data_security(数据安全) / password_service_guarantee(密码服务接口保障) / security_compliance(安全合规性保障) / consultation_assist(咨询协助) / routine_inspection(例行巡检) / other(其他)
 - status（string，状态）：backlog(未排期) / todo(未开始) / in_progress(进行中) / done(已完成)
+- assigneeIds（array，可选）：乙方责任人 ID 数组，如 ["userId1", "userId2"]
 - description（string，可选）：任务描述
 - dueDate（number，可选）：计划完成时间，Unix 时间戳（毫秒）
 - proposer（string，可选）：提出人姓名
@@ -54,7 +55,7 @@ Content-Type: application/json
 PATCH ${baseUrl}/:taskId
 Content-Type: application/json
 请求体：至少提供一个字段，如 { "status": "done" }
-可更新字段：title / description / status / taskType / dueDate / proposer / proposedAt / respondedAt / clientContact / subPlatform / district / progress / tags / notes / documentLinks / startedAt / completedAt
+可更新字段：title / description / status / taskType / dueDate / assigneeIds / proposer / proposedAt / respondedAt / clientContact / subPlatform / district / progress / tags / notes / documentLinks / startedAt / completedAt
 
 ### 删除任务
 DELETE ${baseUrl}/:taskId
@@ -319,6 +320,12 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
                       <td className="py-0.5">计划完成时间（Unix 时间戳）</td>
                     </tr>
                     <tr>
+                      <td className="pr-4 py-0.5 font-mono">assigneeIds</td>
+                      <td className="pr-4 py-0.5">array</td>
+                      <td className="pr-4 py-0.5">否</td>
+                      <td className="py-0.5">乙方责任人 ID 数组</td>
+                    </tr>
+                    <tr>
                       <td className="pr-4 py-0.5 font-mono">proposer</td>
                       <td className="pr-4 py-0.5">string</td>
                       <td className="pr-4 py-0.5">否</td>
@@ -434,9 +441,9 @@ export function ApiPanel({ projectId }: { projectId: Id<"projects"> }) {
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 可更新字段：title / description / status / taskType / dueDate /
-                proposer / proposedAt / respondedAt / clientContact /
-                subPlatform / district / startedAt / completedAt /
-                progress，至少提供一个
+                assigneeIds / proposer / proposedAt / respondedAt /
+                clientContact / subPlatform / district / startedAt / completedAt
+                / progress / tags / notes / documentLinks，至少提供一个
               </p>
             </div>
             <div>
