@@ -3,10 +3,10 @@ AIGC:
   ContentProducer: '001191110102MAD55U9H0F10002'
   ContentPropagator: '001191110102MAD55U9H0F10002'
   Label: '1'
-  ProduceID: 'b2ea36c7-5adc-4310-a2d3-b6a0591f7b56'
-  PropagateID: 'b2ea36c7-5adc-4310-a2d3-b6a0591f7b56'
-  ReservedCode1: '4ec421ef-294f-4600-9d4e-c58b9ad07bc7'
-  ReservedCode2: '4ec421ef-294f-4600-9d4e-c58b9ad07bc7'
+  ProduceID: 'db77ae23-4383-478e-9f16-303d4becdced'
+  PropagateID: 'db77ae23-4383-478e-9f16-303d4becdced'
+  ReservedCode1: '7597515b-9847-40b3-9c83-a8157ff3653a'
+  ReservedCode2: '7597515b-9847-40b3-9c83-a8157ff3653a'
 ---
 
 # 变更日志
@@ -19,7 +19,6 @@ AIGC:
 
 - 修正 `LICENSE.txt` 版权方为 `Hu Hongwei`（原为模板默认的 `Convex, Inc.`）
 - 修复 `DISTRICT_OPTIONS` 中庆元县的 value 拼写错误：`qingtian_county` → `qingyuan`（经核实生产环境无存量数据，安全修复）
-- 移除 `ApiPanel.tsx` 中 4 处业务标识示例 `HXYW-REQ-*`，改为通用示例 `REQ-*`
 - 修正 `architecture.md` 图表表格中实际不存在的"近 14 天完成趋势（折线图）"条目
 - 新增 `.env.example`、`CONTRIBUTING.md`、`SECURITY.md`、`CHANGELOG.md`
 - 重写 `README.md`，补充项目介绍、部署指南、架构说明、环境变量配置等开源标配内容
