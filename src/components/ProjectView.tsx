@@ -85,7 +85,7 @@ const DISTRICT_OPTIONS = [
   { value: "suichang", label: "遂昌县" },
   { value: "songyang", label: "松阳县" },
   { value: "yunhe", label: "云和县" },
-  { value: "qingtian_county", label: "庆元县" },
+  { value: "qingyuan", label: "庆元县" },
   { value: "jingning", label: "景宁县" },
   { value: "longquan", label: "龙泉市" },
 ] as const;

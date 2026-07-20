@@ -161,7 +161,7 @@ export const getProjectStats = query({
       suichang: "遂昌县",
       songyang: "松阳县",
       yunhe: "云和县",
-      qingtian_county: "庆元县",
+      qingyuan: "庆元县",
       jingning: "景宁县",
       longquan: "龙泉市",
     };

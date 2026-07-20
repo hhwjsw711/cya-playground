@@ -1,3 +1,14 @@
+---
+AIGC:
+  ContentProducer: '001191110102MAD55U9H0F10002'
+  ContentPropagator: '001191110102MAD55U9H0F10002'
+  Label: '1'
+  ProduceID: '00993a3d-5e6e-4fce-8dec-2f9f62d8ca0c'
+  PropagateID: '00993a3d-5e6e-4fce-8dec-2f9f62d8ca0c'
+  ReservedCode1: 'd1c51ff9-a52f-43f6-af99-383ed083f7dd'
+  ReservedCode2: 'd1c51ff9-a52f-43f6-af99-383ed083f7dd'
+---
+
 # 项目管理 — 项目架构文档
 
 ## 项目概述
@@ -201,7 +212,6 @@ tasks                comments              activityLog
 | 图表             | 类型            | 数据来源                   |
 | ---------------- | --------------- | -------------------------- |
 | 任务状态分布     | 环形图（Donut） | tasks.status 分组          |
-| 近 14 天完成趋势 | 折线图          | tasks.completedAt 按日分桶 |
 | 任务类型分布     | 横向条形图      | tasks.taskType 分组        |
 | 子平台分布       | 横向条形图      | tasks.subPlatform 分组     |
 | 区县分布         | 横向条形图      | tasks.district 分组        |
@@ -347,3 +357,5 @@ platform_wide /
 - `src/components/ApiPanel.tsx` - AI 提示词 + 接口文档表格（两处）
 - `architecture.md` - 本文档
 - `README.md` - API 接口文档表格
+
+> AI生成
