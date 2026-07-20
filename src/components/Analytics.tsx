@@ -173,7 +173,7 @@ export function Analytics({ projectId }: { projectId: Id<"projects"> }) {
               暂无类型数据
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={500}>
               <BarChart
                 data={stats.taskTypeDistribution}
                 layout="vertical"
