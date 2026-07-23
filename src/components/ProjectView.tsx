@@ -305,6 +305,14 @@ export function ProjectView({
               >
                 周报生成
               </a>
+              {project.role === "admin" && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="ml-auto px-3 py-1.5 rounded-md border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-medium transition-colors"
+                >
+                  删除项目
+                </button>
+              )}
             </>
           )}
         </div>
@@ -769,71 +777,6 @@ export function ProjectView({
               );
             })}
           </div>
-
-          {/* Danger Zone - 独立区域，项目页面底部 */}
-          {project.role === "admin" && (
-            <div className="mt-8 p-4 bg-white dark:bg-slate-800 rounded-lg border border-red-200 dark:border-red-900/50">
-              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">
-                危险操作
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                删除项目将清除所有任务、评论、附件和成员数据，此操作不可恢复。
-              </p>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors"
-              >
-                删除项目
-              </button>
-
-              {showDeleteConfirm && (
-                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                  <p className="text-xs text-slate-700 dark:text-slate-300 mb-2">
-                    请输入项目名称{" "}
-                    <span className="font-bold">
-                      {project.name}
-                    </span>{" "}
-                    以确认删除：
-                  </p>
-                  <input
-                    value={deleteConfirmText}
-                    onChange={(e) => setDeleteConfirmText(e.target.value)}
-                    placeholder="输入项目名称"
-                    className="w-full px-3 py-1.5 rounded-md border border-red-300 dark:border-red-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-3"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        if (deleteConfirmText !== project.name) {
-                          addToast("项目名称不匹配");
-                          return;
-                        }
-                        removeProject({ projectId })
-                          .then(() => {
-                            addToast("项目已删除");
-                            onBack();
-                          })
-                          .catch((err: Error) => addToast(err.message));
-                      }}
-                      disabled={deleteConfirmText !== project.name}
-                      className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
-                    >
-                      确认删除
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowDeleteConfirm(false);
-                        setDeleteConfirmText("");
-                      }}
-                      className="px-3 py-1.5 rounded-md bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
-                    >
-                      取消
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
 
@@ -849,6 +792,72 @@ export function ProjectView({
           }}
           userRole={project?.role}
         />
+      )}
+
+      {/* 删除项目确认模态框 */}
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => {
+            setShowDeleteConfirm(false);
+            setDeleteConfirmText("");
+          }}
+        >
+          <div
+            className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2">
+              删除项目
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              此操作将清除所有任务、评论、附件和成员数据，且不可恢复。
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
+              请输入项目名称{" "}
+              <span className="font-bold text-slate-900 dark:text-slate-100">
+                {project.name}
+              </span>{" "}
+              以确认删除：
+            </p>
+            <input
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="输入项目名称"
+              className="w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-4"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteConfirmText("");
+                }}
+                className="px-4 py-2 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteConfirmText !== project.name) {
+                    addToast("项目名称不匹配");
+                    return;
+                  }
+                  removeProject({ projectId })
+                    .then(() => {
+                      addToast("项目已删除");
+                      onBack();
+                    })
+                    .catch((err: Error) => addToast(err.message));
+                }}
+                disabled={deleteConfirmText !== project.name}
+                className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
