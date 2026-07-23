@@ -3,17 +3,17 @@ AIGC:
   ContentProducer: '001191110102MAD55U9H0F10002'
   ContentPropagator: '001191110102MAD55U9H0F10002'
   Label: '1'
-  ProduceID: '68fab284-a44e-4175-9984-64d85294e32f'
-  PropagateID: '68fab284-a44e-4175-9984-64d85294e32f'
-  ReservedCode1: '23102df8-b329-4b4b-ac37-e3ed01d615af'
-  ReservedCode2: '23102df8-b329-4b4b-ac37-e3ed01d615af'
+  ProduceID: 'ee8036cc-2828-449f-850b-268a16681f12'
+  PropagateID: 'ee8036cc-2828-449f-850b-268a16681f12'
+  ReservedCode1: '0fd485b4-2088-4234-831b-437dd227399e'
+  ReservedCode2: '0fd485b4-2088-4234-831b-437dd227399e'
 ---
 
 # 项目管理
 
 > 她告诉你不用担心项目管理
 
-基于 Convex + React + Vite + Tailwind CSS 的团队任务管理应用，看板风格。面向政务云集约运维场景，内置需求信息追踪、SLA 响应耗时统计、政务文档关联、数据洞察与 AI 助手集成。
+基于 Convex + React + Vite + Tailwind CSS 的团队任务管理应用，看板风格。面向政务云集约运维场景，内置需求信息追踪、SLA 响应耗时统计、政务文档关联与数据洞察。
 
 ## 功能亮点
 
@@ -32,7 +32,6 @@ AIGC:
 - **REST API 接口**（通过 API 密钥查询、创建、更新、删除任务）
 - **任务附件上传**（通过 Convex File Storage 存储，最大 20MB）
 - **项目数据洞察面板**（指标卡片、状态分布、类型分布、子平台分布、区县分布）
-- **AI 助手集成**（一键复制提示词，跳转 DeepSeek / 豆包通过对话管理任务）
 - **级联清理**：项目和任务删除时后台分批级联清理，同步删除 File Storage 防止存储泄漏
 - **聚合计数**：通过 `@convex-dev/aggregate` 实现任务计数，避免全表扫描
 
@@ -154,7 +153,7 @@ cya-playground/
 │       ├── Dashboard.tsx      #   项目列表 + 创建项目
 │       ├── ProjectView.tsx    #   看板视图 + 洞察面板 + 成员管理面板
 │       ├── TaskDetail.tsx     #   任务详情模态框
-│       ├── ApiPanel.tsx       #   API 密钥管理 + 接口文档 + AI 助手入口
+│       ├── ApiPanel.tsx       #   API 密钥管理 + 接口文档
 │       ├── Analytics.tsx      #   项目数据洞察面板（Recharts 图表）
 │       ├── SignIn.tsx         #   登录 / 注册
 │       └── Toast.tsx          #   全局通知
@@ -168,7 +167,7 @@ cya-playground/
 系统同时服务两类调用方：
 
 - **Web 端**：用户通过浏览器登录后，使用 Convex 实时订阅（WebSocket）操作数据，所有写操作自动记录活动日志
-- **API 端**：外部系统通过 REST API + Bearer Token 鉴权操作任务，适合自动化集成与 AI 助手调用
+- **API 端**：外部系统通过 REST API + Bearer Token 鉴权操作任务，适合自动化集成
 
 两通道共用同一份数据模型，通过 `internalQuery` / `internalMutation` 在 HTTP action 中复用后端逻辑。
 
@@ -308,15 +307,6 @@ Authorization: Bearer <api_key>
 - **区县分布**（横向条形图）
 
 统计数据上限 500 个任务，超出时显示警告。
-
-## AI 助手
-
-项目 API 面板内置 AI 助手入口，流程：
-
-1. 生成 API 密钥
-2. 点击「复制提示词」— 自动将包含 API 文档和密钥的结构化提示词复制到剪贴板
-3. 点击「打开 DeepSeek」或「打开豆包」— 跳转至 AI 平台
-4. 粘贴提示词，通过自然语言对话管理任务
 
 ## 项目管理相关
 
