@@ -19,6 +19,7 @@ export default defineSchema({
     description: v.string(),
     ownerId: v.id("users"),
     apiKey: v.optional(v.string()),
+    deletedAt: v.optional(v.number()),
   })
     .index("by_ownerId", ["ownerId"])
     .index("by_apiKey", ["apiKey"]),

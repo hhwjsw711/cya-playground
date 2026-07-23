@@ -7,6 +7,7 @@ import {
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
+import { taskCounts } from "./taskCounts";
 
 function generateApiKey(): string {
   const bytes = new Uint8Array(32);
@@ -28,7 +29,7 @@ export const list = query({
     const projects = [];
     for (const membership of memberships) {
       const project = await ctx.db.get("projects", membership.projectId);
-      if (!project) continue;
+      if (!project || project.deletedAt) continue;
 
       projects.push({
         name: project.name,
@@ -51,7 +52,7 @@ export const get = query({
     if (!userId) return null;
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) return null;
+    if (!project || project.deletedAt) return null;
 
     const membership = await ctx.db
       .query("projectMembers")
@@ -137,12 +138,35 @@ export const remove = mutation({
 
     const project = await ctx.db.get("projects", args.projectId);
     if (!project) throw new Error("项目不存在");
-    if (project.ownerId !== userId) {
-      throw new Error("仅项目所有者可删除项目");
+    if (project.deletedAt) throw new Error("项目已在删除中");
+
+    const membership = await ctx.db
+      .query("projectMembers")
+      .withIndex("by_projectId_and_userId", (q) =>
+        q.eq("projectId", args.projectId).eq("userId", userId),
+      )
+      .unique();
+
+    if (!membership || membership.role !== "admin") {
+      throw new Error("仅项目管理员可删除项目");
     }
 
-    await ctx.db.delete("projects", args.projectId);
+    // 审计日志：在项目记录还存在时记录删除操作
+    await ctx.runMutation(internal.activity.log, {
+      action: "deleted_project",
+      userId,
+      projectId: args.projectId,
+      entityType: "project",
+      entityId: args.projectId,
+      metadata: project.name,
+    });
 
+    // 软删除：标记 deletedAt，前端立即不可见
+    await ctx.db.patch("projects", args.projectId, {
+      deletedAt: Date.now(),
+    });
+
+    // 异步级联清理子数据，全部清完后硬删项目记录
     await ctx.scheduler.runAfter(0, internal.projects.cleanupProjectChildren, {
       projectId: args.projectId,
     });
@@ -154,6 +178,10 @@ export const remove = mutation({
 export const cleanupProjectChildren = internalMutation({
   args: { projectId: v.id("projects") },
   handler: async (ctx, args) => {
+    // 安全检查：如果项目已被恢复（deletedAt 被清除），中止清理
+    const project = await ctx.db.get("projects", args.projectId);
+    if (!project || !project.deletedAt) return null;
+
     const BATCH_SIZE = 50;
     let hasMore = false;
 
@@ -164,41 +192,51 @@ export const cleanupProjectChildren = internalMutation({
       .take(BATCH_SIZE);
 
     for (const task of tasks) {
-      let taskChildrenRemaining = false;
-
-      const comments = await ctx.db
-        .query("comments")
-        .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
-        .take(BATCH_SIZE);
-      for (const comment of comments) {
-        await ctx.db.delete("comments", comment._id);
+      // 循环清理该任务的评论，直到本批全清完
+      while (true) {
+        const comments = await ctx.db
+          .query("comments")
+          .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
+          .take(BATCH_SIZE);
+        for (const comment of comments) {
+          await ctx.db.delete("comments", comment._id);
+        }
+        if (comments.length === BATCH_SIZE) {
+          continue; // 继续清同一任务的评论
+        }
+        break;
       }
-      if (comments.length === BATCH_SIZE) taskChildrenRemaining = true;
 
-      const taskLabels = await ctx.db
-        .query("taskLabels")
-        .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
-        .take(BATCH_SIZE);
-      for (const tl of taskLabels) {
-        await ctx.db.delete("taskLabels", tl._id);
+      // 循环清理该任务的标签关联
+      while (true) {
+        const taskLabels = await ctx.db
+          .query("taskLabels")
+          .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
+          .take(BATCH_SIZE);
+        for (const tl of taskLabels) {
+          await ctx.db.delete("taskLabels", tl._id);
+        }
+        if (taskLabels.length === BATCH_SIZE) continue;
+        break;
       }
-      if (taskLabels.length === BATCH_SIZE) taskChildrenRemaining = true;
 
-      const attachments = await ctx.db
-        .query("taskAttachments")
-        .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
-        .take(BATCH_SIZE);
-      for (const att of attachments) {
-        await ctx.storage.delete(att.storageId);
-        await ctx.db.delete("taskAttachments", att._id);
+      // 循环清理该任务的附件（含 File Storage）
+      while (true) {
+        const attachments = await ctx.db
+          .query("taskAttachments")
+          .withIndex("by_taskId", (q) => q.eq("taskId", task._id))
+          .take(BATCH_SIZE);
+        for (const att of attachments) {
+          await ctx.storage.delete(att.storageId);
+          await ctx.db.delete("taskAttachments", att._id);
+        }
+        if (attachments.length === BATCH_SIZE) continue;
+        break;
       }
-      if (attachments.length === BATCH_SIZE) taskChildrenRemaining = true;
 
-      if (taskChildrenRemaining) {
-        hasMore = true;
-      } else {
-        await ctx.db.delete("tasks", task._id);
-      }
+      // 子数据已全清完，安全删除任务本体并清理 aggregate
+      await taskCounts.delete(ctx, task);
+      await ctx.db.delete("tasks", task._id);
     }
     if (tasks.length === BATCH_SIZE) hasMore = true;
 
@@ -238,6 +276,9 @@ export const cleanupProjectChildren = internalMutation({
         internal.projects.cleanupProjectChildren,
         { projectId: args.projectId },
       );
+    } else {
+      // 所有子数据已清理完毕，硬删项目记录
+      await ctx.db.delete("projects", args.projectId);
     }
 
     return null;
@@ -275,7 +316,7 @@ export const getByApiKey = internalQuery({
       .query("projects")
       .withIndex("by_apiKey", (q) => q.eq("apiKey", args.apiKey))
       .unique();
-    if (!project) return null;
+    if (!project || project.deletedAt) return null;
     return project._id;
   },
 });
