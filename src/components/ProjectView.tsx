@@ -456,71 +456,6 @@ export function ProjectView({
                   </p>
                 )}
               </div>
-
-              {/* Danger Zone - 删除项目 */}
-              {project.role === "admin" && (
-                <div className="mt-6 pt-4 border-t border-red-200 dark:border-red-900/50">
-                  <h4 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">
-                    危险操作
-                  </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                    删除项目将清除所有任务、评论、附件和成员数据，此操作不可恢复。
-                  </p>
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors"
-                  >
-                    删除项目
-                  </button>
-
-                  {showDeleteConfirm && (
-                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                      <p className="text-xs text-slate-700 dark:text-slate-300 mb-2">
-                        请输入项目名称{" "}
-                        <span className="font-bold">
-                          {project.name}
-                        </span>{" "}
-                        以确认删除：
-                      </p>
-                      <input
-                        value={deleteConfirmText}
-                        onChange={(e) => setDeleteConfirmText(e.target.value)}
-                        placeholder="输入项目名称"
-                        className="w-full px-3 py-1.5 rounded-md border border-red-300 dark:border-red-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-3"
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            if (deleteConfirmText !== project.name) {
-                              addToast("项目名称不匹配");
-                              return;
-                            }
-                            removeProject({ projectId })
-                              .then(() => {
-                                addToast("项目已删除");
-                                onBack();
-                              })
-                              .catch((err: Error) => addToast(err.message));
-                          }}
-                          disabled={deleteConfirmText !== project.name}
-                          className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
-                        >
-                          确认删除
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowDeleteConfirm(false);
-                            setDeleteConfirmText("");
-                          }}
-                          className="px-3 py-1.5 rounded-md bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
-                        >
-                          取消
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           )}
 
@@ -834,6 +769,71 @@ export function ProjectView({
               );
             })}
           </div>
+
+          {/* Danger Zone - 独立区域，项目页面底部 */}
+          {project.role === "admin" && (
+            <div className="mt-8 p-4 bg-white dark:bg-slate-800 rounded-lg border border-red-200 dark:border-red-900/50">
+              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">
+                危险操作
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                删除项目将清除所有任务、评论、附件和成员数据，此操作不可恢复。
+              </p>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors"
+              >
+                删除项目
+              </button>
+
+              {showDeleteConfirm && (
+                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                  <p className="text-xs text-slate-700 dark:text-slate-300 mb-2">
+                    请输入项目名称{" "}
+                    <span className="font-bold">
+                      {project.name}
+                    </span>{" "}
+                    以确认删除：
+                  </p>
+                  <input
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder="输入项目名称"
+                    className="w-full px-3 py-1.5 rounded-md border border-red-300 dark:border-red-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-3"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (deleteConfirmText !== project.name) {
+                          addToast("项目名称不匹配");
+                          return;
+                        }
+                        removeProject({ projectId })
+                          .then(() => {
+                            addToast("项目已删除");
+                            onBack();
+                          })
+                          .catch((err: Error) => addToast(err.message));
+                      }}
+                      disabled={deleteConfirmText !== project.name}
+                      className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
+                    >
+                      确认删除
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDeleteConfirm(false);
+                        setDeleteConfirmText("");
+                      }}
+                      className="px-3 py-1.5 rounded-md bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
+                    >
+                      取消
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
 
