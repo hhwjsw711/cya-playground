@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: '68fab284-a44e-4175-9984-64d85294e32f'
-  PropagateID: '68fab284-a44e-4175-9984-64d85294e32f'
-  ReservedCode1: '23102df8-b329-4b4b-ac37-e3ed01d615af'
-  ReservedCode2: '23102df8-b329-4b4b-ac37-e3ed01d615af'
----
-
 # 项目管理
 
 > 她告诉你不用担心项目管理
@@ -330,4 +319,3 @@ Authorization: Bearer <api_key>
 
 本项目基于 [Apache License 2.0](./LICENSE.txt) 开源。
 
-> AI生成
